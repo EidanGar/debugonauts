@@ -9,10 +9,10 @@ import { ThemeToggle } from "@/components/theme-toggle"
 
 export function SiteHeader() {
   return (
-    <header className="bg-background sticky top-0 z-40 w-full border-b">
-      <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
+    <header className="sticky top-0 z-40 hidden border-b-[1px] bg-background sm:block">
+      <div className="container flex items-center h-16 space-x-4 sm:justify-between sm:space-x-0">
         <MainNav items={siteConfig.mainNav} />
-        <div className="flex flex-1 items-center justify-end space-x-4">
+        <div className="flex items-center justify-end flex-1 space-x-4">
           <nav className="flex items-center space-x-2">
             <Link
               href={siteConfig.links.github}
@@ -25,7 +25,7 @@ export function SiteHeader() {
                   variant: "ghost",
                 })}
               >
-                <Icons.gitHub className="h-5 w-5" />
+                <Icons.gitHub className="w-5 h-5" />
                 <span className="sr-only">GitHub</span>
               </div>
             </Link>
@@ -44,7 +44,7 @@ export function SiteHeader() {
               Log in
             </Link>
             <Link
-              href="/register"
+              href="/signup"
               className={cn(
                 buttonVariants({
                   size: "sm",

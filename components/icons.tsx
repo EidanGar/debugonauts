@@ -2,6 +2,7 @@ import {
   Eye,
   EyeOff,
   LucideProps,
+  Menu,
   Moon,
   SunMedium,
   Twitter,
@@ -16,6 +17,7 @@ export const Icons = {
   eyeOff: EyeOff,
   moon: Moon,
   twitter: Twitter,
+  menu: Menu,
   logo: (props: LucideProps) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"

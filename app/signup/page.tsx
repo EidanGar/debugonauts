@@ -13,7 +13,7 @@ import SignUpForm from "@/components/forms/signup-form"
 import { OAuthSignUp } from "@/components/oauth-signup"
 
 export const metadata: Metadata = {
-  //   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL!),
+  metadataBase: new URL(process?.env?.NEXT_PUBLIC_SITE_URL ?? "localhost:3000"),
   title: "Sign Up",
   description: "Create your account",
 }
