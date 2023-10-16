@@ -1,22 +1,65 @@
-# next-template
+# Debugonauts: Your Project Management Companion
 
-A Next.js 13 template for building apps with Radix UI and Tailwind CSS.
+## Description
 
-## Usage
+Debugonauts is a full-stack application built to mimic the functionalities of Jira, an issue-tracking and project-management software. It provides an organized interface for project management, task tracking, and team collaboration.
 
-```bash
-npx create-next-app -e https://github.com/shadcn/next-template
-```
+With Debugonauts, you can manage multiple projects, create and assign tasks, and track the progress of your projects all from one place. It's perfect for teams wanting to stay organized and smoothen their workflow.
 
 ## Features
 
-- Next.js 13 App Directory
-- Radix UI Primitives
-- Tailwind CSS
-- Icons from [Lucide](https://lucide.dev)
-- Dark mode with `next-themes`
-- Tailwind CSS class sorting, merging and linting.
+- User registration and authentication
+- Creation and management of projects
+- Issue and task tracking within projects
+- User roles and permissions
+- Notifications
+- Reporting and analytics
+
+## Tech Stack
+
+- Next.js and TypeScript: Main framework for building the application.
+- Prisma and MongoDB: Database management.
+- TailwindCSS: For styling the frontend.
+- NextAuth: For user authentication.
+- Zod: For input validation.
+
+## Database
+
+![Agile-Track-DB.png](https://i.postimg.cc/Wb26jKPj/Agile-Track-DB.png)
+
+## Installation
+
+1. Clone this repository
+
+   ```
+   git clone https://github.com/EidanGar/debugonauts.git
+   ```
+
+2. Install dependencies
+
+   ```
+   cd agile-track
+   npm install
+   ```
+
+3. Set up your .env file as per the [.env.example](.env.example) file included in the repository.
+
+4. Run the development server
+
+   ```
+   npm run dev
+   ```
+
+5. Navigate to http://localhost:3000 to view the application in your browser.
+
+## Contribution
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change. Please make sure to update tests as appropriate.
 
 ## License
 
-Licensed under the [MIT license](https://github.com/shadcn/ui/blob/main/LICENSE.md).
+GNU General Public License. See the [LICENSE](LICENSE) file for more details.
+
+## Contact
+
+If you want to contact me, you can reach me at eidangarcia787i@gmail.com.
