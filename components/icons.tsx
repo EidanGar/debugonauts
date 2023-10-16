@@ -4,20 +4,26 @@ import {
   LucideProps,
   Menu,
   Moon,
+  Plus,
+  Search,
   SunMedium,
   Twitter,
+  Users,
   type Icon as LucideIcon,
 } from "lucide-react"
 
 export type Icon = LucideIcon
 
-export const Icons = {
+export const Icons: Record<string, LucideIcon | ((arg: LucideProps) => any)> = {
   sun: SunMedium,
   eye: Eye,
   eyeOff: EyeOff,
   moon: Moon,
   twitter: Twitter,
   menu: Menu,
+  plus: Plus,
+  users: Users,
+  search: Search,
   logo: (props: LucideProps) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
