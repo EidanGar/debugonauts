@@ -37,7 +37,7 @@ const SignUpForm = () => {
         onSubmit={(...args) =>
           void form.handleSubmit(handleUserRegistration)(...args)
         }
-        className="flex flex-col gap-4 w-full"
+        className="flex flex-col w-full gap-4"
       >
         <FormField
           name="username"

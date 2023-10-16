@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   description: "Log into your account",
 }
 
-const LoginPage = () => {
+export default function LoginPage() {
   return (
     <Card className="mx-auto" style={{ width: "min(460px, 90vw)" }}>
       <CardHeader className="space-y-1">
@@ -64,5 +64,3 @@ const LoginPage = () => {
     </Card>
   )
 }
-
-export default LoginPage

@@ -33,7 +33,7 @@ const LoginForm = () => {
   return (
     <Form {...form}>
       <form
-        className="flex flex-col gap-4 w-full"
+        className="flex flex-col w-full gap-4"
         onSubmit={(...args) => void form.handleSubmit(handleUserLogin)(...args)}
       >
         <FormField
