@@ -8,6 +8,7 @@ import {
   ResetPasswordData,
   resetPasswordSchema,
 } from "@/lib/validations/reset-password"
+import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
@@ -16,9 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-
-import { Button } from "../ui/button"
-import { Input } from "../ui/input"
+import { Input } from "@/components/ui/input"
 
 const ResetPasswordForm = () => {
   const form = useForm<ResetPasswordData>({

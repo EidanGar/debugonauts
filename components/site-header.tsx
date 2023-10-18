@@ -1,7 +1,6 @@
 import { siteConfig } from "@/config/site"
 import { MainNav } from "@/components/main-nav"
-
-import NavAuth from "./nav-auth"
+import NavAuth from "@/components/nav-auth"
 
 export function SiteHeader() {
   return (

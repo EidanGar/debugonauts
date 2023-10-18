@@ -1,4 +1,5 @@
 import {
+  CalendarDays,
   Cloud,
   CreditCard,
   Eye,
@@ -10,11 +11,13 @@ import {
   Menu,
   MessageSquare,
   Moon,
+  Newspaper,
   Plus,
   PlusCircle,
   Search,
   Settings,
   SunMedium,
+  Trash2,
   Twitter,
   User,
   UserPlus,
@@ -22,6 +25,7 @@ import {
   type Icon as LucideIcon,
 } from "lucide-react"
 import { BsGithub } from "react-icons/bs"
+import { LuMoreHorizontal } from "react-icons/lu"
 
 export type Icon = LucideIcon
 
@@ -29,9 +33,12 @@ export const Icons: Record<string, LucideIcon | ((arg: LucideProps) => any)> = {
   sun: SunMedium,
   cloud: Cloud,
   creditCard: CreditCard,
+  trash: Trash2,
   logOut: LogOut,
   lifeBuoy: LifeBuoy,
   mail: Mail,
+  calendar: CalendarDays,
+  details: Newspaper,
   messageSquare: MessageSquare,
   settings: Settings,
   user: User,
@@ -44,6 +51,7 @@ export const Icons: Record<string, LucideIcon | ((arg: LucideProps) => any)> = {
   menu: Menu,
   plus: Plus,
   users: Users,
+  moreHorizontal: LuMoreHorizontal,
   search: Search,
   logo: (props: LucideProps) => (
     <svg

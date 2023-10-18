@@ -2,12 +2,13 @@ import Link from "next/link"
 
 import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
+import UserAvatar from "@/components/ui/avatar"
 import { buttonVariants } from "@/components/ui/button"
 import { Icons } from "@/components/icons"
 import MobileSidebar from "@/components/mobile-sidebar"
 import { ThemeToggle } from "@/components/theme-toggle"
 
-const MobileHeader = () => {
+const MobileHeader = ({ isLoggedIn = true }: { isLoggedIn: boolean }) => {
   return (
     <section className="px-[calc(10vw/2)] bg-background border-b-[1px] sticky top-0 z-40 flex items-center justify-between h-16 py-2 min-[800px]:hidden">
       <MobileSidebar />
@@ -24,18 +25,22 @@ const MobileHeader = () => {
           </div>
         </Link>
         <ThemeToggle />
-        <Link
-          href="/login"
-          className={cn(
-            buttonVariants({
-              variant: "outline",
-              size: "sm",
-              className: "no-underline",
-            })
-          )}
-        >
-          Log in
-        </Link>
+        {isLoggedIn ? (
+          <UserAvatar name="bob" email="bobby@email.com" />
+        ) : (
+          <Link
+            href="/login"
+            className={cn(
+              buttonVariants({
+                variant: "outline",
+                size: "sm",
+                className: "no-underline",
+              })
+            )}
+          >
+            Log in
+          </Link>
+        )}
       </div>
     </section>
   )

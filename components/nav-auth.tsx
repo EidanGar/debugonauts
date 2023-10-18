@@ -2,11 +2,10 @@ import Link from "next/link"
 
 import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
-
-import { Icons } from "./icons"
-import { ThemeToggle } from "./theme-toggle"
-import UserAvatar from "./ui/avatar"
-import { buttonVariants } from "./ui/button"
+import UserAvatar from "@/components/ui/avatar"
+import { buttonVariants } from "@/components/ui/button"
+import { Icons } from "@/components/icons"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 interface NavAuthProps {
   isLoggedIn?: boolean

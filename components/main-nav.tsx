@@ -5,6 +5,7 @@ import Link from "next/link"
 
 import { NavItem as NavItemType } from "@/types/nav"
 import Logo from "@/components/ui/logo"
+import NavItem from "@/components/ui/nav-item"
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -14,15 +15,12 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
-import { Icons } from "@/components/icons"
-
-import NavItem from "./ui/nav-item"
 
 interface MainNavProps {
   items?: NavItemType[]
 }
 
-export function MainNavigationMenu() {
+export function MainNavigationMenu({ username }: { username?: string }) {
   return (
     <NavigationMenu>
       <NavigationMenuList>
@@ -30,13 +28,17 @@ export function MainNavigationMenu() {
           <NavigationMenuTrigger>Projects</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="flex w-[300px] flex-col gap-3 p-4">
-              <NavItem id="search" title="View projects" href="/pojects">
+              <NavItem
+                id="search"
+                title="View projects"
+                href={`/${username ?? "eidan"}/projects`}
+              >
                 See how far you&apos;ve come and what&apos;s up next.
               </NavItem>
               <NavItem
                 title="Create new project"
                 id="plus"
-                href="/projects/new"
+                href={`/${username ?? "eidan"}/projects/new`}
               >
                 Create a new a experience for your users and start another
                 chapter.
