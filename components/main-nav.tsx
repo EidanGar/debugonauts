@@ -3,7 +3,6 @@
 import * as React from "react"
 import Link from "next/link"
 
-import { NavItem as NavItemType } from "@/types/nav"
 import Logo from "@/components/ui/logo"
 import NavItem from "@/components/ui/nav-item"
 import {
@@ -16,11 +15,7 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
 
-interface MainNavProps {
-  items?: NavItemType[]
-}
-
-export function MainNavigationMenu({ username }: { username?: string }) {
+export function MainNavigationMenu() {
   return (
     <NavigationMenu>
       <NavigationMenuList>
@@ -28,17 +23,13 @@ export function MainNavigationMenu({ username }: { username?: string }) {
           <NavigationMenuTrigger>Projects</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="flex w-[300px] flex-col gap-3 p-4">
-              <NavItem
-                id="search"
-                title="View projects"
-                href={`/${username ?? "eidan"}/projects`}
-              >
+              <NavItem id="search" title="View projects" href="/projects">
                 See how far you&apos;ve come and what&apos;s up next.
               </NavItem>
               <NavItem
                 title="Create new project"
                 id="plus"
-                href={`/${username ?? "eidan"}/projects/new`}
+                href="/projects/new"
               >
                 Create a new a experience for your users and start another
                 chapter.
@@ -76,7 +67,7 @@ export function MainNavigationMenu({ username }: { username?: string }) {
   )
 }
 
-export function MainNav({ items }: MainNavProps) {
+export function MainNav() {
   return (
     <div className="flex gap-6 md:gap-10">
       <Logo />

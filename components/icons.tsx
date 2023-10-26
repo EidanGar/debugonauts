@@ -5,6 +5,7 @@ import {
   Eye,
   EyeOff,
   LifeBuoy,
+  Loader2,
   LogOut,
   LucideProps,
   Mail,
@@ -29,7 +30,10 @@ import { LuMoreHorizontal } from "react-icons/lu"
 
 export type Icon = LucideIcon
 
-export const Icons: Record<string, LucideIcon | ((arg: LucideProps) => any)> = {
+export const Icons: Record<
+  string,
+  LucideIcon | ((arg: LucideProps) => JSX.Element)
+> = {
   sun: SunMedium,
   cloud: Cloud,
   creditCard: CreditCard,
@@ -41,6 +45,7 @@ export const Icons: Record<string, LucideIcon | ((arg: LucideProps) => any)> = {
   details: Newspaper,
   messageSquare: MessageSquare,
   settings: Settings,
+  loader: Loader2,
   user: User,
   userPlus: UserPlus,
   plusCircle: PlusCircle,
@@ -51,6 +56,7 @@ export const Icons: Record<string, LucideIcon | ((arg: LucideProps) => any)> = {
   menu: Menu,
   plus: Plus,
   users: Users,
+
   moreHorizontal: LuMoreHorizontal,
   search: Search,
   logo: (props: LucideProps) => (

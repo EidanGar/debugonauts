@@ -9,24 +9,24 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import LoginForm from "@/components/forms/login-form"
-import { OAuthSignUp } from "@/components/oauth-signup"
+import SignInForm from "@/components/forms/signin-form"
+import OAuthSignIn from "@/components/oauth-signin"
 
 export const metadata: Metadata = {
   metadataBase: new URL(process?.env?.NEXT_PUBLIC_SITE_URL ?? "localhost:3000"),
-  title: "Login",
-  description: "Log into your account",
+  title: "Sign in",
+  description: "Sign into your account",
 }
 
-export default function LoginPage() {
+export default function SignInPage() {
   return (
     <Card className="mx-auto" style={{ width: "min(460px, 90vw)" }}>
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl">Login</CardTitle>
-        <CardDescription>Choose your preferred login method</CardDescription>
+        <CardTitle className="text-2xl">Sign in</CardTitle>
+        <CardDescription>Choose your preferred sign in method</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
-        <OAuthSignUp />
+        <OAuthSignIn />
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t" />
@@ -37,7 +37,7 @@ export default function LoginPage() {
             </span>
           </div>
         </div>
-        <LoginForm />
+        <SignInForm />
       </CardContent>
       <CardFooter className="flex flex-wrap items-center justify-between gap-2">
         <div className="text-sm text-muted-foreground">
@@ -55,7 +55,7 @@ export default function LoginPage() {
 
         <Link
           aria-label="Reset password"
-          href="/login/reset-password"
+          href="/signin/reset-password"
           className="text-sm transition-colors text-primary underline-offset-4 hover:underline"
         >
           Forgot password

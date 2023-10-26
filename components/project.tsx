@@ -36,34 +36,32 @@ import { Icons } from "@/components/icons"
 interface ProjectProps {
   title: string
   description: string
-  username: string
 }
 
 interface MoreProjectOptionsProps {
   title: string
-  username: string
 }
 
-const MoreProjectOptions = ({ title, username }: MoreProjectOptionsProps) => (
+const MoreProjectOptions = ({ title }: MoreProjectOptionsProps) => (
   <AlertDialog onOpenChange={() => console.log("Changed")}>
     <DropdownMenu>
       <DropdownMenuTrigger>More</DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
         <DropdownMenuLabel>{title}</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <Link href={`/${username}/projects/${slugify(title)}/team`}>
+        <Link href={`/projects/${slugify(title)}/team`}>
           <DropdownMenuItem className="cursor-pointer">
             <Icons.users className="w-4 h-4 mr-2" />
             <span>Team</span>
           </DropdownMenuItem>
         </Link>
-        <Link href={`/${username}/projects/${slugify(title)}/details`}>
+        <Link href={`/projects/${slugify(title)}/details`}>
           <DropdownMenuItem className="cursor-pointer">
             <Icons.details className="w-4 h-4 mr-2" />
             <span>Details</span>
           </DropdownMenuItem>
         </Link>
-        <Link href={`/${username}/projects/${slugify(title)}/timeline`}>
+        <Link href={`/projects/${slugify(title)}/timeline`}>
           <DropdownMenuItem className="cursor-pointer">
             <Icons.calendar className="w-4 h-4 mr-2" />
             <span>Timeline</span>
@@ -94,7 +92,7 @@ const MoreProjectOptions = ({ title, username }: MoreProjectOptionsProps) => (
   </AlertDialog>
 )
 
-const ProjectCard = ({ description, title, username }: ProjectProps) => {
+const ProjectCard = ({ description, title }: ProjectProps) => {
   return (
     <Card>
       <CardHeader>
@@ -104,10 +102,10 @@ const ProjectCard = ({ description, title, username }: ProjectProps) => {
         <CardDescription>{truncate(description, 100)}</CardDescription>
       </CardContent>
       <CardFooter className="flex items-center justify-between">
-        <MoreProjectOptions username={username} title={title} />
+        <MoreProjectOptions title={title} />
         <Link
           className={buttonVariants({ size: "sm" })}
-          href={`/${username}/projects/${slugify(title)}`}
+          href={`/projects/${slugify(title)}`}
         >
           View
         </Link>

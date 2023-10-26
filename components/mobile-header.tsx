@@ -1,14 +1,19 @@
+"use client"
+
 import Link from "next/link"
 
 import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
 import UserAvatar from "@/components/ui/avatar"
 import { buttonVariants } from "@/components/ui/button"
+import { useAuth } from "@/components/auth-context"
 import { Icons } from "@/components/icons"
 import MobileSidebar from "@/components/mobile-sidebar"
 import { ThemeToggle } from "@/components/theme-toggle"
 
-const MobileHeader = ({ isLoggedIn = true }: { isLoggedIn: boolean }) => {
+const MobileHeader = () => {
+  const { user } = useAuth()
+
   return (
     <section className="px-[calc(10vw/2)] bg-background border-b-[1px] sticky top-0 z-40 flex items-center justify-between h-16 py-2 min-[800px]:hidden">
       <MobileSidebar />
@@ -25,11 +30,11 @@ const MobileHeader = ({ isLoggedIn = true }: { isLoggedIn: boolean }) => {
           </div>
         </Link>
         <ThemeToggle />
-        {isLoggedIn ? (
-          <UserAvatar name="bob" email="bobby@email.com" />
+        {user ? (
+          <UserAvatar {...user} />
         ) : (
           <Link
-            href="/login"
+            href="/signin"
             className={cn(
               buttonVariants({
                 variant: "outline",
@@ -38,7 +43,7 @@ const MobileHeader = ({ isLoggedIn = true }: { isLoggedIn: boolean }) => {
               })
             )}
           >
-            Log in
+            Sign in
           </Link>
         )}
       </div>

@@ -1,7 +1,10 @@
 "use client"
 
 import Image from "next/image"
+import { User } from "firebase/auth"
 
+import { userConfig } from "@/config/user"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,29 +18,28 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useAuth } from "@/components/auth-context"
 import { Icons } from "@/components/icons"
 
-interface AvatarProps {
-  email: string
-  name: string
-  src?: string
-  size?: number
-  className?: string
-  userId?: string
-}
+const UserAvatar = ({ email, displayName, photoURL }: User) => {
+  const { logOut } = useAuth()
 
-const UserAvatar = ({ src, email, name }: AvatarProps) => {
+  const handleLogOut = async () => {
+    try {
+      await logOut()
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Image
-          src={
-            src ??
-            "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=764&h=764&q=100"
-          }
+          src={photoURL ?? userConfig.defaultUserImage}
           width={36}
           height={36}
-          alt={name}
+          alt={displayName ?? "User"}
           className="object-cover duration-300 rounded-full cursor-pointer hover:ring-4 hover:ring-accent"
         />
       </DropdownMenuTrigger>
@@ -107,8 +109,13 @@ const UserAvatar = ({ src, email, name }: AvatarProps) => {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
-          <Icons.logOut className="w-4 h-4 mr-2" />
-          <span>Log out</span>
+          <button
+            className="p-0 border-none flex w-full items-center justify-start text-left"
+            onClick={handleLogOut}
+          >
+            <Icons.logOut className="w-4 h-4 mr-2" />
+            <span>Log out</span>
+          </button>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

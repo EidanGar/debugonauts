@@ -1,5 +1,6 @@
 "use client"
 
+import { redirect } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { SubmitHandler, useForm } from "react-hook-form"
 
@@ -14,8 +15,10 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { useAuth } from "@/components/auth-context"
 
 const SignUpForm = () => {
+  const { signUp } = useAuth()
   const form = useForm<UserSignUpData>({
     resolver: zodResolver(userSignUpSchema),
     defaultValues: {
@@ -28,7 +31,13 @@ const SignUpForm = () => {
   const handleUserRegistration: SubmitHandler<UserSignUpData> = async (
     data: UserSignUpData
   ) => {
-    console.log(data)
+    try {
+      await signUp(data)
+    } catch (error) {
+      console.error(error)
+    } finally {
+      redirect("/")
+    }
   }
 
   return (

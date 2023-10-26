@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import SignUpForm from "@/components/forms/signup-form"
-import { OAuthSignUp } from "@/components/oauth-signup"
+import OAuthSignIn from "@/components/oauth-signin"
 
 export const metadata: Metadata = {
   metadataBase: new URL(process?.env?.NEXT_PUBLIC_SITE_URL ?? "localhost:3000"),
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   description: "Create your account",
 }
 
-export default function SignUpPage() {
+const SignUpPage = () => {
   return (
     <Card className="mx-auto" style={{ width: "min(460px, 90vw)" }}>
       <CardHeader className="space-y-1">
@@ -26,7 +26,7 @@ export default function SignUpPage() {
         <CardDescription>Choose your preferred sign up method</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
-        <OAuthSignUp />
+        <OAuthSignIn />
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t" />
@@ -45,14 +45,16 @@ export default function SignUpPage() {
             Already have an account?
           </span>
           <Link
-            aria-label="Login"
-            href="/login"
+            aria-label="Sign in"
+            href="/signin"
             className="transition-colors text-primary underline-offset-4 hover:underline"
           >
-            Log in
+            Sgin in
           </Link>
         </div>
       </CardFooter>
     </Card>
   )
 }
+
+export default SignUpPage

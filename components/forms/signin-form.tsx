@@ -1,9 +1,10 @@
 "use client"
 
+import { redirect } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { SubmitHandler, useForm } from "react-hook-form"
 
-import { UserLoginData, userLoginSchema } from "@/lib/validations/login"
+import { UserSignInData, userSignInSchema } from "@/lib/validations/signin"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -14,20 +15,28 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { useAuth } from "@/components/auth-context"
 
-const LoginForm = () => {
-  const form = useForm<UserLoginData>({
-    resolver: zodResolver(userLoginSchema),
+const SignInForm = () => {
+  const { signIn } = useAuth()
+  const form = useForm<UserSignInData>({
+    resolver: zodResolver(userSignInSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   })
 
-  const handleUserLogin: SubmitHandler<UserLoginData> = (
-    data: UserLoginData
+  const handleUserLogin: SubmitHandler<UserSignInData> = async (
+    data: UserSignInData
   ) => {
-    console.log(data)
+    try {
+      await signIn(data)
+    } catch (error) {
+      console.error(error)
+    } finally {
+      redirect("/")
+    }
   }
 
   return (
@@ -78,4 +87,4 @@ const LoginForm = () => {
   )
 }
 
-export default LoginForm
+export default SignInForm

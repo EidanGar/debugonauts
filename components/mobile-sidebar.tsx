@@ -39,7 +39,7 @@ const NavSheet = ({ children }: { children: React.ReactNode }) => (
   </Sheet>
 )
 
-const MobileSidebarContent = ({ username }: { username?: string }) => (
+const MobileSidebarContent = () => (
   <Accordion type="multiple">
     <AccordionItem value="projects">
       <AccordionTrigger className="text-bold">Projects</AccordionTrigger>
@@ -48,7 +48,7 @@ const MobileSidebarContent = ({ username }: { username?: string }) => (
           <li>
             <Link
               className={buttonVariants({ variant: "link" })}
-              href={`/${username ?? "eidan"}/projects`}
+              href="/projects"
             >
               View projects
             </Link>
@@ -56,7 +56,7 @@ const MobileSidebarContent = ({ username }: { username?: string }) => (
           <li>
             <Link
               className={buttonVariants({ variant: "link" })}
-              href={`/${username ?? "eidan"}/projects/new`}
+              href="/projects/new"
             >
               Create new project
             </Link>
@@ -72,7 +72,7 @@ const MobileSidebarContent = ({ username }: { username?: string }) => (
           <li>
             <Link
               className={buttonVariants({ variant: "link" })}
-              href={`/${username ?? "eidan"}/teams/new`}
+              href="/teams/new"
             >
               Create a team
             </Link>

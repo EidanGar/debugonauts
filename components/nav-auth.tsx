@@ -1,17 +1,18 @@
+"use client"
+
 import Link from "next/link"
 
 import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
 import UserAvatar from "@/components/ui/avatar"
 import { buttonVariants } from "@/components/ui/button"
+import { useAuth } from "@/components/auth-context"
 import { Icons } from "@/components/icons"
 import { ThemeToggle } from "@/components/theme-toggle"
 
-interface NavAuthProps {
-  isLoggedIn?: boolean
-}
+const NavAuth = () => {
+  const { user } = useAuth()
 
-const NavAuth = ({ isLoggedIn = true }: NavAuthProps) => {
   return (
     <nav className="flex items-center space-x-2">
       <Link href={siteConfig.links.github} target="_blank" rel="noreferrer">
@@ -27,12 +28,12 @@ const NavAuth = ({ isLoggedIn = true }: NavAuthProps) => {
       </Link>
 
       <ThemeToggle />
-      {isLoggedIn ? (
-        <UserAvatar name="bob" email="bobby@email.com" />
+      {user ? (
+        <UserAvatar {...user} />
       ) : (
         <div className="flex items-center space-x-2">
           <Link
-            href="/login"
+            href="/signin"
             className={cn(
               buttonVariants({
                 variant: "outline",
@@ -41,7 +42,7 @@ const NavAuth = ({ isLoggedIn = true }: NavAuthProps) => {
               })
             )}
           >
-            Log in
+            Sign in
           </Link>
           <Link
             href="/signup"
