@@ -1,7 +1,8 @@
 export interface User {
-  username?: string
+  displayName?: string
   id: string
   uid: string
   issues: string[]
-  profileImageUrl?: string
+  photoURL?: string
+  email: string
 }

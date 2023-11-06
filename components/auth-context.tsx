@@ -4,23 +4,12 @@ import {
   ReactNode,
   createContext,
   useContext,
-  useEffect,
   useState,
 } from "react"
-import { auth } from "@/firebase/config"
-import {
-  GithubAuthProvider,
-  GoogleAuthProvider,
-  User,
-  createUserWithEmailAndPassword,
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  signOut,
-} from "firebase/auth"
 
 import { UserSignInData } from "@/lib/validations/signin"
 import { UserSignUpData } from "@/lib/validations/signup"
+import { User } from "@/types/user"
 
 export interface AuthContextProps {
   user: User | null
@@ -44,31 +33,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
 
   const signUp = ({ email, password, username }: UserSignUpData) => {
-    createUserWithEmailAndPassword(auth, email, password)
   }
 
   const googleSignIn = () => {
-    const provider = new GoogleAuthProvider()
-    signInWithPopup(auth, provider)
   }
 
   const githubSignIn = () => {
-    const provider = new GithubAuthProvider()
-    signInWithPopup(auth, provider)
   }
 
   const signIn = ({ email, password }: UserSignInData) => {
-    signInWithEmailAndPassword(auth, email, password)
   }
 
-  const logOut = async () => await signOut(auth)
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) =>
-      setUser(currentUser)
-    )
-    return () => unsubscribe()
-  }, [user])
+  const logOut = async () => {}
 
   return (
     <AuthContext.Provider

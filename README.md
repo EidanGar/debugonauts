@@ -18,7 +18,7 @@ With Debugonauts, you can manage multiple projects, create and assign tasks, and
 ## Tech Stack
 
 - Next.js and TypeScript: Main framework for building the application.
-- Prisma and MongoDB: Database management.
+- Prisma and PostgreSQL: Database management.
 - TailwindCSS: For styling the frontend.
 - NextAuth: For user authentication.
 - Zod: For input validation.

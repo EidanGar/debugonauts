@@ -1,8 +1,8 @@
 "use client"
 
 import Image from "next/image"
-import { User } from "firebase/auth"
 
+import { User } from "@/types/user"
 import { userConfig } from "@/config/user"
 import { Button } from "@/components/ui/button"
 import {
@@ -110,7 +110,7 @@ const UserAvatar = ({ email, displayName, photoURL }: User) => {
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <button
-            className="p-0 border-none flex w-full items-center justify-start text-left"
+            className="flex items-center justify-start w-full p-0 text-left border-none"
             onClick={handleLogOut}
           >
             <Icons.logOut className="w-4 h-4 mr-2" />
