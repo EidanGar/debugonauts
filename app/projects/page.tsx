@@ -53,7 +53,7 @@ const ProjectsPage = () => {
   const { user } = useAuth()
   const router = useRouter()
   if (user === null) {
-    router.push("/signin")
+    router.push("/auth/signin")
   }
 
   return (

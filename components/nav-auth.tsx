@@ -33,7 +33,7 @@ const NavAuth = () => {
       ) : (
         <div className="flex items-center space-x-2">
           <Link
-            href="/signin"
+            href="/auth/signin"
             className={cn(
               buttonVariants({
                 variant: "outline",
@@ -45,7 +45,7 @@ const NavAuth = () => {
             Sign in
           </Link>
           <Link
-            href="/signup"
+            href="/auth/signup"
             className={cn(
               buttonVariants({
                 size: "sm",

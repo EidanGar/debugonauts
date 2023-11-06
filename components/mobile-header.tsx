@@ -34,7 +34,7 @@ const MobileHeader = () => {
           <UserAvatar {...user} />
         ) : (
           <Link
-            href="/signin"
+            href="/auth/signin"
             className={cn(
               buttonVariants({
                 variant: "outline",

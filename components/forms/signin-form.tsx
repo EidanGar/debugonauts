@@ -24,7 +24,6 @@ const SignInForm = () => {
     resolver: zodResolver(userSignInSchema),
     defaultValues: {
       email: "",
-      password: "",
     },
   })
 
@@ -54,25 +53,6 @@ const SignInForm = () => {
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input type="email" placeholder="Email" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          name="password"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input
-                  isPrivateable={true}
-                  type="password"
-                  placeholder="Password"
-                  {...field}
-                />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -57,11 +57,11 @@ const AccountRecoveryForm = () => {
         <div className="flex items-center justify-between w-full pt-3">
           <div className="text-sm text-muted-foreground">
             <span className="hidden mr-1 sm:inline-block">
-              Don{"'"}t have an account?
+              Don&apos;t have an account?
             </span>
             <Link
               aria-label="Sign up"
-              href="/signup"
+              href="/auth/signup"
               className="transition-colors text-primary underline-offset-4 hover:underline"
             >
               Sign up

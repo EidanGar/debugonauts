@@ -9,21 +9,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import SignUpForm from "@/components/forms/signup-form"
+import SignInForm from "@/components/forms/signin-form"
 import OAuthSignIn from "@/components/oauth-signin"
 
 export const metadata: Metadata = {
   metadataBase: new URL(process?.env?.NEXT_PUBLIC_SITE_URL ?? "localhost:3000"),
-  title: "Sign Up",
-  description: "Create your account",
+  title: "Sign in",
+  description: "Sign into your account",
 }
 
-const SignUpPage = () => {
+export default function SignInPage() {
   return (
     <Card className="mx-auto" style={{ width: "min(460px, 90vw)" }}>
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl">Sign up</CardTitle>
-        <CardDescription>Choose your preferred sign up method</CardDescription>
+        <CardTitle className="text-2xl">Sign in</CardTitle>
+        <CardDescription>Choose your preferred sign in method</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
         <OAuthSignIn />
@@ -37,24 +37,30 @@ const SignUpPage = () => {
             </span>
           </div>
         </div>
-        <SignUpForm />
+        <SignInForm />
       </CardContent>
       <CardFooter className="flex flex-wrap items-center justify-between gap-2">
         <div className="text-sm text-muted-foreground">
           <span className="hidden mr-1 sm:inline-block">
-            Already have an account?
+            Don&apos;t have an account?
           </span>
           <Link
-            aria-label="Sign in"
-            href="/signin"
+            aria-label="Sign up"
+            href="/auth/signup"
             className="transition-colors text-primary underline-offset-4 hover:underline"
           >
-            Sgin in
+            Sign up
           </Link>
         </div>
+
+        <Link
+          aria-label="Recover account"
+          href="/auth/signin/recovery"
+          className="text-sm transition-colors text-primary underline-offset-4 hover:underline"
+        >
+          Can&apos;t sign in?
+        </Link>
       </CardFooter>
     </Card>
   )
 }
-
-export default SignUpPage

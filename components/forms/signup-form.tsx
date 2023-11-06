@@ -23,9 +23,7 @@ const SignUpForm = () => {
   const form = useForm<UserSignUpData>({
     resolver: zodResolver(userSignUpSchema),
     defaultValues: {
-      username: "",
       email: "",
-      password: "",
     },
   })
 
@@ -50,20 +48,6 @@ const SignUpForm = () => {
         className="flex flex-col w-full gap-4"
       >
         <FormField
-          name="username"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Username</FormLabel>
-              <FormControl>
-                <Input type="text" placeholder="Username" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
           name="email"
           control={form.control}
           render={({ field }) => (
@@ -71,25 +55,6 @@ const SignUpForm = () => {
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input type="email" placeholder="Email" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          name="password"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input
-                  type="password"
-                  isPrivateable={true}
-                  placeholder="Password"
-                  {...field}
-                />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -13,8 +13,7 @@ const AccountRecoveryPage = () => {
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl">Account recovery</CardTitle>
         <CardDescription>
-          Enter your email address and we will send you a link to reset your
-          password.
+          We&apos;ll send a recovery link to you via email
         </CardDescription>
       </CardHeader>
       <CardContent>

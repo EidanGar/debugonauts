@@ -1,15 +1,10 @@
 "use client"
 
-import {
-  ReactNode,
-  createContext,
-  useContext,
-  useState,
-} from "react"
+import { ReactNode, createContext, useContext, useState } from "react"
 
+import { User } from "@/types/user"
 import { UserSignInData } from "@/lib/validations/signin"
 import { UserSignUpData } from "@/lib/validations/signup"
-import { User } from "@/types/user"
 
 export interface AuthContextProps {
   user: User | null
@@ -32,17 +27,13 @@ export const AuthContext = createContext<AuthContextProps>({
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
 
-  const signUp = ({ email, password, username }: UserSignUpData) => {
-  }
+  const signUp = ({ email }: UserSignUpData) => {}
 
-  const googleSignIn = () => {
-  }
+  const googleSignIn = () => {}
 
-  const githubSignIn = () => {
-  }
+  const githubSignIn = () => {}
 
-  const signIn = ({ email, password }: UserSignInData) => {
-  }
+  const signIn = ({ email }: UserSignInData) => {}
 
   const logOut = async () => {}
 
