@@ -55,7 +55,7 @@ export default function SignInPage() {
 
         <Link
           aria-label="Reset password"
-          href="/signin/reset-password"
+          href="/signin/recovery"
           className="text-sm transition-colors text-primary underline-offset-4 hover:underline"
         >
           Forgot password

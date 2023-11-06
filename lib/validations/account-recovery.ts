@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-export const resetPasswordSchema = z.object({
+export const accountRecoverySchema = z.object({
   email: z
     .string()
     .email({ message: "Invalid email address" })
@@ -12,4 +12,4 @@ export const resetPasswordSchema = z.object({
     }),
 })
 
-export type ResetPasswordData = z.infer<typeof resetPasswordSchema>
+export type AccountRecoveryData = z.infer<typeof accountRecoverySchema>

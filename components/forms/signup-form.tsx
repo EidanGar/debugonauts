@@ -1,6 +1,6 @@
 "use client"
 
-import { redirect } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { SubmitHandler, useForm } from "react-hook-form"
 
@@ -19,6 +19,7 @@ import { useAuth } from "@/components/auth-context"
 
 const SignUpForm = () => {
   const { signUp } = useAuth()
+  const router = useRouter()
   const form = useForm<UserSignUpData>({
     resolver: zodResolver(userSignUpSchema),
     defaultValues: {
@@ -36,7 +37,7 @@ const SignUpForm = () => {
     } catch (error) {
       console.error(error)
     } finally {
-      redirect("/")
+      router.push("/")
     }
   }
 

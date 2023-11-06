@@ -5,9 +5,9 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { SubmitHandler, useForm } from "react-hook-form"
 
 import {
-  ResetPasswordData,
-  resetPasswordSchema,
-} from "@/lib/validations/reset-password"
+  AccountRecoveryData,
+  accountRecoverySchema,
+} from "@/lib/validations/account-recovery"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -19,16 +19,16 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 
-const ResetPasswordForm = () => {
-  const form = useForm<ResetPasswordData>({
-    resolver: zodResolver(resetPasswordSchema),
+const AccountRecoveryForm = () => {
+  const form = useForm<AccountRecoveryData>({
+    resolver: zodResolver(accountRecoverySchema),
     defaultValues: {
       email: "",
     },
   })
 
-  const handleResetPassword: SubmitHandler<ResetPasswordData> = (
-    data: ResetPasswordData
+  const handleResetPassword: SubmitHandler<AccountRecoveryData> = (
+    data: AccountRecoveryData
   ) => {
     console.log(data)
   }
@@ -68,7 +68,7 @@ const ResetPasswordForm = () => {
             </Link>
           </div>
           <Button type="submit" size="sm">
-            Reset password
+            Send link
           </Button>
         </div>
       </form>
@@ -76,4 +76,4 @@ const ResetPasswordForm = () => {
   )
 }
 
-export default ResetPasswordForm
+export default AccountRecoveryForm

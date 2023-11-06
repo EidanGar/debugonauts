@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { redirect } from "next/navigation"
+import { useRouter } from "next/navigation"
 
 import { Status } from "@/types/data"
 import { Project } from "@/types/project"
@@ -51,8 +51,9 @@ const projects: Project[] = [
 
 const ProjectsPage = () => {
   const { user } = useAuth()
+  const router = useRouter()
   if (user === null) {
-    redirect("/signin")
+    router.push("/signin")
   }
 
   return (
