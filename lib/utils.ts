@@ -18,6 +18,52 @@ export function slugify(text: string) {
     .replace(/-+$/, "") // Trim - from end of text
 }
 
+export function generateVerificationCode() {
+  const adjectives1 = [
+    "Quick",
+    "Bright",
+    "Calm",
+    "Daring",
+    "Eager",
+    "Fancy",
+    "Gentle",
+    "Happy",
+    "Inventive",
+    "Jolly",
+  ]
+  const adjectives2 = [
+    "Royal",
+    "Ancient",
+    "Glorious",
+    "Heroic",
+    "Majestic",
+    "Noble",
+    "Valiant",
+    "Sovereign",
+    "Legendary",
+    "Timeless",
+  ]
+  const nouns = [
+    "Mountain",
+    "River",
+    "Sky",
+    "Ocean",
+    "Forest",
+    "Desert",
+    "Valley",
+    "Star",
+    "Moon",
+    "Sun",
+  ]
+
+  // Randomly pick one adjective from each list and one noun
+  const adjective1 = adjectives1[Math.floor(Math.random() * adjectives1.length)]
+  const adjective2 = adjectives2[Math.floor(Math.random() * adjectives2.length)]
+  const noun = nouns[Math.floor(Math.random() * nouns.length)]
+
+  return `${adjective1} ${adjective2} ${noun}`
+}
+
 // truncate text after a certain length
 export function truncate(text: string, length: number) {
   if (text.length > length) {

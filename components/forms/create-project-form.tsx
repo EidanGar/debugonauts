@@ -126,7 +126,7 @@ const CreateProjectForm = () => {
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Repository</FormLabel>
+              <FormLabel>Visibility</FormLabel>
               <FormControl>
                 <Select
                   onValueChange={field.onChange}

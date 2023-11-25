@@ -18,6 +18,34 @@ export const metadata: Metadata = {
   description: "Sign into your account",
 }
 
+const AwaitingEmailVerification = ({
+  emailAddress,
+  verificationCode,
+}: {
+  emailAddress: string
+  verificationCode: string
+}) => (
+  <div>
+    <h2>Email Verification</h2>
+    <p>
+      Keep this window open and in a new tab open the link we just sent to{" "}
+      <Link
+        href="mail.google.com"
+        className="font-bold transition-colors text-blue-500 underline-offset-4 hover:underline"
+      >
+        {emailAddress}
+      </Link>{" "}
+      <Link
+        href=".."
+        className="font-bold transition-colors text-primary underline-offset-4 hover:underline"
+      >
+        &lpar;undo&rpar;
+      </Link>{" "}
+      with security code: {verificationCode}
+    </p>
+  </div>
+)
+
 export default function SignInPage() {
   return (
     <Card className="mx-auto" style={{ width: "min(460px, 90vw)" }}>

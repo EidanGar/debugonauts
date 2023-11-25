@@ -60,8 +60,8 @@ const SignInForm = () => {
         />
 
         <Button type="submit">
-          Login
-          <span className="sr-only">Login</span>
+          Sign in
+          <span className="sr-only">Sign in</span>
         </Button>
       </form>
     </Form>

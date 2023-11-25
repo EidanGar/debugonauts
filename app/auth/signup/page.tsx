@@ -49,7 +49,7 @@ const SignUpPage = () => {
             href="/auth/signin"
             className="transition-colors text-primary underline-offset-4 hover:underline"
           >
-            Sgin in
+            Sign in
           </Link>
         </div>
       </CardFooter>

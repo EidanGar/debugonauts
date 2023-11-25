@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 
 import { Status } from "@/types/data"
 import { Project } from "@/types/project"
@@ -50,12 +49,6 @@ const projects: Project[] = [
 ]
 
 const ProjectsPage = () => {
-  const { user } = useAuth()
-  const router = useRouter()
-  if (user === null) {
-    router.push("/auth/signin")
-  }
-
   return (
     <Shell className="flex flex-col items-center gap-2">
       <div className="flex items-center justify-between w-full">

@@ -1,10 +1,15 @@
+import type {
+  GetServerSidePropsContext,
+  NextApiRequest,
+  NextApiResponse,
+} from "next"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
-import { NextAuthOptions } from "next-auth"
+import { getServerSession, type NextAuthOptions } from "next-auth"
 import EmailProvider from "next-auth/providers/email"
 import GithubProvider from "next-auth/providers/github"
 import GoogleProvider from "next-auth/providers/google"
 
-export const nextAuthOptions: NextAuthOptions = {
+export const authConfig = {
   adapter: PrismaAdapter(process.env.DATABASE_URL),
   providers: [
     GithubProvider({
@@ -24,9 +29,13 @@ export const nextAuthOptions: NextAuthOptions = {
   pages: {
     signIn: "/auth/signin",
   },
-  callbacks: {
-    async signIn({ user, account, profile, email, credentials }) {
-      return true
-    },
-  },
+} satisfies NextAuthOptions
+
+export function auth(
+  ...args:
+    | [GetServerSidePropsContext["req"], GetServerSidePropsContext["res"]]
+    | [NextApiRequest, NextApiResponse]
+    | []
+) {
+  return getServerSession(...args, authConfig)
 }

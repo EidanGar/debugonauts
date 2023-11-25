@@ -18,7 +18,7 @@ export enum Visibility {
 export const newProjectSchema = z.object({
   title: z.string().min(3).max(50),
   description: z.string().min(3).max(500),
-  repository: z.string().url(),
+  repository: z.string().url().optional(),
   tags: z.array(z.string()),
   visibility: z.enum(Object.values(Visibility) as [string, ...string[]]),
 })
