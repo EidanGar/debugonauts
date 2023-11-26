@@ -1,9 +1,9 @@
 "use client"
 
-import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { SubmitHandler, useForm } from "react-hook-form"
 
+import { generateVerificationCode } from "@/lib/utils"
 import { UserSignInData, userSignInSchema } from "@/lib/validations/signin"
 import { Button } from "@/components/ui/button"
 import {
@@ -15,11 +15,17 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { useAuth } from "@/components/auth-context"
+import { EmailData } from "@/components/auth-context"
 
-const SignInForm = () => {
-  const { signIn } = useAuth()
-  const router = useRouter()
+interface SignInFormProps {
+  setIsAwaitingEmailVerification: React.Dispatch<React.SetStateAction<boolean>>
+  setEmailData: React.Dispatch<React.SetStateAction<EmailData>>
+}
+
+const SignInForm = ({
+  setEmailData,
+  setIsAwaitingEmailVerification,
+}: SignInFormProps) => {
   const form = useForm<UserSignInData>({
     resolver: zodResolver(userSignInSchema),
     defaultValues: {
@@ -27,16 +33,14 @@ const SignInForm = () => {
     },
   })
 
-  const handleUserLogin: SubmitHandler<UserSignInData> = async (
+  const handleUserLogin: SubmitHandler<UserSignInData> = (
     data: UserSignInData
   ) => {
-    try {
-      await signIn(data)
-    } catch (error) {
-      console.error(error)
-    } finally {
-      router.push("/")
-    }
+    setEmailData({
+      emailAddress: data.email,
+      verificationCode: generateVerificationCode(),
+    })
+    setIsAwaitingEmailVerification(true)
   }
 
   return (
@@ -52,7 +56,11 @@ const SignInForm = () => {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="Email" {...field} />
+                <Input
+                  type="email"
+                  placeholder="placeholder@example.com"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -60,7 +68,7 @@ const SignInForm = () => {
         />
 
         <Button type="submit">
-          Sign in
+          Continue
           <span className="sr-only">Sign in</span>
         </Button>
       </form>

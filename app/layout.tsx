@@ -47,7 +47,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
               <div className="relative flex flex-col min-h-screen">
                 <SiteHeader />
                 <MobileHeader />
-                <div className="flex-1 w-full py-4">{children}</div>
+                <div className="flex-1 w-full py-4 items-center">
+                  {children}
+                </div>
               </div>
             </AuthProvider>
             <TailwindIndicator />

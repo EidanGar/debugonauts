@@ -18,6 +18,10 @@ export function slugify(text: string) {
     .replace(/-+$/, "") // Trim - from end of text
 }
 
+export function capitalize(text: string) {
+  return text.charAt(0).toUpperCase() + text.slice(1)
+}
+
 export function generateVerificationCode() {
   const adjectives1 = [
     "Quick",

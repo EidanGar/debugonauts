@@ -62,10 +62,10 @@ const MultiSelect = ({
     [options.length]
   )
 
-  const MAX_MULTI_SELECT_OPTIONS = 10
+  const MAX_MULTI_SELECT_OPTIONS_SHOWN = 10
   const selectables = options
     .filter((option) => !selectedTags.includes(option))
-    .slice(0, MAX_MULTI_SELECT_OPTIONS)
+    .slice(0, MAX_MULTI_SELECT_OPTIONS_SHOWN)
 
   return (
     <Command

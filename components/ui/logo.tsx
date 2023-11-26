@@ -1,12 +1,32 @@
 import Link from "next/link"
 
 import { siteConfig } from "@/config/site"
+import { cn } from "@/lib/utils"
 import { Icons } from "@/components/icons"
 
-const Logo = () => (
-  <Link href="/" className="flex items-center space-x-2">
-    <Icons.logo className="w-6 h-6" />
-    <span className="inline-block font-bold">{siteConfig.name}</span>
+interface LogoProps {
+  containerClassName?: string
+  iconOnly?: boolean
+  iconClassName?: string
+  textClassName?: string
+}
+
+const Logo = ({
+  iconClassName,
+  iconOnly,
+  textClassName,
+  containerClassName,
+}: LogoProps) => (
+  <Link
+    href="/"
+    className={cn("flex items-center space-x-2", containerClassName)}
+  >
+    <Icons.logo className={cn("w-6 h-6", iconClassName)} />
+    {!iconOnly && (
+      <span className={cn("inline-block font-bold", textClassName)}>
+        {siteConfig.name}
+      </span>
+    )}
   </Link>
 )
 

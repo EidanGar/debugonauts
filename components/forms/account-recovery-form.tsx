@@ -48,7 +48,11 @@ const AccountRecoveryForm = () => {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="Email" {...field} />
+                <Input
+                  type="email"
+                  placeholder="placeholder@example.com"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

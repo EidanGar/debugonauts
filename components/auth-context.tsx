@@ -3,43 +3,63 @@
 import { ReactNode, createContext, useContext, useState } from "react"
 
 import { User } from "@/types/user"
-import { UserSignInData } from "@/lib/validations/signin"
-import { UserSignUpData } from "@/lib/validations/signup"
+
+export enum AuthType {
+  SignIn = "signin",
+  SignUp = "signup",
+}
+
+export interface EmailData {
+  emailAddress: string
+  verificationCode: string
+}
+
+export interface HandleUserAuthProps {
+  authType: AuthType
+  emailData: EmailData
+}
 
 export interface AuthContextProps {
   user: User | null
-  logOut: () => void
-  googleSignIn: () => void
-  signIn: (crendetials: UserSignInData) => void
-  githubSignIn: () => void
-  signUp: (signUpCrendetials: UserSignUpData) => void
+  handleUserAuth: (props: HandleUserAuthProps) => void
+  logOutEmailAuth: () => void
+  oAuthSignIn: (provider: string) => void
 }
 
 export const AuthContext = createContext<AuthContextProps>({
   user: null,
-  logOut: () => {},
-  googleSignIn: () => {},
-  signIn: () => {},
-  githubSignIn: () => {},
-  signUp: () => {},
+  handleUserAuth: () => {},
+  logOutEmailAuth: () => {},
+  oAuthSignIn: () => {},
 })
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
 
-  const signUp = ({ email }: UserSignUpData) => {}
+  const handleUserAuth = async ({
+    authType,
+    emailData,
+  }: HandleUserAuthProps) => {
+    const res = await fetch("/api/auth/signin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ emailData, authType }),
+    })
 
-  const googleSignIn = () => {}
+    const response = await res.json()
 
-  const githubSignIn = () => {}
+    return response
+  }
 
-  const signIn = ({ email }: UserSignInData) => {}
+  const oAuthSignIn = async (provider: string) => {}
 
-  const logOut = async () => {}
+  const logOutEmailAuth = async () => {}
 
   return (
     <AuthContext.Provider
-      value={{ user, logOut, googleSignIn, signIn, githubSignIn, signUp }}
+      value={{ user, logOutEmailAuth, handleUserAuth, oAuthSignIn }}
     >
       {children}
     </AuthContext.Provider>
