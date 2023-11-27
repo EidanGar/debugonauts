@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String         @id @default(uuid())
+  email          String         @unique
+  username       String
+  provider       Provider       @default(EMAIL)
+  comments       Comment[]
+  assignedIssues Issue[]        @relation("IssueAssignee")
+  reportedIssues Issue[]        @relation("IssueReporter")
+  notifications  Notification[]
+  role           Role           @default(TESTER)
+  projects       Project[]      @relation("ProjectMembers")
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+enum Provider {
+  GOOGLE
+  GITHUB
+  EMAIL
+}
+
+enum Role {
+  ADMIN
+  PROJECT_MANAGER
+  DEVELOPER
+  QA_ENGINEER
+  TESTER
+}
+
+model Project {
+  id          String     @id @default(uuid())
+  name        String
+  description String
+  visibility  Visibility @default(PRIVATE)
+  issues      Issue[]
+  members     User[]     @relation("ProjectMembers")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+enum Visibility {
+  PUBLIC
+  PRIVATE
+}
+
+model Issue {
+  id          String     @id @default(uuid())
+  title       String
+  description String
+  status      String
+  priority    Priority   @default(MEDIUM)
+  assigneeId  String
+  reporterId  String
+  projectId   String
+  issueType   IssueType?
+  comments    Comment[]
+  assignee    User       @relation("IssueAssignee", fields: [assigneeId], references: [id])
+  project     Project    @relation(fields: [projectId], references: [id])
+  reporter    User       @relation("IssueReporter", fields: [reporterId], references: [id])
+  tags        Tag[]      @relation("IssueTags")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  issueId   String
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  issue     Issue    @relation(fields: [issueId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Tag {
+  id     String  @id @default(uuid())
+  name   String  @unique
+  issues Issue[] @relation("IssueTags")
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  content     String
+  recipientId String
+  recipient   User     @relation(fields: [recipientId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+enum IssueType {
+  BUG
+  FEATURE_REQUEST
+  TASK
+  STORY
+  EPIC
+}

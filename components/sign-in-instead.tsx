@@ -1,3 +1,5 @@
+import { Provider } from "@prisma/client"
+
 import { capitalize } from "@/lib/utils"
 import {
   AlertDialog,
@@ -10,15 +12,15 @@ import { Button } from "@/components/ui/button"
 import { Icons } from "@/components/icons"
 
 interface SignInInsteadProps {
-  provider: string
-  emailAddress: string
+  provider: Provider
+  email: string
   isOpen: boolean
   setIsAwaitingEmailVerification: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const SignInInstead = ({
   provider,
-  emailAddress,
+  email,
   isOpen,
   setIsAwaitingEmailVerification,
 }: SignInInsteadProps) => (
@@ -31,12 +33,12 @@ const SignInInstead = ({
       </AlertDialogHeader>
       <div className="flex flex-col items-center w-full justify-center gap-4 p-4 border border-accent">
         <div className="flex gap-2 items-center">
-          {provider === "google" ? (
+          {provider === Provider.GOOGLE ? (
             <Icons.google className="w-6 h-6" />
           ) : (
             <Icons.gitHub className="w-6 h-6" />
           )}
-          <span className="text-sm font-medium">{emailAddress}</span>
+          <span className="text-sm font-medium">{email}</span>
         </div>
         <Button className="rounded-sm w-full">
           Sign in with {capitalize(provider)}

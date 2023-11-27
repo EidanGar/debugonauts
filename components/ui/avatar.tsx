@@ -22,11 +22,11 @@ import { useAuth } from "@/components/auth-context"
 import { Icons } from "@/components/icons"
 
 const UserAvatar = ({ email, displayName, photoURL }: User) => {
-  const { logOut } = useAuth()
+  const { logOutEmailAuth } = useAuth()
 
   const handleLogOut = async () => {
     try {
-      await logOut()
+      await logOutEmailAuth()
     } catch (error) {
       console.error(error)
     }

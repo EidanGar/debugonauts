@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { SubmitHandler, useForm } from "react-hook-form"
 
 import { generateVerificationCode } from "@/lib/utils"
-import { UserSignInData, userSignInSchema } from "@/lib/validations/signin"
+import { UserSignUpData, userSignUpSchema } from "@/lib/validations/signup"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -15,35 +15,36 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { EmailData } from "@/components/auth-context"
+import { SignUpData } from "@/components/auth-context"
 
 interface SignInFormProps {
-  setEmailData: React.Dispatch<React.SetStateAction<EmailData>>
-  isLoading: boolean
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
+  setAuthData: React.Dispatch<React.SetStateAction<SignUpData>>
+  isLoading: boolean
 }
 
-const SignInForm = ({
-  setEmailData,
-  isLoading,
+const SignUpForm = ({
+  setAuthData,
   setIsLoading,
+  isLoading,
 }: SignInFormProps) => {
-  const form = useForm<UserSignInData>({
-    resolver: zodResolver(userSignInSchema),
+  const form = useForm<UserSignUpData>({
+    resolver: zodResolver(userSignUpSchema),
     defaultValues: {
       email: "",
+      username: "",
     },
   })
 
-  const handleUserLogin: SubmitHandler<UserSignInData> = (
-    data: UserSignInData
+  const handleUserLogin: SubmitHandler<UserSignUpData> = (
+    data: UserSignUpData
   ) => {
-    setEmailData({
+    setAuthData({
       email: data.email,
+      username: data.username,
       verificationCode: generateVerificationCode(),
     })
     setIsLoading(true)
-    setTimeout(() => setIsLoading(false), 10000)
   }
 
   return (
@@ -52,6 +53,20 @@ const SignInForm = ({
         className="flex flex-col w-full gap-4"
         onSubmit={(...args) => void form.handleSubmit(handleUserLogin)(...args)}
       >
+        <FormField
+          name="username"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Username</FormLabel>
+              <FormControl>
+                <Input type="text" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <FormField
           name="email"
           control={form.control}
@@ -79,4 +94,4 @@ const SignInForm = ({
   )
 }
 
-export default SignInForm
+export default SignUpForm

@@ -6,7 +6,7 @@ interface AwaitingEmailVerificationProps {
 }
 
 const AwaitingEmailVerification = ({
-  emailData: { emailAddress, verificationCode },
+  emailData: { email, verificationCode },
   setIsAwaitingEmailVerification,
 }: AwaitingEmailVerificationProps) => {
   return (
@@ -20,7 +20,7 @@ const AwaitingEmailVerification = ({
           rel="noopener noreferrer"
           className="font-bold transition-colors text-blue-500 underline-offset-4 hover:underline"
         >
-          {emailAddress}
+          {email}
         </a>{" "}
         <span
           onClick={() => setIsAwaitingEmailVerification(false)}

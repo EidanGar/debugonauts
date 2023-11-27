@@ -1,29 +1,25 @@
 "use client"
 
 import { ReactNode, createContext, useContext, useState } from "react"
-
-import { User } from "@/types/user"
-
-export enum AuthType {
-  SignIn = "signin",
-  SignUp = "signup",
-}
+import { User } from "@prisma/client"
 
 export interface EmailData {
-  emailAddress: string
+  email: string
   verificationCode: string
 }
 
-export interface HandleUserAuthProps {
-  authType: AuthType
-  emailData: EmailData
+export interface SignUpData extends EmailData {
+  username: string
 }
+
+export interface SignInData extends EmailData {}
 
 export interface AuthContextProps {
   user: User | null
-  handleUserAuth: (props: HandleUserAuthProps) => void
+  handleUserAuth: (props: EmailData) => void
   logOutEmailAuth: () => void
   oAuthSignIn: (provider: string) => void
+  setUser: React.Dispatch<React.SetStateAction<User | null>>
 }
 
 export const AuthContext = createContext<AuthContextProps>({
@@ -31,21 +27,19 @@ export const AuthContext = createContext<AuthContextProps>({
   handleUserAuth: () => {},
   logOutEmailAuth: () => {},
   oAuthSignIn: () => {},
+  setUser: () => {},
 })
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
 
-  const handleUserAuth = async ({
-    authType,
-    emailData,
-  }: HandleUserAuthProps) => {
+  const handleUserAuth = async ({ email, verificationCode }: EmailData) => {
     const res = await fetch("/api/auth/signin", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ emailData, authType }),
+      body: JSON.stringify({ email, verificationCode }),
     })
 
     const response = await res.json()
@@ -55,11 +49,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const oAuthSignIn = async (provider: string) => {}
 
-  const logOutEmailAuth = async () => {}
+  const logOutEmailAuth = async () => {
+    setUser(null)
+  }
 
   return (
     <AuthContext.Provider
-      value={{ user, logOutEmailAuth, handleUserAuth, oAuthSignIn }}
+      value={{ user, logOutEmailAuth, handleUserAuth, oAuthSignIn, setUser }}
     >
       {children}
     </AuthContext.Provider>
