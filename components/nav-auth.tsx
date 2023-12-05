@@ -29,7 +29,7 @@ const NavAuth = () => {
 
       <ThemeToggle />
       {user ? (
-        <UserAvatar {...user} />
+        <UserAvatar />
       ) : (
         <div className="flex items-center space-x-2">
           <Link

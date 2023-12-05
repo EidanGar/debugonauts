@@ -1,30 +1,35 @@
+import bcryptjs from "bcryptjs"
+
 import prisma from "@/lib/db"
-import { userSignInSchema } from "@/lib/validations/signin"
-import { SignInData } from "@/components/auth-context"
+import { UserSignInData, userSignInSchema } from "@/lib/validations/signin"
 
 export async function POST(req: Request) {
-  const { email, verificationCode } = (await req.json()) as SignInData
+  const { email, password } = (await req.json()) as UserSignInData
 
   try {
-    const validatedData = userSignInSchema.parse({
-      email,
-    })
-    console.log("Check 1")
+    const { email: validatedEmail, password: validatedPwd } =
+      userSignInSchema.parse({
+        email,
+        password,
+      })
 
-    // check if user already exists and has a provider that is not email
+    // check if user already exists and has a different provider
     const existingUser = await prisma.user.findUnique({
       where: {
-        email: validatedData.email,
+        email: validatedEmail,
       },
     })
 
     if (!existingUser) {
-      console.log("User does not exist")
       return new Response(
         JSON.stringify({
-          title: "User does not exist",
-          description:
-            "Please sign up first if you don't have an account, or press \"can't sign in\" if you need help.",
+          isError: true,
+          user: null,
+          error: {
+            title: "User does not exist",
+            description:
+              "Please sign up first if you don't have an account, or press \"can't sign in\" if you need help.",
+          },
         }),
         {
           status: 403,
@@ -33,22 +38,50 @@ export async function POST(req: Request) {
     }
 
     if (existingUser?.provider !== "EMAIL") {
-      console.log("This user already exists with a different provider.")
       return new Response(
         JSON.stringify({
-          title: "Email already in use",
-          description: "This user already exists with a different provider.",
+          isError: true,
+          user: null,
+          error: {
+            title: "Email already in use",
+            description: "This user already exists with a different provider.",
+          },
           provider: existingUser?.provider,
         }),
         { status: 409 }
       )
     }
 
-    // send user magic link and await email verification
+    // check password
+    const passwordMatch = await bcryptjs.compare(
+      validatedPwd + existingUser.salt,
+      existingUser.hashedPwd
+    )
 
-    return new Response(JSON.stringify(existingUser), {
-      status: 200,
-    })
+    if (!passwordMatch) {
+      return new Response(
+        JSON.stringify({
+          isError: true,
+          user: null,
+          error: {
+            title: "Password does not match",
+            description: "The password you entered is incorrect.",
+          },
+        }),
+        { status: 403 }
+      )
+    }
+
+    return new Response(
+      JSON.stringify({
+        isError: false,
+        user: existingUser,
+        error: null,
+      }),
+      {
+        status: 200,
+      }
+    )
   } catch (error) {
     if (error instanceof Error) {
       return new Response(

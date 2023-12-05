@@ -1,10 +1,15 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { Provider, User } from "@prisma/client"
 import { SubmitHandler, useForm } from "react-hook-form"
 
-import { generateVerificationCode } from "@/lib/utils"
-import { UserSignInData, userSignInSchema } from "@/lib/validations/signin"
+import {
+  SignInResponse,
+  UserSignInData,
+  userSignInSchema,
+} from "@/lib/validations/signin"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -15,35 +20,65 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { EmailData } from "@/components/auth-context"
+import { useToast } from "@/components/ui/use-toast"
+import { useAuth } from "@/components/auth-context"
 
 interface SignInFormProps {
-  setEmailData: React.Dispatch<React.SetStateAction<EmailData>>
   isLoading: boolean
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
+  setIsEmailAlreadyUsed: React.Dispatch<React.SetStateAction<boolean>>
+  setUsedProvider: React.Dispatch<React.SetStateAction<Provider>>
+  setSignInData: React.Dispatch<React.SetStateAction<UserSignInData>>
 }
 
 const SignInForm = ({
-  setEmailData,
   isLoading,
   setIsLoading,
+  setIsEmailAlreadyUsed,
+  setUsedProvider,
+  setSignInData,
 }: SignInFormProps) => {
+  const router = useRouter()
+  const { toast } = useToast()
+  const { signIn, setUser } = useAuth()
   const form = useForm<UserSignInData>({
     resolver: zodResolver(userSignInSchema),
     defaultValues: {
       email: "",
+      password: "",
     },
   })
 
-  const handleUserLogin: SubmitHandler<UserSignInData> = (
+  const handleUserLogin: SubmitHandler<UserSignInData> = async (
     data: UserSignInData
   ) => {
-    setEmailData({
-      email: data.email,
-      verificationCode: generateVerificationCode(),
-    })
+    setSignInData(data)
     setIsLoading(true)
     setTimeout(() => setIsLoading(false), 10000)
+    const res = await signIn(data)
+
+    if (!res) return
+
+    const response = (await res.json()) as SignInResponse
+
+    if (!res.ok && response.isError) {
+      setTimeout(
+        () =>
+          toast({
+            title: response.error?.title ?? "Error",
+            description: response.error?.description ?? "Something went wrong",
+          }),
+        1500
+      )
+      if (res.status === 409) {
+        setIsEmailAlreadyUsed(true)
+        setUsedProvider(response?.provider ?? Provider.GOOGLE)
+      }
+      return
+    }
+
+    setUser(response.user as User)
+    router.push("/")
   }
 
   return (
@@ -64,6 +99,20 @@ const SignInForm = ({
                   placeholder="placeholder@example.com"
                   {...field}
                 />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          name="password"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Password</FormLabel>
+              <FormControl>
+                <Input type="password" isPrivateable={true} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

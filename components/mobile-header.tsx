@@ -31,7 +31,7 @@ const MobileHeader = () => {
         </Link>
         <ThemeToggle />
         {user ? (
-          <UserAvatar {...user} />
+          <UserAvatar />
         ) : (
           <Link
             href="/auth/signin"

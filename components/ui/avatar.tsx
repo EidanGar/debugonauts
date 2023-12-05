@@ -2,9 +2,7 @@
 
 import Image from "next/image"
 
-import { User } from "@/types/user"
 import { userConfig } from "@/config/user"
-import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,25 +19,17 @@ import {
 import { useAuth } from "@/components/auth-context"
 import { Icons } from "@/components/icons"
 
-const UserAvatar = ({ email, displayName, photoURL }: User) => {
-  const { logOutEmailAuth } = useAuth()
-
-  const handleLogOut = async () => {
-    try {
-      await logOutEmailAuth()
-    } catch (error) {
-      console.error(error)
-    }
-  }
+const UserAvatar = () => {
+  const { logOut, user } = useAuth()
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Image
-          src={photoURL ?? userConfig.defaultUserImage}
+          src={user?.photoUrl ?? userConfig.defaultUserImage}
           width={36}
           height={36}
-          alt={displayName ?? "User"}
+          alt={user?.username ?? "User"}
           className="object-cover duration-300 rounded-full cursor-pointer hover:ring-4 hover:ring-accent"
         />
       </DropdownMenuTrigger>
@@ -111,7 +101,7 @@ const UserAvatar = ({ email, displayName, photoURL }: User) => {
         <DropdownMenuItem>
           <button
             className="flex items-center justify-start w-full p-0 text-left border-none"
-            onClick={handleLogOut}
+            onClick={logOut}
           >
             <Icons.logOut className="w-4 h-4 mr-2" />
             <span>Log out</span>

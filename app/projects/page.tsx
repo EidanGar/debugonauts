@@ -5,7 +5,6 @@ import Link from "next/link"
 import { Status } from "@/types/data"
 import { Project } from "@/types/project"
 import { buttonVariants } from "@/components/ui/button"
-import { useAuth } from "@/components/auth-context"
 import ProjectCard from "@/components/project"
 import { Shell } from "@/components/shell"
 

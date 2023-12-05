@@ -1,10 +1,14 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { SubmitHandler, useForm } from "react-hook-form"
 
-import { generateVerificationCode } from "@/lib/utils"
-import { UserSignUpData, userSignUpSchema } from "@/lib/validations/signup"
+import {
+  UserSignUpData,
+  UserSignUpResponse,
+  userSignUpSchema,
+} from "@/lib/validations/signup"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -15,36 +19,59 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { SignUpData } from "@/components/auth-context"
+import { useToast } from "@/components/ui/use-toast"
+
+import { useAuth } from "../auth-context"
 
 interface SignInFormProps {
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
-  setAuthData: React.Dispatch<React.SetStateAction<SignUpData>>
   isLoading: boolean
 }
 
-const SignUpForm = ({
-  setAuthData,
-  setIsLoading,
-  isLoading,
-}: SignInFormProps) => {
+const SignUpForm = ({ setIsLoading, isLoading }: SignInFormProps) => {
+  const { signUp, setUser } = useAuth()
+  const router = useRouter()
+  const { toast } = useToast()
   const form = useForm<UserSignUpData>({
     resolver: zodResolver(userSignUpSchema),
     defaultValues: {
       email: "",
       username: "",
+      password: "",
     },
   })
 
-  const handleUserLogin: SubmitHandler<UserSignUpData> = (
+  const handleUserLogin: SubmitHandler<UserSignUpData> = async (
     data: UserSignUpData
   ) => {
-    setAuthData({
-      email: data.email,
-      username: data.username,
-      verificationCode: generateVerificationCode(),
-    })
     setIsLoading(true)
+    setTimeout(() => setIsLoading(false), 10000)
+    const res = (await signUp(data)) as Response
+
+    if (!res) return
+
+    const response = (await res.json()) as UserSignUpResponse
+
+    if (!res.ok && response.isError) {
+      setTimeout(
+        () =>
+          toast({
+            title: response.error?.title || "Something went wrong",
+            description:
+              response.error?.description || "Please try again later",
+          }),
+        1500
+      )
+      if (res.status === 409) {
+        setTimeout(() => router.push("/auth/signin"), 2000)
+      }
+      throw new Error("Something went wrong")
+    }
+
+    if (res.ok && !response.isError) {
+      setUser(response.user)
+      setTimeout(() => router.push("/"), 2500)
+    }
   }
 
   return (
@@ -85,9 +112,23 @@ const SignUpForm = ({
           )}
         />
 
+        <FormField
+          name="password"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Password</FormLabel>
+              <FormControl>
+                <Input type="password" isPrivateable={true} {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <Button disabled={isLoading} isLoading={isLoading} type="submit">
           Continue
-          <span className="sr-only">Sign in</span>
+          <span className="sr-only">Sign up</span>
         </Button>
       </form>
     </Form>

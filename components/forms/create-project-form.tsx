@@ -53,7 +53,7 @@ const CreateProjectForm = () => {
       data
     )
     if (
-      "issies" in schemaValidationResult ||
+      "issues" in schemaValidationResult ||
       "message" in schemaValidationResult
     ) {
       throw new Error("Invalid data")

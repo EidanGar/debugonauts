@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { Provider } from "@prisma/client"
 
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/components/auth-context"
@@ -11,7 +12,7 @@ const OAuthSignIn = () => {
     google: false,
     github: false,
   })
-  const { githubSignIn, googleSignIn } = useAuth()
+  const { oAuthSignIn } = useAuth()
 
   const handleGoogleSignIn = async () => {
     setIsLoading({
@@ -19,7 +20,7 @@ const OAuthSignIn = () => {
       google: true,
     })
     try {
-      await googleSignIn()
+      await oAuthSignIn(Provider.GOOGLE)
     } catch (error) {
       console.error(error)
     }
@@ -31,7 +32,7 @@ const OAuthSignIn = () => {
       github: true,
     })
     try {
-      await githubSignIn()
+      await oAuthSignIn(Provider.GITHUB)
     } catch (error) {
       console.error(error)
     }

@@ -1,3 +1,4 @@
+import bcryptjs from "bcryptjs"
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { z } from "zod"
@@ -20,6 +21,10 @@ export function slugify(text: string) {
 
 export function capitalize(text: string) {
   return text.charAt(0).toUpperCase() + text.slice(1)
+}
+
+export async function hashPassword(pwd: string, salt: string, number?: number) {
+  return await bcryptjs.hash(pwd + salt, number ?? 10)
 }
 
 export function generateVerificationCode() {

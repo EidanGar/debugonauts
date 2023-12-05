@@ -8,18 +8,49 @@ datasource db {
 }
 
 model User {
-  id             String         @id @default(uuid())
-  email          String         @unique
-  username       String
-  provider       Provider       @default(EMAIL)
-  comments       Comment[]
-  assignedIssues Issue[]        @relation("IssueAssignee")
-  reportedIssues Issue[]        @relation("IssueReporter")
-  notifications  Notification[]
-  role           Role           @default(TESTER)
-  projects       Project[]      @relation("ProjectMembers")
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  id               String          @id @default(uuid())
+  email            String          @unique
+  username         String
+  hashedPwd        String
+  salt             String // Salt for password hashing
+  resetToken       String? // Token for password reset
+  resetTokenExpiry DateTime? // Expiry for reset token
+  photoUrl         String?
+  provider         Provider        @default(EMAIL)
+  bio              String?
+  contact          String?
+  timezone         String?
+  comments         Comment[]
+  auditLogs        AuditLog[]
+  notifications    Notification[]
+  projectMembers   ProjectMember[]
+  teamMembers      TeamMember[]
+  assignedIssues   Issue[]         @relation("IssueAssignee")
+  reportedIssues   Issue[]         @relation("IssueReporter")
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+}
+
+model Team {
+  id        String       @id @default(uuid())
+  name      String
+  members   TeamMember[]
+  projects  Project[]    @relation("TeamProjects")
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+model TeamMember {
+  id        String   @id @default(uuid())
+  teamId    String
+  userId    String
+  role      Role     @default(TESTER)
+  team      Team     @relation(fields: [teamId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([teamId, userId])
 }
 
 enum Provider {
@@ -37,14 +68,15 @@ enum Role {
 }
 
 model Project {
-  id          String     @id @default(uuid())
+  id          String          @id @default(uuid())
   name        String
   description String
-  visibility  Visibility @default(PRIVATE)
+  visibility  Visibility      @default(PRIVATE)
   issues      Issue[]
-  members     User[]     @relation("ProjectMembers")
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  members     ProjectMember[]
+  teams       Team[]          @relation("TeamProjects")
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 }
 
 enum Visibility {
@@ -52,23 +84,43 @@ enum Visibility {
   PRIVATE
 }
 
+model ProjectMember {
+  id        String   @id @default(uuid())
+  projectId String
+  userId    String
+  role      Role     @default(TESTER)
+  project   Project  @relation(fields: [projectId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([projectId, userId])
+}
+
 model Issue {
-  id          String     @id @default(uuid())
+  id          String      @id @default(uuid())
   title       String
   description String
-  status      String
-  priority    Priority   @default(MEDIUM)
+  status      IssueStatus
+  priority    Priority    @default(MEDIUM)
   assigneeId  String
   reporterId  String
   projectId   String
   issueType   IssueType?
   comments    Comment[]
-  assignee    User       @relation("IssueAssignee", fields: [assigneeId], references: [id])
-  project     Project    @relation(fields: [projectId], references: [id])
-  reporter    User       @relation("IssueReporter", fields: [reporterId], references: [id])
-  tags        Tag[]      @relation("IssueTags")
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  assignee    User        @relation("IssueAssignee", fields: [assigneeId], references: [id])
+  project     Project     @relation(fields: [projectId], references: [id])
+  reporter    User        @relation("IssueReporter", fields: [reporterId], references: [id])
+  tags        Tag[]       @relation("IssueTags")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+enum IssueStatus {
+  OPEN
+  IN_PROGRESS
+  CLOSED
+  REOPENED
 }
 
 enum Priority {
@@ -83,7 +135,7 @@ model Comment {
   content   String
   issueId   String
   authorId  String
-  author    User     @relation(fields: [authorId], references: [id])
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   issue     Issue    @relation(fields: [issueId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -97,10 +149,11 @@ model Tag {
 
 model Notification {
   id          String   @id @default(uuid())
-  content     String
+  message     String
   recipientId String
-  recipient   User     @relation(fields: [recipientId], references: [id])
+  recipient   User     @relation(fields: [recipientId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 enum IssueType {
@@ -109,4 +162,13 @@ enum IssueType {
   TASK
   STORY
   EPIC
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String
+  description String
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
 }

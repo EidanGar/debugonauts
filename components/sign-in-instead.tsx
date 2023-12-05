@@ -15,15 +15,9 @@ interface SignInInsteadProps {
   provider: Provider
   email: string
   isOpen: boolean
-  setIsAwaitingEmailVerification: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const SignInInstead = ({
-  provider,
-  email,
-  isOpen,
-  setIsAwaitingEmailVerification,
-}: SignInInsteadProps) => (
+const SignInInstead = ({ provider, email, isOpen }: SignInInsteadProps) => (
   <AlertDialog open={isOpen}>
     <AlertDialogContent className="flex flex-col items-center text-center">
       <AlertDialogHeader>
@@ -45,10 +39,7 @@ const SignInInstead = ({
         </Button>
       </div>
       <AlertDialogFooter>
-        <span
-          onClick={() => setIsAwaitingEmailVerification(false)}
-          className="transition-colors cursor-pointer text-primary underline-offset-4 hover:underline text-sm py-2"
-        >
+        <span className="transition-colors cursor-pointer text-primary underline-offset-4 hover:underline text-sm py-2">
           Use a different login method
         </span>
       </AlertDialogFooter>

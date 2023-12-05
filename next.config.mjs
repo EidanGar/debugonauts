@@ -4,7 +4,7 @@ const nextConfig = {
   experimental: {
     appDir: true,
   },
-  images: { domains: ["images.unsplash.com", "lh3.googleusercontent.com"], formats: ['image/avif', 'image/webp'], },
+  images: { domains: ["images.unsplash.com", "lh3.googleusercontent.com", "t4.ftcdn.net"], formats: ['image/avif', 'image/webp'], },
 }
 
 export default nextConfig

@@ -3,59 +3,77 @@
 import { ReactNode, createContext, useContext, useState } from "react"
 import { User } from "@prisma/client"
 
-export interface EmailData {
-  email: string
-  verificationCode: string
-}
-
-export interface SignUpData extends EmailData {
-  username: string
-}
-
-export interface SignInData extends EmailData {}
+import { UserSignInData } from "@/lib/validations/signin"
+import { UserSignUpData } from "@/lib/validations/signup"
 
 export interface AuthContextProps {
   user: User | null
-  handleUserAuth: (props: EmailData) => void
-  logOutEmailAuth: () => void
+  signIn: (props: UserSignInData) => Promise<Response> | void
+  signUp: (props: UserSignUpData) => Promise<Response> | void
   oAuthSignIn: (provider: string) => void
   setUser: React.Dispatch<React.SetStateAction<User | null>>
+  logOut: () => void
 }
 
 export const AuthContext = createContext<AuthContextProps>({
   user: null,
-  handleUserAuth: () => {},
-  logOutEmailAuth: () => {},
+  signIn: () => {},
+  signUp: () => {},
   oAuthSignIn: () => {},
   setUser: () => {},
+  logOut: () => {},
 })
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
 
-  const handleUserAuth = async ({ email, verificationCode }: EmailData) => {
+  const signIn = async ({
+    email,
+    password,
+  }: UserSignInData): Promise<Response> => {
     const res = await fetch("/api/auth/signin", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, verificationCode }),
+      body: JSON.stringify({ email, password }),
     })
 
-    const response = await res.json()
+    return res as Response
+  }
 
-    return response
+  const signUp = async ({ email, password, username }: UserSignUpData) => {
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        password,
+        username,
+      }),
+    })
+
+    return res
   }
 
   const oAuthSignIn = async (provider: string) => {}
 
-  const logOutEmailAuth = async () => {
+  const logOut = async () => {
     setUser(null)
   }
 
   return (
     <AuthContext.Provider
-      value={{ user, logOutEmailAuth, handleUserAuth, oAuthSignIn, setUser }}
+      value={{
+        user,
+        logOut,
+        signIn,
+        oAuthSignIn,
+        setUser,
+        signUp,
+      }}
     >
       {children}
     </AuthContext.Provider>

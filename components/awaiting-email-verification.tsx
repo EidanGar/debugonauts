@@ -1,4 +1,7 @@
-import { EmailData } from "@/components/auth-context"
+interface EmailData {
+  email: string
+  verificationCode: string
+}
 
 interface AwaitingEmailVerificationProps {
   emailData: EmailData
