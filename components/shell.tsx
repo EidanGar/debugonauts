@@ -3,14 +3,15 @@ import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 
-const shellVariants = cva("grid items-center gap-8 pb-8 pt-6 md:py-8", {
+const shellVariants = cva("mx-auto w-full flex flex-col relative", {
   variants: {
     variant: {
-      default: "sm:container max-w-[90vw] w-full mx-auto",
+      default: "container max-w-[90vw]",
+      section: "max-w-screen-xl px-2.5 md:px-20",
       sidebar: "",
       centered: "container flex h-[100dvh] max-w-2xl flex-col justify-center",
       markdown: "container max-w-3xl py-8 md:py-10 lg:py-10",
-      grid: "grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-8",
+      grid: "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-8",
     },
   },
   defaultVariants: {

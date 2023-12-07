@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 const NewProjectPage = () => {
   return (
-    <Card className="mx-auto" style={{ width: "min(460px, 90vw)" }}>
+    <Card className="mx-auto w-[min(460px,90vw)]">
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl">New Project</CardTitle>
         <CardDescription>

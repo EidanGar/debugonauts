@@ -1,3 +1,4 @@
+import { Project, Visibility } from "@prisma/client"
 import { z } from "zod"
 
 export enum Labels {
@@ -10,17 +11,27 @@ export enum Labels {
   MAINTAINANCE = "MAINTAINANCE",
 }
 
-export enum Visibility {
-  PUBLIC = "PUBLIC",
-  PRIVATE = "PRIVATE",
-}
-
 export const newProjectSchema = z.object({
-  title: z.string().min(3).max(50),
+  name: z.string().min(3).max(50),
   description: z.string().min(3).max(500),
   repository: z.string().url().optional(),
   tags: z.array(z.string()),
-  visibility: z.enum(Object.values(Visibility) as [string, ...string[]]),
+  visibility: z
+    .enum([Visibility.PUBLIC, Visibility.PRIVATE])
+    .default(Visibility.PRIVATE),
 })
 
 export type NewProjectData = z.infer<typeof newProjectSchema>
+
+export type CreateProjectRequest = {
+  ownerId: string
+} & NewProjectData
+
+export interface CreateProjectResponse {
+  isError: boolean
+  project: Project | null
+  error: {
+    title: string
+    description: string
+  } | null
+}

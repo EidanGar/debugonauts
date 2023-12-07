@@ -20,7 +20,7 @@ export default function SignUpPage() {
 
   return (
     <Shell className="flex items-center">
-      <Card className="mx-auto" style={{ width: "min(460px, 90vw)" }}>
+      <Card className="mx-0 w-[min(460px,90vw)]">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl">Sign up</CardTitle>
           <CardDescription>

@@ -49,6 +49,22 @@ export async function POST(req: Request) {
         hashedPwd: await hashPassword(validatedPwd, userSalt),
         salt: userSalt,
       },
+      select: {
+        salt: false,
+        hashedPwd: false,
+        email: true,
+        username: true,
+        id: true,
+        resetToken: true,
+        resetTokenExpiry: true,
+        photoUrl: true,
+        provider: true,
+        bio: true,
+        contact: true,
+        timezone: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     })
 
     return new Response(JSON.stringify({ isError: false, user }), {

@@ -46,13 +46,13 @@ export default function RootLayout({ children }: RootLayoutProps) {
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <Toaster />
             <AuthProvider>
-              <div className="relative flex flex-col min-h-screen">
+              <main className="relative h-full w-full flex flex-col min-h-screen">
                 <SiteHeader />
                 <MobileHeader />
                 <div className="flex-1 w-full py-4 items-center">
                   {children}
                 </div>
-              </div>
+              </main>
             </AuthProvider>
             <TailwindIndicator />
           </ThemeProvider>

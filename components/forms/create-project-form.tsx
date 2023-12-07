@@ -2,13 +2,15 @@
 
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { Visibility } from "@prisma/client"
 import { SubmitHandler, useForm } from "react-hook-form"
 
 import { defaultProjectTagOptions } from "@/lib/data"
 import { validateSchema } from "@/lib/utils"
 import {
+  CreateProjectRequest,
+  CreateProjectResponse,
   NewProjectData,
-  Visibility,
   newProjectSchema,
 } from "@/lib/validations/project"
 import { Button } from "@/components/ui/button"
@@ -31,14 +33,18 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { useToast } from "@/components/ui/use-toast"
+import { useAuth } from "@/components/auth-context"
 
 const CreateProjectForm = () => {
+  const { user } = useAuth()
+  const { toast } = useToast()
   const [selectedTags, setSelectedTags] = useState<string[]>([])
 
   const form = useForm<NewProjectData>({
     resolver: zodResolver(newProjectSchema),
     defaultValues: {
-      title: "",
+      name: "",
       description: "",
       repository: "",
       tags: [],
@@ -47,19 +53,31 @@ const CreateProjectForm = () => {
   })
 
   const onSubmit: SubmitHandler<NewProjectData> = async (data) => {
-    data = { ...data, tags: selectedTags }
-    const schemaValidationResult = await validateSchema<NewProjectData>(
-      newProjectSchema,
-      data
-    )
-    if (
-      "issues" in schemaValidationResult ||
-      "message" in schemaValidationResult
-    ) {
-      throw new Error("Invalid data")
+    if (!user) return
+
+    const res = await fetch("/api/projects/new", {
+      method: "POST",
+      body: JSON.stringify({
+        ...data,
+        tags: selectedTags ?? [],
+        ownerId: user.id,
+      } as CreateProjectRequest),
+    })
+
+    const response = (await res.json()) as CreateProjectResponse
+
+    if (!res.ok && response.error) {
+      toast(response.error)
     }
 
-    console.log("Data is valid:", data)
+    if (res.ok && response.project) {
+      toast({
+        title: "Project created!",
+        description: `Your project ${data.name} has been created successfully.`,
+        variant: "success",
+      })
+      form.reset()
+    }
   }
 
   return (
@@ -69,7 +87,7 @@ const CreateProjectForm = () => {
         onSubmit={(...args) => void form.handleSubmit(onSubmit)(...args)}
       >
         <FormField
-          name="title"
+          name="name"
           control={form.control}
           render={({ field }) => (
             <FormItem>

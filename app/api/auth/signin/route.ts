@@ -75,7 +75,7 @@ export async function POST(req: Request) {
     return new Response(
       JSON.stringify({
         isError: false,
-        user: existingUser,
+        user: { ...existingUser, hashedPwd: undefined, salt: undefined },
         error: null,
       }),
       {
