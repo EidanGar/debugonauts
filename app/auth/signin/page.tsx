@@ -2,9 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Provider } from "@prisma/client"
 
-import { UserSignInData } from "@/lib/validations/signin"
 import {
   Card,
   CardContent,
@@ -13,20 +11,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import SignInForm from "@/components/forms/signin-form"
 import OAuthSignIn from "@/components/oauth-signin"
 import { Shell } from "@/components/shell"
-import SignInInstead from "@/components/sign-in-instead"
+import SignInForm from "@/app/auth/signin/signin-form"
 
 export default function SignInPage() {
-  const [signInData, setSignInData] = useState<UserSignInData>({
-    email: "",
-    password: "",
-  })
-  const [usedProvider, setUsedProvider] = useState<Provider>(Provider.GOOGLE)
-  const [isEmailAlreadyUsed, setIsEmailAlreadyUsed] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-
   return (
     <Shell className="flex items-center">
       <Card className="mx-0 w-[min(460px,90vw)]">
@@ -35,11 +24,6 @@ export default function SignInPage() {
           <CardDescription>Choose your preferred sign in</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
-          <SignInInstead
-            email={signInData.email || "placeholder@example.com"}
-            provider={usedProvider}
-            isOpen={isEmailAlreadyUsed}
-          />
           <OAuthSignIn />
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
@@ -51,13 +35,7 @@ export default function SignInPage() {
               </span>
             </div>
           </div>
-          <SignInForm
-            setIsLoading={setIsLoading}
-            isLoading={isLoading}
-            setIsEmailAlreadyUsed={setIsEmailAlreadyUsed}
-            setUsedProvider={setUsedProvider}
-            setSignInData={setSignInData}
-          />
+          <SignInForm />
         </CardContent>
 
         <CardFooter className="flex flex-wrap items-center justify-between gap-2">

@@ -1,53 +1,45 @@
 "use client"
 
 import Link from "next/link"
+import { Project } from "@prisma/client"
 
-import { Status } from "@/types/data"
-import { Project } from "@/types/project"
 import { buttonVariants } from "@/components/ui/button"
+import { useToast } from "@/components/ui/use-toast"
 import ProjectCard from "@/components/project"
 import { Shell } from "@/components/shell"
 
-const projects: Project[] = [
-  {
-    title: "Next.js",
-    description:
-      "Next.js is a popular open-source framework for building server-side rendered React applications. It provides a streamlined development experience with features like automatic code splitting, server-side rendering, and static site generation.",
-    id: "1",
-    issues: [],
-    status: Status.OPEN,
-    users: [],
-  },
-  {
-    title: "Vercel",
-    description:
-      "Vercel is a cloud platform for static sites and serverless functions. It provides a seamless developer experience with features like automatic deployments, custom domains, and built-in analytics.",
-    id: "2",
-    issues: [],
-    status: Status.OPEN,
-    users: [],
-  },
-  {
-    title: "SWR",
-    description:
-      "SWR is a React hook for data fetching. It provides a simple and efficient way to fetch data from APIs and cache the results. SWR is used by many developers to build fast and responsive web applications.",
-    id: "3",
-    issues: [],
-    status: Status.OPEN,
-    users: [],
-  },
-  {
-    title: "Next.js Commerce",
-    description:
-      "Next.js Commerce is an open-source e-commerce platform built on top of Next.js. It provides a customizable and extensible framework for building online stores.",
-    id: "4",
-    issues: [],
-    status: Status.OPEN,
-    users: [],
-  },
-]
+const ProjectsPage = async () => {
+  const fetchUserProjects = async () => {
+    const res = await fetch("/api/projects", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: user?.id,
+      }),
+    })
 
-const ProjectsPage = () => {
+    // if (!res.ok) {
+    //   toast({
+    //     title: "Something went wrong",
+    //     description: "Please try again",
+    //   })
+    //   return
+    // }
+
+    const response = await res.json()
+
+    // if (res.status !== 200) {
+    //   toast(response.error)
+    //   return
+    // }
+
+    return response.projects
+  }
+
+  const userProjects = await fetchUserProjects()
+
   return (
     <Shell className="flex flex-col items-center gap-2">
       <div className="flex items-center justify-between w-full">
@@ -59,8 +51,8 @@ const ProjectsPage = () => {
         </Link>
       </div>
       <Shell variant="grid">
-        {projects.map((project) => (
-          <ProjectCard key={project.title} {...project} />
+        {userProjects.map((project: Project) => (
+          <ProjectCard key={project.name} {...project} />
         ))}
       </Shell>
     </Shell>

@@ -4,10 +4,6 @@ import Link from "next/link"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { SubmitHandler, useForm } from "react-hook-form"
 
-import {
-  AccountRecoveryData,
-  accountRecoverySchema,
-} from "@/lib/validations/account-recovery"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -18,6 +14,10 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import {
+  AccountRecoveryData,
+  accountRecoverySchema,
+} from "@/app/auth/signin/recovery/account-recovery"
 
 const AccountRecoveryForm = () => {
   const form = useForm<AccountRecoveryData>({

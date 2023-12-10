@@ -2,9 +2,9 @@
 
 import { useState } from "react"
 import { Provider } from "@prisma/client"
+import { signIn } from "next-auth/react"
 
 import { Button } from "@/components/ui/button"
-import { useAuth } from "@/components/auth-context"
 import { Icons } from "@/components/icons"
 
 const OAuthSignIn = () => {
@@ -12,7 +12,6 @@ const OAuthSignIn = () => {
     google: false,
     github: false,
   })
-  const { oAuthSignIn } = useAuth()
 
   const handleGoogleSignIn = async () => {
     setIsLoading({
@@ -20,7 +19,7 @@ const OAuthSignIn = () => {
       google: true,
     })
     try {
-      await oAuthSignIn(Provider.GOOGLE)
+      await signIn(Provider.GOOGLE)
     } catch (error) {
       console.error(error)
     }
@@ -32,7 +31,7 @@ const OAuthSignIn = () => {
       github: true,
     })
     try {
-      await oAuthSignIn(Provider.GITHUB)
+      await signIn(Provider.GITHUB)
     } catch (error) {
       console.error(error)
     }

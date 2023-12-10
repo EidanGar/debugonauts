@@ -11,9 +11,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import SignUpForm from "@/components/forms/signup-form"
 import OAuthSignIn from "@/components/oauth-signin"
 import { Shell } from "@/components/shell"
+import SignUpForm from "@/app/auth/signup/signup-form"
 
 export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false)

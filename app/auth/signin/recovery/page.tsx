@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import AccountRecoveryForm from "@/components/forms/account-recovery-form"
+import AccountRecoveryForm from "@/app/auth/signin/recovery/account-recovery-form"
 
 const AccountRecoveryPage = () => {
   return (

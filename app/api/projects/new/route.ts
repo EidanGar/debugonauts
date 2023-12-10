@@ -3,7 +3,7 @@ import {
   CreateProjectRequest,
   CreateProjectResponse,
   newProjectSchema,
-} from "@/lib/validations/project"
+} from "@/app/projects/project"
 
 export async function POST(req: Request) {
   const { ownerId, ...data } = (await req.json()) as CreateProjectRequest

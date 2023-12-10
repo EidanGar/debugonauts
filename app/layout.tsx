@@ -1,15 +1,16 @@
 import "@/styles/globals.css"
 import { Metadata } from "next"
+import { getServerSession } from "next-auth"
 
 import { siteConfig } from "@/config/site"
 import { fontSans } from "@/lib/fonts"
 import { cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/toaster"
-import { AuthProvider } from "@/components/auth-context"
 import MobileHeader from "@/components/mobile-header"
 import { SiteHeader } from "@/components/site-header"
 import { TailwindIndicator } from "@/components/tailwind-indicator"
-import { ThemeProvider } from "@/components/theme-provider"
+import SessionProvider from "@/app/session-provider"
+import { ThemeProvider } from "@/app/theme-provider"
 
 export const metadata: Metadata = {
   title: {
@@ -32,7 +33,9 @@ interface RootLayoutProps {
   children: React.ReactNode
 }
 
-export default function RootLayout({ children }: RootLayoutProps) {
+export default async function RootLayout({ children }: RootLayoutProps) {
+  const session = await getServerSession()
+
   return (
     <>
       <html lang="en" suppressHydrationWarning>
@@ -45,15 +48,15 @@ export default function RootLayout({ children }: RootLayoutProps) {
         >
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <Toaster />
-            <AuthProvider>
+            <SessionProvider session={session}>
               <main className="relative h-full w-full flex flex-col min-h-screen">
                 <SiteHeader />
                 <MobileHeader />
-                <div className="flex-1 w-full py-4 items-center">
+                <div className="flex-1 w-full mx-auto py-4 items-center max-w-6xl">
                   {children}
                 </div>
               </main>
-            </AuthProvider>
+            </SessionProvider>
             <TailwindIndicator />
           </ThemeProvider>
         </body>

@@ -1,14 +1,9 @@
 "use client"
 
-import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { signIn } from "next-auth/react"
 import { SubmitHandler, useForm } from "react-hook-form"
 
-import {
-  UserSignUpData,
-  UserSignUpResponse,
-  userSignUpSchema,
-} from "@/lib/validations/signup"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -20,8 +15,11 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
-
-import { useAuth } from "../auth-context"
+import {
+  UserSignUpData,
+  UserSignUpResponse,
+  userSignUpSchema,
+} from "@/app/auth/signup/signup"
 
 interface SignInFormProps {
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
@@ -29,8 +27,6 @@ interface SignInFormProps {
 }
 
 const SignUpForm = ({ setIsLoading, isLoading }: SignInFormProps) => {
-  const { signUp, setUser } = useAuth()
-  const router = useRouter()
   const { toast } = useToast()
   const form = useForm<UserSignUpData>({
     resolver: zodResolver(userSignUpSchema),
@@ -46,32 +42,67 @@ const SignUpForm = ({ setIsLoading, isLoading }: SignInFormProps) => {
   ) => {
     setIsLoading(true)
     setTimeout(() => setIsLoading(false), 10000)
-    const res = (await signUp(data)) as Response
+    const createUserRes = await fetch("/api/users/new", {
+      method: "POST",
+      body: JSON.stringify(data),
+    })
 
-    if (!res) return
-
-    const response = (await res.json()) as UserSignUpResponse
-
-    if (!res.ok && response.isError) {
+    if (!createUserRes.ok) {
       setTimeout(
         () =>
           toast({
-            title: response.error?.title || "Something went wrong",
-            description:
-              response.error?.description || "Please try again later",
+            title: "Something went wrong",
+            description: "Please try again later",
           }),
         1500
       )
-      if (res.status === 409) {
-        setTimeout(() => router.push("/auth/signin"), 2000)
-      }
       throw new Error("Something went wrong")
     }
 
-    if (res.ok && !response.isError) {
-      setUser(response.user)
-      setTimeout(() => router.push("/"), 2500)
+    const createUserResponse =
+      (await createUserRes.json()) as UserSignUpResponse
+
+    if (createUserResponse.isError) {
+      setTimeout(
+        () =>
+          toast({
+            title: createUserResponse.error?.title || "Something went wrong",
+            description:
+              createUserResponse.error?.description || "Please try again later",
+          }),
+        1500
+      )
+      throw new Error("Something went wrong")
     }
+
+    const { email } = createUserResponse.user
+
+    const signInResponse = await signIn("credentials", {
+      email,
+      password: data.password,
+      callbackUrl: "/",
+    })
+
+    if (!signInResponse || !signInResponse?.ok) {
+      setTimeout(
+        () =>
+          toast({
+            title: signInResponse?.error ?? "Something went wrong",
+            description: "Please try again",
+          }),
+        1500
+      )
+      return
+    }
+
+    setTimeout(
+      () =>
+        toast({
+          title: "Account created successfully",
+          description: "Welcome to the club!",
+        }),
+      1500
+    )
   }
 
   return (

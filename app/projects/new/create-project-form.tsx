@@ -3,16 +3,10 @@
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Visibility } from "@prisma/client"
+import { useSession } from "next-auth/react"
 import { SubmitHandler, useForm } from "react-hook-form"
 
 import { defaultProjectTagOptions } from "@/lib/data"
-import { validateSchema } from "@/lib/utils"
-import {
-  CreateProjectRequest,
-  CreateProjectResponse,
-  NewProjectData,
-  newProjectSchema,
-} from "@/lib/validations/project"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -34,10 +28,15 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
-import { useAuth } from "@/components/auth-context"
+import {
+  CreateProjectRequest,
+  CreateProjectResponse,
+  NewProjectData,
+  newProjectSchema,
+} from "@/app/projects/project"
 
 const CreateProjectForm = () => {
-  const { user } = useAuth()
+  const { data: session } = useSession()
   const { toast } = useToast()
   const [selectedTags, setSelectedTags] = useState<string[]>([])
 
@@ -53,14 +52,14 @@ const CreateProjectForm = () => {
   })
 
   const onSubmit: SubmitHandler<NewProjectData> = async (data) => {
-    if (!user) return
+    if (!session?.user) return
 
     const res = await fetch("/api/projects/new", {
       method: "POST",
       body: JSON.stringify({
         ...data,
         tags: selectedTags ?? [],
-        ownerId: user.id,
+        ownerId: session?.user.id,
       } as CreateProjectRequest),
     })
 

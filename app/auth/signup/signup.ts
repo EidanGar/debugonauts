@@ -1,6 +1,5 @@
+import { User } from "@prisma/client"
 import { z } from "zod"
-
-import { AppUser } from "@/components/auth-context"
 
 export const userSignUpSchema = z.object({
   email: z
@@ -48,5 +47,5 @@ export type UserSignUpResponse = {
     title: string
     description: string
   }
-  user: AppUser | null
+  user: User | null
 }

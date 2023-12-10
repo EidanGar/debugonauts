@@ -1,6 +1,7 @@
 "use client"
 
 import Image from "next/image"
+import { signOut, useSession } from "next-auth/react"
 
 import { userConfig } from "@/config/user"
 import {
@@ -16,20 +17,19 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useAuth } from "@/components/auth-context"
 import { Icons } from "@/components/icons"
 
 const UserAvatar = () => {
-  const { logOut, user } = useAuth()
+  const { data: session } = useSession()
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Image
-          src={user?.photoUrl ?? userConfig.defaultUserImage}
+          src={session?.user?.image ?? userConfig.defaultUserImage}
           width={36}
           height={36}
-          alt={user?.username ?? "User"}
+          alt={session?.user?.name ?? "User"}
           className="object-cover duration-300 rounded-full cursor-pointer hover:ring-4 hover:ring-accent"
         />
       </DropdownMenuTrigger>
@@ -101,7 +101,7 @@ const UserAvatar = () => {
         <DropdownMenuItem>
           <button
             className="flex items-center justify-start w-full p-0 text-left border-none"
-            onClick={logOut}
+            onClick={() => signOut()}
           >
             <Icons.logOut className="w-4 h-4 mr-2" />
             <span>Log out</span>

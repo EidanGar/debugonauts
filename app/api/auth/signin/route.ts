@@ -1,7 +1,7 @@
 import bcryptjs from "bcryptjs"
 
 import prisma from "@/lib/db"
-import { UserSignInData, userSignInSchema } from "@/lib/validations/signin"
+import { UserSignInData, userSignInSchema } from "@/app/auth/signin/signin"
 
 export async function POST(req: Request) {
   const { email, password } = (await req.json()) as UserSignInData

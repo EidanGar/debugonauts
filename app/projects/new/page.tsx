@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import CreateProjectForm from "@/components/forms/create-project-form"
+import CreateProjectForm from "@/app/projects/new/create-project-form"
 
 export const metadata: Metadata = {
   metadataBase: new URL(process?.env?.NEXT_PUBLIC_SITE_URL ?? "localhost:3000"),

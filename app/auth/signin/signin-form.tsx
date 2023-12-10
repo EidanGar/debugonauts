@@ -1,15 +1,10 @@
 "use client"
 
-import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Provider, User } from "@prisma/client"
+import { signIn } from "next-auth/react"
 import { SubmitHandler, useForm } from "react-hook-form"
 
-import {
-  SignInResponse,
-  UserSignInData,
-  userSignInSchema,
-} from "@/lib/validations/signin"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -21,26 +16,11 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
-import { useAuth } from "@/components/auth-context"
+import { UserSignInData, userSignInSchema } from "@/app/auth/signin/signin"
 
-interface SignInFormProps {
-  isLoading: boolean
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
-  setIsEmailAlreadyUsed: React.Dispatch<React.SetStateAction<boolean>>
-  setUsedProvider: React.Dispatch<React.SetStateAction<Provider>>
-  setSignInData: React.Dispatch<React.SetStateAction<UserSignInData>>
-}
-
-const SignInForm = ({
-  isLoading,
-  setIsLoading,
-  setIsEmailAlreadyUsed,
-  setUsedProvider,
-  setSignInData,
-}: SignInFormProps) => {
-  const router = useRouter()
+const SignInForm = () => {
+  const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
-  const { signIn, setUser } = useAuth()
   const form = useForm<UserSignInData>({
     resolver: zodResolver(userSignInSchema),
     defaultValues: {
@@ -52,33 +32,24 @@ const SignInForm = ({
   const handleUserLogin: SubmitHandler<UserSignInData> = async (
     data: UserSignInData
   ) => {
-    setSignInData(data)
     setIsLoading(true)
-    setTimeout(() => setIsLoading(false), 10000)
-    const res = await signIn(data)
+    setTimeout(() => {
+      setIsLoading(false)
+    }, 10000)
 
-    if (!res) return
+    const response = await signIn("credentials", {
+      email: data.email,
+      password: data.password,
+      callbackUrl: "/",
+    })
 
-    const response = (await res.json()) as SignInResponse
-
-    if (!res.ok && response.isError) {
-      setTimeout(
-        () =>
-          toast({
-            title: response.error?.title ?? "Error",
-            description: response.error?.description ?? "Something went wrong",
-          }),
-        1500
-      )
-      if (res.status === 409) {
-        setIsEmailAlreadyUsed(true)
-        setUsedProvider(response?.provider ?? Provider.GOOGLE)
-      }
+    if (!response || !response?.ok) {
+      toast({
+        title: response?.error ?? "Something went wrong",
+        description: "Please try again",
+      })
       return
     }
-
-    setUser(response.user as User)
-    router.push("/")
   }
 
   return (
