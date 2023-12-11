@@ -4,6 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { signOut, useSession } from "next-auth/react"
 
+import { siteConfig } from "@/config/site"
 import { userConfig } from "@/config/user"
 import {
   DropdownMenu,
@@ -88,8 +89,13 @@ const UserAvatar = () => {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
-          <Icons.gitHub className="w-4 h-4 mr-2" />
-          <span>GitHub</span>
+          <Link
+            href={siteConfig.links.github}
+            className="w-full h-full flex items-center justify-start gap-2"
+          >
+            <Icons.gitHub className="w-4 h-4" />
+            <span>GitHub</span>
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuItem>
           <Icons.lifeBuoy className="w-4 h-4 mr-2" />

@@ -1,6 +1,6 @@
-import prisma from "@/lib/db"
+import prisma from "../../../../lib/db"
 
-export async function DELETE(req: Request) {
+export async function POST(req: Request) {
   const { projectId } = (await req.json()) as { projectId: string }
 
   // find project
@@ -9,6 +9,8 @@ export async function DELETE(req: Request) {
       id: projectId,
     },
   })
+
+  console.log("Found project", foundProject)
 
   if (!foundProject) {
     return new Response(
@@ -25,12 +27,16 @@ export async function DELETE(req: Request) {
     )
   }
 
+  console.log("Deleting project")
+
   // delete project
   await prisma.project.delete({
     where: {
       id: projectId,
     },
   })
+
+  console.log("Project deleted")
 
   return new Response(
     JSON.stringify({

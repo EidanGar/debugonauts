@@ -14,7 +14,7 @@ export enum Labels {
 export const newProjectSchema = z.object({
   name: z.string().min(3).max(50),
   description: z.string().min(3).max(500),
-  repository: z.string().url().optional(),
+  repository: z.string().url().nullable(),
   tags: z.array(z.string()),
   visibility: z
     .enum([Visibility.PUBLIC, Visibility.PRIVATE])

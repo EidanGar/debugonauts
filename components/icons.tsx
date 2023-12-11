@@ -56,7 +56,6 @@ export const Icons: Record<
   menu: Menu,
   plus: Plus,
   users: Users,
-
   moreHorizontal: LuMoreHorizontal,
   search: Search,
   logo: (props: LucideProps) => (

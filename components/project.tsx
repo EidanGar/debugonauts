@@ -39,9 +39,9 @@ import { useToast } from "./ui/use-toast"
 const MoreProjectOptions = ({ name, id }: Project) => {
   const { toast } = useToast()
 
-  const deleteProject = async () => {
+  const deleteProject = async (id: string) => {
     const res = await fetch("/api/projects", {
-      method: "DELETE",
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
@@ -58,15 +58,16 @@ const MoreProjectOptions = ({ name, id }: Project) => {
     }
 
     toast({
-      title: "Project deleted",
-      description: "Your project has been deleted",
+      title: `Project "${name}" deleted`,
     })
   }
 
   return (
     <AlertDialog onOpenChange={() => console.log("Changed")}>
       <DropdownMenu>
-        <DropdownMenuTrigger>More</DropdownMenuTrigger>
+        <DropdownMenuTrigger>
+          <Icons.moreHorizontal className="w-4 h-4" />
+        </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
           <DropdownMenuLabel>{name}</DropdownMenuLabel>
           <DropdownMenuSeparator />
@@ -90,10 +91,7 @@ const MoreProjectOptions = ({ name, id }: Project) => {
           </Link>
           <DropdownMenuSeparator />
           <AlertDialogTrigger asChild>
-            <DropdownMenuItem
-              onClick={deleteProject}
-              className="text-pink-500 cursor-pointer hover:text-pink-600"
-            >
+            <DropdownMenuItem className="text-pink-500 cursor-pointer hover:text-pink-600">
               <Icons.trash className="w-4 h-4 mr-2" />
               <span>Delete</span>
             </DropdownMenuItem>
@@ -109,7 +107,9 @@ const MoreProjectOptions = ({ name, id }: Project) => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction>Continue</AlertDialogAction>
+            <AlertDialogAction onClick={() => deleteProject(id)}>
+              Continue
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </DropdownMenu>

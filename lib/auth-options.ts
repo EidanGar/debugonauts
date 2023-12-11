@@ -57,9 +57,44 @@ export const authConfig = {
       const user = await prisma.user.findUnique({
         where: { email: session.user?.email ?? "" },
       })
+
+      if (!user) return Promise.resolve(session)
+
+      // get user projects
+      const projects = await prisma.project.findMany({
+        where: {
+          members: {
+            some: {
+              userId: user.id,
+            },
+          },
+        },
+      })
+
+      // get user issues
+      const issues = await prisma.issue.findMany({
+        where: {
+          assigneeId: user.id,
+        },
+      })
+
+      // get user notifications
+      const notifications = await prisma.notification.findMany({
+        where: {
+          recipientId: user.id,
+        },
+      })
+
       session.user = {
         ...session.user,
-        ...{ ...user, hashedPwd: undefined, salt: undefined },
+        ...{
+          ...user,
+          hashedPwd: undefined,
+          salt: undefined,
+          projects,
+          issues,
+          notifications,
+        },
       }
       return Promise.resolve(session)
     },
