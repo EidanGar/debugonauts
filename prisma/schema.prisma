@@ -10,12 +10,11 @@ datasource db {
 model User {
   id             String          @id @default(uuid())
   email          String          @unique
-  username       String
+  name           String
   hashedPwd      String
   salt           String // Salt for password hashing
-  photoUrl       String?
+  image          String?
   bio            String?
-  contact        String?
   timezone       String?
   comments       Comment[]
   notifications  Notification[]

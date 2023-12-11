@@ -129,7 +129,7 @@ const CreateProjectForm = () => {
               <FormControl>
                 <Input
                   type="text"
-                  placeholder="https://www.github.com/username/repo"
+                  placeholder="https://www.github.com/name/repo"
                   {...field}
                 />
               </FormControl>

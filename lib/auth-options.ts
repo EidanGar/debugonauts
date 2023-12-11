@@ -4,13 +4,13 @@ import type {
   NextApiResponse,
 } from "next"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
-import bcryptjs from "bcryptjs"
 import { getServerSession, type NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import GithubProvider from "next-auth/providers/github"
 import GoogleProvider from "next-auth/providers/google"
 
 import prisma from "@/lib/db"
+import { SignInResponse, UserSignInData } from "@/app/auth/signin/signin"
 
 export const authConfig = {
   adapter: PrismaAdapter(prisma),
@@ -34,44 +34,42 @@ export const authConfig = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        console.log("Authenticating with credentials", credentials)
-        if (!credentials) {
-          throw new Error("No credentials provided")
-        }
+        if (!credentials) return null
 
-        const { email, password } = credentials
-
-        console.log("Fetching user from database")
-        const user = await prisma.user.findUnique({
-          where: {
-            email,
-          },
+        const res = await fetch(`${process.env.NEXTAUTH_URL}/api/auth/signin`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(credentials as UserSignInData),
         })
 
-        if (!user) return null
+        if (!res.ok) return null
 
-        console.log("Checking password")
-        const passwordMatch = await bcryptjs.compare(
-          password + user.salt,
-          user.hashedPwd
-        )
+        const data: SignInResponse | null = await res.json()
 
-        if (!passwordMatch) return null
+        if (!data || data.error) return null
 
-        console.log("Returning user", user)
-        return user
+        return data.user
       },
     }),
   ],
   callbacks: {
-    session: async ({ session, user }) => {
-      console.log("session callback", { session, user })
+    session: async ({ session }) => {
+      const user = await prisma.user.findUnique({
+        where: { email: session.user?.email ?? "" },
+      })
+      session.user = {
+        ...session.user,
+        ...{ ...user, hashedPwd: undefined, salt: undefined },
+      }
       return Promise.resolve(session)
     },
   },
   secret: process.env.SECRET,
   pages: {
     signIn: "/auth/signin",
+  },
+  session: {
+    strategy: "jwt",
   },
 } satisfies NextAuthOptions
 

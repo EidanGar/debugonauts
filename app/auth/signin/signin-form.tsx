@@ -35,18 +35,20 @@ const SignInForm = () => {
     setIsLoading(true)
     setTimeout(() => {
       setIsLoading(false)
-    }, 10000)
+    }, 15000)
 
     const response = await signIn("credentials", {
-      email: data.email,
-      password: data.password,
-      callbackUrl: "/",
+      ...data,
+      callbackUrl:
+        process.env.NODE_ENV === "production"
+          ? process.env.NEXTAUTH_URL
+          : "http://localhost:3000",
     })
 
-    if (!response || !response?.ok) {
+    if (!response?.ok || !response) {
       toast({
         title: response?.error ?? "Something went wrong",
-        description: "Please try again",
+        description: JSON.stringify({ response, data }, null, 2),
       })
       return
     }

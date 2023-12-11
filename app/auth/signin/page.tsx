@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
 
 import {
@@ -15,10 +14,10 @@ import OAuthSignIn from "@/components/oauth-signin"
 import { Shell } from "@/components/shell"
 import SignInForm from "@/app/auth/signin/signin-form"
 
-export default function SignInPage() {
+const SignInPage = () => {
   return (
-    <Shell className="flex items-center">
-      <Card className="mx-0 w-[min(460px,90vw)]">
+    <Shell as="div" className="flex px-1 items-center">
+      <Card className="mx-auto w-[min(460px,90vw)]">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl">Sign in</CardTitle>
           <CardDescription>Choose your preferred sign in</CardDescription>
@@ -64,3 +63,5 @@ export default function SignInPage() {
     </Shell>
   )
 }
+
+export default SignInPage

@@ -14,11 +14,9 @@ export interface ProjectsFetchResponse {
 export async function POST(req: Request) {
   const { userId } = (await req.json()) as { userId: string }
 
-  console.log("UserId:", userId)
-
   const foundUser = await prisma.user.findUnique({
     where: {
-      id: "d5463fe9-4b58-409d-8dca-9dbee4259e9f",
+      id: userId,
     },
   })
 

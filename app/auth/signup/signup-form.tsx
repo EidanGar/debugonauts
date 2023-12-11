@@ -32,7 +32,7 @@ const SignUpForm = ({ setIsLoading, isLoading }: SignInFormProps) => {
     resolver: zodResolver(userSignUpSchema),
     defaultValues: {
       email: "",
-      username: "",
+      name: "",
       password: "",
     },
   })
@@ -75,7 +75,7 @@ const SignUpForm = ({ setIsLoading, isLoading }: SignInFormProps) => {
       throw new Error("Something went wrong")
     }
 
-    const { email } = createUserResponse.user
+    const { email } = createUserResponse?.user
 
     const signInResponse = await signIn("credentials", {
       email,
@@ -112,11 +112,11 @@ const SignUpForm = ({ setIsLoading, isLoading }: SignInFormProps) => {
         onSubmit={(...args) => void form.handleSubmit(handleUserLogin)(...args)}
       >
         <FormField
-          name="username"
+          name="name"
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>name</FormLabel>
               <FormControl>
                 <Input type="text" {...field} />
               </FormControl>

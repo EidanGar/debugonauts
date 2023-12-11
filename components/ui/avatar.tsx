@@ -1,6 +1,7 @@
 "use client"
 
 import Image from "next/image"
+import Link from "next/link"
 import { signOut, useSession } from "next-auth/react"
 
 import { userConfig } from "@/config/user"
@@ -34,16 +35,17 @@ const UserAvatar = () => {
         />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+        <DropdownMenuLabel>{session?.user?.name}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>
-            <Icons.user className="w-4 h-4 mr-2" />
-            <span>Profile</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Icons.creditCard className="w-4 h-4 mr-2" />
-            <span>Billing</span>
+            <Link
+              href="/profile"
+              className="w-full h-full flex items-center justify-start gap-2"
+            >
+              <Icons.user className="w-4 h-4" />
+              <span>Profile</span>
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
             <Icons.settings className="w-4 h-4 mr-2" />

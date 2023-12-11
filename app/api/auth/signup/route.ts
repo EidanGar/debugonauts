@@ -5,16 +5,16 @@ import { hashPassword } from "@/lib/utils"
 import { UserSignUpData, userSignUpSchema } from "@/app/auth/signup/signup"
 
 export async function POST(req: Request) {
-  const { email, username, password } = (await req.json()) as UserSignUpData
+  const { email, name, password } = (await req.json()) as UserSignUpData
 
   try {
     const {
       email: validatedEmail,
       password: validatedPwd,
-      username: validatedUsername,
+      name: validatedname,
     } = userSignUpSchema.parse({
       email,
-      username,
+      name,
       password,
     })
 
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
     // create user
     const user = await prisma.user.create({
       data: {
-        username: validatedUsername,
+        name: validatedname,
         email: validatedEmail,
         hashedPwd: await hashPassword(validatedPwd, userSalt),
         salt: userSalt,
@@ -53,12 +53,9 @@ export async function POST(req: Request) {
         salt: false,
         hashedPwd: false,
         email: true,
-        username: true,
+        name: true,
         id: true,
-        resetToken: true,
-        resetTokenExpiry: true,
-        photoUrl: true,
-        provider: true,
+        image: true,
         bio: true,
         contact: true,
         timezone: true,
