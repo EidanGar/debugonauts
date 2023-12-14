@@ -36,6 +36,8 @@ export const authConfig = {
       async authorize(credentials) {
         if (!credentials) return null
 
+        console.time("signin")
+
         const res = await fetch(`${process.env.NEXTAUTH_URL}/api/auth/signin`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -48,12 +50,16 @@ export const authConfig = {
 
         if (!data || data.error) return null
 
+        console.timeEnd("signin")
+
         return data.user
       },
     }),
   ],
   callbacks: {
     session: async ({ session }) => {
+      console.time("session")
+
       const user = await prisma.user.findUnique({
         where: { email: session.user?.email ?? "" },
       })
@@ -96,6 +102,9 @@ export const authConfig = {
           notifications,
         },
       }
+
+      console.timeEnd("session")
+
       return Promise.resolve(session)
     },
   },

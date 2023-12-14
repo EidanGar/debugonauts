@@ -1,5 +1,7 @@
 import prisma from "../../../../lib/db"
 
+// TODO: Fix project delete route
+
 export async function POST(req: Request) {
   const { projectId } = (await req.json()) as { projectId: string }
 

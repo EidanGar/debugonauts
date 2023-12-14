@@ -8,7 +8,7 @@ const shellVariants = cva("mx-auto w-full relative max-w-6xl", {
     variant: {
       default: "container",
       section: "max-w-screen-xl px-2.5 md:px-20",
-      sidebar: "",
+      none: "",
       centered: "container flex h-[100dvh] max-w-2xl flex-col justify-center",
       markdown: "container max-w-3xl py-8 md:py-10 lg:py-10",
       grid: "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-8",

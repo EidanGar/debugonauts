@@ -1,19 +1,72 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Project } from "@prisma/client"
+import { Project, User } from "@prisma/client"
 import { useSession } from "next-auth/react"
 
 import { buttonVariants } from "@/components/ui/button"
-import ProjectCard from "@/components/project"
 import { Shell } from "@/components/shell"
 
-import Loading from "../loading"
+import ProjectsTable, { ProjectWithLead } from "./project-columns"
 
 const ProjectsPage = async () => {
+  const [userProjects, setUserProjects] = useState<ProjectWithLead[]>([])
   const { data: session } = useSession()
   const router = useRouter()
+
+  useEffect(() => {
+    const fetchProjectsWithLeads = async () => {
+      const projectsResponse = await fetch("/api/projects", {
+        method: "POST",
+        // @ts-ignore
+        body: JSON.stringify({ userId: session?.user?.id }),
+      })
+
+      // TODO: Fix projects fetch fail error from projects page
+      // TODO2: Add error toast and improve error handling
+      if (!projectsResponse.ok) throw new Error("Failed to fetch projects")
+
+      const projectsData = await projectsResponse.json()
+
+      const projectLeadsResponse = await fetch("/api/users", {
+        method: "POST",
+        body: JSON.stringify({
+          userIds: projectsData.projects.map((project: Project) => {
+            return project.projectLeadId
+          }),
+        }),
+      })
+
+      if (!projectLeadsResponse.ok)
+        throw new Error("Failed to fetch project leads")
+
+      const projectLeadsData = await projectLeadsResponse.json()
+
+      const projectLeadsMap: { [key: string]: User } = {}
+
+      projectLeadsData.users.forEach((user: User) => {
+        projectLeadsMap[user.id] = user
+      })
+
+      const projectsWithLeads = projectsData.projects.map(
+        (project: Project) => {
+          const projectLead = projectLeadsMap[project.projectLeadId!]
+
+          return {
+            ...project,
+            leadName: projectLead.name,
+            leadImage: projectLead.image,
+          }
+        }
+      )
+
+      setUserProjects(projectsWithLeads as ProjectWithLead[])
+    }
+
+    if (session && userProjects.length === 0) fetchProjectsWithLeads()
+  }, [session, userProjects.length])
 
   if (!session) router.push("/")
 
@@ -26,19 +79,10 @@ const ProjectsPage = async () => {
         <Link href="/projects/new" className={buttonVariants({ size: "sm" })}>
           Create project
         </Link>
+        {/* TODO: Fix all ts ignores related to the user session type */}
       </div>
-      {/* TODO: Fix all ts ignores related to the user session type */}
       {/* @ts-ignore */}
-      {session?.user?.projects?.length ? (
-        <Shell variant="grid">
-          {/* @ts-ignore */}
-          {session?.user?.projects.map((project: Project) => (
-            <ProjectCard key={project.name} {...project} />
-          ))}
-        </Shell>
-      ) : (
-        <Loading />
-      )}
+      <ProjectsTable data={userProjects} />
     </Shell>
   )
 }

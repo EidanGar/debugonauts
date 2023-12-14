@@ -45,6 +45,7 @@ const SignInForm = () => {
           : "http://localhost:3000",
     })
 
+    // TODO: Fix toast popping up despite successful login
     if (!response?.ok || !response) {
       toast({
         title: response?.error ?? "Something went wrong",
