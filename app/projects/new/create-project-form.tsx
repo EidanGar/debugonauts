@@ -7,10 +7,12 @@ import { useSession } from "next-auth/react"
 import { SubmitHandler, useForm } from "react-hook-form"
 
 import { defaultProjectTagOptions } from "@/lib/data"
+import { randomProjectKey } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -45,7 +47,6 @@ const CreateProjectForm = () => {
     defaultValues: {
       name: "",
       description: "",
-      repository: "",
       tags: [],
       visibility: Visibility.PRIVATE,
     },
@@ -59,7 +60,8 @@ const CreateProjectForm = () => {
       body: JSON.stringify({
         ...data,
         tags: selectedTags ?? [],
-        ownerId: session?.user.id,
+        // @ts-ignore
+        projectLeadId: session?.user.id,
       } as CreateProjectRequest),
     })
 
@@ -103,6 +105,30 @@ const CreateProjectForm = () => {
           )}
         />
 
+        <FormField
+          name="projectKey"
+          defaultValue={randomProjectKey()}
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Key</FormLabel>
+              <FormControl>
+                <Input
+                  type="text"
+                  placeholder="KAN"
+                  {...field}
+                  className="uppercase"
+                />
+              </FormControl>
+              <FormDescription>
+                A unique identifier for your project
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* TODO: Make project description optional when creating a project */}
         <FormField
           name="description"
           control={form.control}

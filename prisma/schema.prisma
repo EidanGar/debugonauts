@@ -7,26 +7,39 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Visibility {
+  PUBLIC
+  PRIVATE
+  ADMIN_ONLY
+}
+
 model User {
-  id              String          @id @default(uuid())
-  email           String          @unique
-  name            String
-  hashedPwd       String
-  salt            String // Salt for password hashing
-  image           String?
-  bio             String?
-  timezone        String?
-  leadingProjects Project[]       @relation("ProjectLead")
-  comments        Comment[]
-  notifications   Notification[]
-  projectMembers  ProjectMember[]
-  teamMembers     TeamMember[]
-  assignedIssues  Issue[]         @relation("IssueAssignee")
-  reportedIssues  Issue[]         @relation("IssueReporter")
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  Account         Account[]
-  Project         Project[]
+  id                 String          @id @default(uuid())
+  email              String          @unique
+  emailVisibility    Visibility      @default(PUBLIC)
+  location           String?
+  locationVisibility Visibility      @default(PUBLIC)
+  name               String
+  hashedPwd          String
+  salt               String // Salt for password hashing
+  image              String?
+  bio                String?
+  timezone           String?
+  jobTitle           String?
+  department         String?
+  organization       String?
+  bannerImage        String?
+  leadingProjects    Project[]       @relation("ProjectLead")
+  comments           Comment[]
+  notifications      Notification[]
+  projectMembers     ProjectMember[]
+  teamMembers        TeamMember[]
+  assignedIssues     Issue[]         @relation("IssueAssignee")
+  reportedIssues     Issue[]         @relation("IssueReporter")
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  Account            Account[]
+  Project            Project[]
 
   @@index(email)
   @@index(id)
@@ -86,6 +99,7 @@ model Project {
   id            String          @id @default(uuid())
   name          String
   description   String
+  projectKey    String          @unique
   visibility    Visibility      @default(PRIVATE)
   issues        Issue[]
   members       ProjectMember[]
@@ -98,11 +112,6 @@ model Project {
   updatedAt     DateTime        @updatedAt
   User          User?           @relation(fields: [userId], references: [id])
   userId        String?
-}
-
-enum Visibility {
-  PUBLIC
-  PRIVATE
 }
 
 model ProjectMember {

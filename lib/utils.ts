@@ -27,6 +27,18 @@ export async function hashPassword(pwd: string, salt: string, number?: number) {
   return await bcryptjs.hash(pwd + salt, number ?? 10)
 }
 
+export function randomProjectKey() {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+  let key = ""
+
+  for (let i = 0; i < 3; i++) {
+    key += alphabet.charAt(Math.floor(Math.random() * alphabet.length))
+  }
+
+  return key
+}
+
 export function generateVerificationCode() {
   const adjectives1 = [
     "Quick",

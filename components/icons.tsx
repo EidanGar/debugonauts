@@ -26,6 +26,8 @@ import {
   type Icon as LucideIcon,
 } from "lucide-react"
 import { BsGithub } from "react-icons/bs"
+import { IoMdLock } from "react-icons/io"
+import { IoEarth } from "react-icons/io5"
 import { LuMoreHorizontal } from "react-icons/lu"
 
 export type Icon = LucideIcon
@@ -35,6 +37,8 @@ export const Icons: Record<
   LucideIcon | ((arg: LucideProps) => JSX.Element)
 > = {
   sun: SunMedium,
+  earth: IoEarth,
+  lock: IoMdLock,
   cloud: Cloud,
   creditCard: CreditCard,
   trash: Trash2,

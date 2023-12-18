@@ -1,18 +1,13 @@
-import prisma from "../../../../lib/db"
-
-// TODO: Fix project delete route
+import prisma from "@/lib/db"
 
 export async function POST(req: Request) {
   const { projectId } = (await req.json()) as { projectId: string }
 
-  // find project
   const foundProject = await prisma.project.findUnique({
     where: {
       id: projectId,
     },
   })
-
-  console.log("Found project", foundProject)
 
   if (!foundProject) {
     return new Response(
@@ -29,16 +24,12 @@ export async function POST(req: Request) {
     )
   }
 
-  console.log("Deleting project")
-
   // delete project
   await prisma.project.delete({
     where: {
       id: projectId,
     },
   })
-
-  console.log("Project deleted")
 
   return new Response(
     JSON.stringify({

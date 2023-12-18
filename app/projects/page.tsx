@@ -9,7 +9,7 @@ import { useSession } from "next-auth/react"
 import { buttonVariants } from "@/components/ui/button"
 import { Shell } from "@/components/shell"
 
-import ProjectsTable, { ProjectWithLead } from "./project-columns"
+import ProjectsTable, { ProjectWithLead } from "./projects-table"
 
 const ProjectsPage = async () => {
   const [userProjects, setUserProjects] = useState<ProjectWithLead[]>([])
@@ -26,6 +26,9 @@ const ProjectsPage = async () => {
 
       // TODO: Fix projects fetch fail error from projects page
       // TODO2: Add error toast and improve error handling
+      // TODO3: Improve fetching efficiency
+      console.log("Projects response:", projectsResponse)
+
       if (!projectsResponse.ok) throw new Error("Failed to fetch projects")
 
       const projectsData = await projectsResponse.json()
@@ -71,7 +74,7 @@ const ProjectsPage = async () => {
   if (!session) router.push("/")
 
   return (
-    <Shell as="div" className="static flex flex-col items-center py-4 gap-7">
+    <Shell as="div" className="static flex flex-col items-center gap-5 py-4">
       <div className="flex items-center justify-between w-full">
         <h1 className="text-3xl font-extrabold leading-tight tracking-tighter md:text-4xl">
           Projects

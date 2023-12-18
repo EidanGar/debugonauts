@@ -6,7 +6,7 @@ import {
 } from "@/app/projects/project"
 
 export async function POST(req: Request) {
-  const { ownerId, ...data } = (await req.json()) as CreateProjectRequest
+  const { projectLeadId, ...data } = (await req.json()) as CreateProjectRequest
 
   try {
     newProjectSchema.parse(data)
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
 
   const foundUser = await prisma.user.findUnique({
     where: {
-      id: ownerId,
+      id: projectLeadId,
     },
   })
 
@@ -61,7 +61,7 @@ export async function POST(req: Request) {
   await prisma.projectMember.create({
     data: {
       role: "OWNER",
-      userId: ownerId,
+      userId: projectLeadId,
       projectId: project.id,
     },
   })

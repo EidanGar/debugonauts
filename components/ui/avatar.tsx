@@ -41,11 +41,11 @@ const UserAvatar = () => {
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <Link
-              href="/profile"
+              href="/manage-profile"
               className="w-full h-full flex items-center justify-start gap-2"
             >
               <Icons.user className="w-4 h-4" />
-              <span>Profile</span>
+              <span>Manage profile</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem>

@@ -5,6 +5,7 @@ import {
   ColumnDef,
   ColumnFiltersState,
   SortingState,
+  VisibilityState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -13,6 +14,12 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import {
   Table,
@@ -30,6 +37,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[]
   filterableCol?: string
   isFilterable?: boolean
+  rowSelection?: boolean
 }
 
 export default function DataTable<TData, TValue>({
@@ -37,9 +45,12 @@ export default function DataTable<TData, TValue>({
   data,
   filterableCol = "name",
   isFilterable = true,
+  rowSelection = false,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+
   const table = useReactTable({
     data,
     columns,
@@ -49,28 +60,63 @@ export default function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
     state: {
       sorting,
       columnFilters,
+      columnVisibility,
     },
   })
 
   return (
     <div>
-      {isFilterable && (
-        <div className="flex items-center py-4">
-          <Input
-            placeholder={`Filter by ${filterableCol}...`}
-            value={
-              (table.getColumn(filterableCol)?.getFilterValue() as string) ?? ""
-            }
-            onChange={(event) =>
-              table.getColumn(filterableCol)?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm"
-          />
-        </div>
-      )}
+      <div className="flex items-center w-full justify-between gap-2">
+        {isFilterable && (
+          <div className="flex items-center py-4">
+            <Input
+              placeholder={`Filter by ${filterableCol}...`}
+              value={
+                (table.getColumn(filterableCol)?.getFilterValue() as string) ??
+                ""
+              }
+              onChange={(event) =>
+                table
+                  .getColumn(filterableCol)
+                  ?.setFilterValue(event.target.value)
+              }
+              className="max-w-sm"
+            />
+          </div>
+        )}
+        {rowSelection && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto">
+                Columns
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  )
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -99,7 +145,7 @@ export default function DataTable<TData, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell className="py-2" key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
