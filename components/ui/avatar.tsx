@@ -42,22 +42,32 @@ const UserAvatar = () => {
           <DropdownMenuItem>
             <Link
               href="/manage-profile"
-              className="w-full h-full flex items-center justify-start gap-2"
+              className="flex items-center justify-start w-full h-full gap-2"
             >
               <Icons.user className="w-4 h-4" />
               <span>Manage profile</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <Icons.settings className="w-4 h-4 mr-2" />
-            <span>Settings</span>
+            <Link
+              href="/settings"
+              className="flex items-center justify-start w-full h-full gap-2"
+            >
+              <Icons.settings className="w-4 h-4" />
+              <span>Settings</span>
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>
-            <Icons.users className="w-4 h-4 mr-2" />
-            <span>Teams</span>
+            <Link
+              href="/teams"
+              className="flex items-center justify-start w-full h-full gap-2"
+            >
+              <Icons.users className="w-4 h-4" />
+              <span>Teams</span>
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
@@ -83,35 +93,45 @@ const UserAvatar = () => {
             </DropdownMenuPortal>
           </DropdownMenuSub>
           <DropdownMenuItem>
-            <Icons.plus className="w-4 h-4 mr-2" />
-            <span>New Team</span>
+            <Link
+              href="/teams/new"
+              className="flex items-center justify-start w-full h-full gap-2"
+            >
+              <Icons.plus className="w-4 h-4" />
+              <span>New Team</span>
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <Link
             href={siteConfig.links.github}
-            className="w-full h-full flex items-center justify-start gap-2"
+            className="flex items-center justify-start w-full h-full gap-2"
           >
             <Icons.gitHub className="w-4 h-4" />
             <span>GitHub</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem>
-          <Icons.lifeBuoy className="w-4 h-4 mr-2" />
-          <span>Support</span>
+          <Link
+            href="/support"
+            className="flex items-center justify-start w-full h-full gap-2"
+          >
+            <Icons.lifeBuoy className="w-4 h-4" />
+            <span>Support</span>
+          </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem disabled>
-          <Icons.cloud className="w-4 h-4 mr-2" />
+        {/* <DropdownMenuItem disabled>
+          <Icons.cloud className="w-4 h-4" />
           <span>API</span>
-        </DropdownMenuItem>
+        </DropdownMenuItem> */}
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <button
-            className="flex items-center justify-start w-full p-0 text-left border-none"
+            className="flex items-center justify-start w-full gap-3 p-0 text-left border-none"
             onClick={() => signOut()}
           >
-            <Icons.logOut className="w-4 h-4 mr-2" />
+            <Icons.logOut className="w-4 h-4" />
             <span>Log out</span>
           </button>
         </DropdownMenuItem>

@@ -79,6 +79,7 @@ const VisibilityDropdown = ({ onChange, value }: ProfileVisibilityProps) => {
 const ManageProfilePage = () => {
   const { toast } = useToast()
   const { data: session } = useSession()
+  // TODO: Fix manage profile form validation
   const form = useForm({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -107,7 +108,25 @@ const ManageProfilePage = () => {
   //   })
 
   const onSubmit: SubmitHandler<ProfileData> = async (data) => {
-    console.log(data)
+    const response = await fetch("/api/users/patch", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data as ProfileData),
+    })
+
+    if (response.ok) {
+      toast({
+        title: "Your profile has been updated.",
+        description: "Your change might take a while to show everywhere",
+      })
+    } else {
+      toast({
+        title: "Something went wrong",
+        description: "Your profile could not be updated.",
+      })
+    }
   }
 
   return (
@@ -133,9 +152,6 @@ const ManageProfilePage = () => {
           </h2>
           <Card className="w-full">
             <CardContent className="flex flex-col w-full gap-3 p-6">
-              {/* <span className="text-xs leading-3 text-end">
-                Who can see this?
-              </span> */}
               <div className="flex flex-col items-start justify-between w-full gap-2 sm:items-center sm:flex-row">
                 <FormField
                   control={form.control}
@@ -149,6 +165,7 @@ const ManageProfilePage = () => {
                         <Input
                           className="border-0 focus:border-1 hover:bg-primary-foreground"
                           type="url"
+                          required={false}
                           placeholder="https://example.com/image.png"
                           {...field}
                         />
@@ -312,6 +329,7 @@ const ManageProfilePage = () => {
                         <Input
                           className="border-0 focus:border-1 hover:bg-primary-foreground"
                           type="text"
+                          placeholder="Your location"
                           {...field}
                         />
                       </FormControl>
@@ -389,7 +407,7 @@ const ManageProfilePage = () => {
                   Delete account
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent>
+              <AlertDialogContent className="max-w-[95vw] rounded-md">
                 <AlertDialogHeader>
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>

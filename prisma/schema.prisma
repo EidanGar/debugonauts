@@ -53,7 +53,7 @@ model Account {
   resetToken       String? // Token for password reset
   resetTokenExpiry DateTime? // Expiry for reset token
 
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 
   @@unique([provider, providerId])
@@ -73,7 +73,7 @@ model TeamMember {
   teamId    String
   userId    String
   role      Role     @default(TESTER)
-  team      Team     @relation(fields: [teamId], references: [id])
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
 

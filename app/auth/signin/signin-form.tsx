@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { signIn } from "next-auth/react"
 import { SubmitHandler, useForm } from "react-hook-form"
@@ -19,6 +20,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { UserSignInData, userSignInSchema } from "@/app/auth/signin/signin"
 
 const SignInForm = () => {
+  const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
   const form = useForm<UserSignInData>({
@@ -37,12 +39,13 @@ const SignInForm = () => {
       setIsLoading(false)
     }, 15000)
 
+    const callbackUrl = decodeURIComponent(
+      searchParams.get("callbackUrl") ?? "/"
+    )
+
     const response = await signIn("credentials", {
       ...data,
-      callbackUrl:
-        process.env.NODE_ENV === "production"
-          ? process.env.NEXTAUTH_URL
-          : "http://localhost:3000",
+      callbackUrl,
     })
 
     if (response && !response?.ok) {

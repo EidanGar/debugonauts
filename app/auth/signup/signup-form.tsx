@@ -42,8 +42,11 @@ const SignUpForm = ({ setIsLoading, isLoading }: SignInFormProps) => {
   ) => {
     setIsLoading(true)
     setTimeout(() => setIsLoading(false), 10000)
-    const createUserRes = await fetch("/api/users/new", {
+    const createUserRes = await fetch("/api/auth/signup", {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(data),
     })
 
@@ -69,6 +72,18 @@ const SignUpForm = ({ setIsLoading, isLoading }: SignInFormProps) => {
             title: createUserResponse.error?.title || "Something went wrong",
             description:
               createUserResponse.error?.description || "Please try again later",
+          }),
+        1500
+      )
+      throw new Error("Something went wrong")
+    }
+
+    if (!createUserResponse?.user) {
+      setTimeout(
+        () =>
+          toast({
+            title: "Something went wrong",
+            description: "Please try again later",
           }),
         1500
       )

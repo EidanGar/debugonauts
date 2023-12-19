@@ -50,7 +50,7 @@ const projectColumns: ColumnDef<ProjectWithLead>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Name
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <ArrowUpDown className="w-4 h-4 ml-2" />
         </Button>
       )
     },
@@ -88,7 +88,7 @@ const projectColumns: ColumnDef<ProjectWithLead>[] = [
       return (
         <div className="flex items-center h-full gap-2">
           <Image
-            className="inline-block w-7 h-7 mr-2 rounded-full"
+            className="inline-block mr-2 rounded-full w-7 h-7"
             width={28}
             height={28}
             src={row.original.leadImage ?? userConfig.defaultUserImage}
@@ -121,11 +121,11 @@ const projectColumns: ColumnDef<ProjectWithLead>[] = [
       }
 
       return (
-        <div className="w-full flex justify-end">
+        <div className="flex justify-end w-full">
           <AlertDialog onOpenChange={() => console.log("Changed")}>
             <DropdownMenu>
               <DropdownMenuTrigger className="flex justify-end">
-                <Button variant="ghost" className="py-2 px-4">
+                <Button variant="ghost" className="px-4 py-2">
                   <Icons.moreHorizontal className="w-4 h-4 ml-auto" />
                 </Button>
               </DropdownMenuTrigger>
@@ -158,7 +158,7 @@ const projectColumns: ColumnDef<ProjectWithLead>[] = [
                   </DropdownMenuItem>
                 </AlertDialogTrigger>
               </DropdownMenuContent>
-              <AlertDialogContent>
+              <AlertDialogContent className="max-w-[95vw] rounded-md">
                 <AlertDialogHeader>
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>
@@ -186,6 +186,7 @@ const projectColumns: ColumnDef<ProjectWithLead>[] = [
 const ProjectsTable = ({ data }: { data: Project[] }) => {
   return data?.length ? (
     <Shell variant={"none"}>
+      {/* TODO: Add a table shadow as a loading component */}
       {/* @ts-ignore */}
       <DataTable rowSelection={true} columns={projectColumns} data={data} />
     </Shell>

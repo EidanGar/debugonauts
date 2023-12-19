@@ -49,24 +49,17 @@ export async function POST(req: Request) {
         hashedPwd: await hashPassword(validatedPwd, userSalt),
         salt: userSalt,
       },
-      select: {
-        salt: false,
-        hashedPwd: false,
-        email: true,
-        name: true,
-        id: true,
-        image: true,
-        bio: true,
-        contact: true,
-        timezone: true,
-        createdAt: true,
-        updatedAt: true,
-      },
     })
 
-    return new Response(JSON.stringify({ isError: false, user }), {
-      status: 201,
-    })
+    return new Response(
+      JSON.stringify({
+        isError: false,
+        user: { ...user, hashPassword: undefined, salt: undefined },
+      }),
+      {
+        status: 201,
+      }
+    )
   } catch (error) {
     if (error instanceof Error) {
       return new Response(

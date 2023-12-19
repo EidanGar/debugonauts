@@ -3,15 +3,17 @@ import { z } from "zod"
 
 export const profileSchema = z.object({
   name: z
-    .string()
+    .string({
+      invalid_type_error: "Name must be a string",
+    })
+    // the name shouldnt be checked unless supplied
     .min(3, {
-      message: "The profile name must be at least 3 characters in length.",
+      message: "The name must be at least 3 characters in length.",
     })
     .max(50, {
-      message: "The profile name must not exceed 50 characters in length.",
+      message: "The name must not exceed 50 characters in length.",
     })
     .optional(),
-
   bio: z
     .string()
     .min(3, {
