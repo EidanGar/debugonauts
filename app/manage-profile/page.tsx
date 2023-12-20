@@ -97,7 +97,7 @@ const ManageProfilePage = () => {
   })
 
   const onSubmit: SubmitHandler<ProfileData> = async (data) => {
-    const response = await fetch("/api/users/patch", {
+    const response = await fetch("/api/user/patch", {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -146,12 +146,12 @@ const ManageProfilePage = () => {
           </h2>
           <Card className="w-full">
             <CardContent className="flex flex-col w-full gap-3 p-6">
-              <div className="w-full sm:grid sm:grid-cols-5 sm:items-end flex flex-col items-start gap-4">
+              <div className="flex flex-col items-start w-full gap-4 sm:grid sm:grid-cols-5 sm:items-end">
                 <FormField
                   control={form.control}
                   name="image"
                   render={({ field }) => (
-                    <FormItem className="sm:col-span-3 w-full">
+                    <FormItem className="w-full sm:col-span-3">
                       <FormLabel className="font-medium text-muted-foreground">
                         Profile image
                       </FormLabel>
@@ -174,12 +174,12 @@ const ManageProfilePage = () => {
                 </FormItem>
               </div>
 
-              <div className="w-full sm:grid sm:grid-cols-5 sm:items-end flex flex-col items-start gap-4">
+              <div className="flex flex-col items-start w-full gap-4 sm:grid sm:grid-cols-5 sm:items-end">
                 <FormField
                   control={form.control}
                   name="bannerImage"
                   render={({ field }) => (
-                    <FormItem className="sm:col-span-3 w-full">
+                    <FormItem className="w-full sm:col-span-3">
                       <FormLabel className="font-medium text-muted-foreground">
                         Header image
                       </FormLabel>
@@ -204,12 +204,12 @@ const ManageProfilePage = () => {
           <h2 className="mt-3 text-lg font-semibold">About you</h2>
           <Card className="w-full">
             <CardContent className="flex flex-col w-full gap-3 p-6">
-              <div className="w-full sm:grid sm:grid-cols-5 sm:items-end flex flex-col items-start gap-4">
+              <div className="flex flex-col items-start w-full gap-4 sm:grid sm:grid-cols-5 sm:items-end">
                 <FormField
                   control={form.control}
                   name="name"
                   render={({ field }) => (
-                    <FormItem className="sm:col-span-3 w-full">
+                    <FormItem className="w-full sm:col-span-3">
                       <FormLabel className="font-medium text-muted-foreground">
                         Username
                       </FormLabel>
@@ -230,12 +230,12 @@ const ManageProfilePage = () => {
                   <VisibilityDropdown value={Visibility.PUBLIC} />
                 </FormItem>
               </div>
-              <div className="w-full sm:grid sm:grid-cols-5 sm:items-end flex flex-col items-start gap-4">
+              <div className="flex flex-col items-start w-full gap-4 sm:grid sm:grid-cols-5 sm:items-end">
                 <FormField
                   control={form.control}
                   name="jobTitle"
                   render={({ field }) => (
-                    <FormItem className="sm:col-span-3 w-full">
+                    <FormItem className="w-full sm:col-span-3">
                       <FormLabel className="font-medium text-muted-foreground">
                         Job Title
                       </FormLabel>
@@ -256,12 +256,12 @@ const ManageProfilePage = () => {
                   <VisibilityDropdown value={Visibility.PUBLIC} />
                 </FormItem>
               </div>
-              <div className="w-full sm:grid sm:grid-cols-5 sm:items-end flex flex-col items-start gap-4">
+              <div className="flex flex-col items-start w-full gap-4 sm:grid sm:grid-cols-5 sm:items-end">
                 <FormField
                   control={form.control}
                   name="department"
                   render={({ field }) => (
-                    <FormItem className="sm:col-span-3 w-full">
+                    <FormItem className="w-full sm:col-span-3">
                       <FormLabel className="font-medium text-muted-foreground">
                         Department
                       </FormLabel>
@@ -283,12 +283,12 @@ const ManageProfilePage = () => {
                 </FormItem>
               </div>
 
-              <div className="w-full sm:grid sm:grid-cols-5 sm:items-end flex flex-col items-start gap-4">
+              <div className="flex flex-col items-start w-full gap-4 sm:grid sm:grid-cols-5 sm:items-end">
                 <FormField
                   control={form.control}
                   name="organization"
                   render={({ field }) => (
-                    <FormItem className="sm:col-span-3 w-full">
+                    <FormItem className="w-full sm:col-span-3">
                       <FormLabel className="font-medium text-muted-foreground">
                         Organization
                       </FormLabel>
@@ -310,12 +310,12 @@ const ManageProfilePage = () => {
                 </FormItem>
               </div>
 
-              <div className="w-full sm:grid sm:grid-cols-5 sm:items-end flex flex-col items-start gap-4">
+              <div className="flex flex-col items-start w-full gap-4 sm:grid sm:grid-cols-5 sm:items-end">
                 <FormField
                   control={form.control}
                   name="location"
                   render={({ field }) => (
-                    <FormItem className="sm:col-span-3 w-full">
+                    <FormItem className="w-full sm:col-span-3">
                       <FormLabel className="font-medium text-muted-foreground">
                         Based in
                       </FormLabel>
@@ -349,18 +349,18 @@ const ManageProfilePage = () => {
                 />
               </div>
 
-              <div className="w-full sm:grid sm:grid-cols-5 sm:items-end flex flex-col items-start gap-4">
+              <div className="flex flex-col items-start w-full gap-4 sm:grid sm:grid-cols-5 sm:items-end">
                 <FormField
                   control={form.control}
                   name="bio"
                   render={({ field }) => (
-                    <FormItem className="sm:col-span-3 w-full">
+                    <FormItem className="w-full sm:col-span-3">
                       <FormLabel className="font-medium text-muted-foreground">
                         Bio
                       </FormLabel>
                       <FormControl>
                         <Textarea
-                          className="border-0 w-full focus:border-1 hover:bg-primary-foreground"
+                          className="w-full border-0 focus:border-1 hover:bg-primary-foreground"
                           placeholder="Tell us about yourself"
                           {...field}
                         />
@@ -379,12 +379,12 @@ const ManageProfilePage = () => {
           <h2 className="mt-3 text-lg font-semibold">Contact</h2>
           <Card className="w-full">
             <CardContent className="flex flex-col w-full gap-3 p-6">
-              <div className="w-full sm:grid sm:grid-cols-5 sm:items-end flex flex-col items-start gap-4">
+              <div className="flex flex-col items-start w-full gap-4 sm:grid sm:grid-cols-5 sm:items-end">
                 <FormField
                   control={form.control}
                   name="email"
                   render={({ field }) => (
-                    <FormItem className="sm:col-span-3 w-full">
+                    <FormItem className="w-full sm:col-span-3">
                       <FormLabel className="font-medium text-muted-foreground">
                         Email
                       </FormLabel>

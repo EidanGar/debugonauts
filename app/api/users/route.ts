@@ -2,9 +2,9 @@ import { User } from "next-auth"
 
 import prisma from "@/lib/db"
 
-export interface UserFetchResponse {
+export interface UsersFetchResponse {
   isError: boolean
-  users: User | User[] | null
+  users: User[] | null
   error: {
     title: string
     description: string
@@ -12,55 +12,20 @@ export interface UserFetchResponse {
 }
 
 export async function POST(req: Request) {
-  const { userIds } = (await req.json()) as { userIds: string | string[] }
+  const { userIds } = (await req.json()) as { userIds: string[] }
 
-  if (Array.isArray(userIds)) {
-    const users = await prisma.user.findMany({
-      where: {
-        id: {
-          in: userIds,
-        },
-      },
-    })
-
-    return new Response(
-      JSON.stringify({
-        isError: false,
-        users,
-        error: null,
-      }),
-      {
-        status: 200,
-      }
-    )
-  }
-
-  const foundUser = await prisma.user.findUnique({
+  const users = await prisma.user.findMany({
     where: {
-      id: userIds,
+      id: {
+        in: userIds,
+      },
     },
   })
-
-  if (!foundUser) {
-    return new Response(
-      JSON.stringify({
-        isError: true,
-        users: null,
-        error: {
-          title: "User not found",
-          description: "This user does not exist",
-        },
-      }),
-      {
-        status: 404,
-      }
-    )
-  }
 
   return new Response(
     JSON.stringify({
       isError: false,
-      users: foundUser,
+      users,
       error: null,
     }),
     {
