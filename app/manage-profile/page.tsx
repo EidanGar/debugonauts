@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Visibility } from "@prisma/client"
-import { useSession } from "next-auth/react"
+import { getSession, useSession } from "next-auth/react"
 import { SubmitHandler, useForm } from "react-hook-form"
 
 import {
@@ -35,23 +35,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
 import { Icons } from "@/components/icons"
 import { Shell } from "@/components/shell"
 
+import Loading from "../loading"
 import { ProfileData, profileSchema } from "./profile"
 
 interface ProfileVisibilityProps {
   onChange?: (value: Visibility) => void
-  value?: Visibility
+  value: Visibility
 }
 
 const VisibilityDropdown = ({ onChange, value }: ProfileVisibilityProps) => {
   return (
     <Select
-      disabled={!onChange && !value}
+      disabled={!onChange}
       onValueChange={onChange}
-      defaultValue={(value as Visibility) ?? Visibility.PUBLIC}
+      value={value === "PRIVATE" ? Visibility.PRIVATE : Visibility.PUBLIC}
     >
       <SelectTrigger>
         <SelectValue />
@@ -79,33 +81,20 @@ const VisibilityDropdown = ({ onChange, value }: ProfileVisibilityProps) => {
 const ManageProfilePage = () => {
   const { toast } = useToast()
   const { data: session } = useSession()
-  // TODO: Fix manage profile form validation
+
   const form = useForm({
     resolver: zodResolver(profileSchema),
-    defaultValues: {
-      ...(session?.user as ProfileData),
+    defaultValues: async (): Promise<ProfileData> => {
+      const session = await getSession()
+      while (true) {
+        // @ts-ignore
+        if (session?.user?.id) {
+          return session.user as ProfileData
+        }
+        await new Promise((resolve) => setTimeout(resolve, 100))
+      }
     },
   })
-
-  // TODO: Implement visibility tooltips
-  //
-  // type ProfileVisibility = {
-  //   [P in keyof Omit<
-  //     Required<ProfileData>,
-  //     "image" | "bannerImage" | "emailVisibility" | "locationVisibility"
-  //   >]: Boolean
-  // }
-
-  // const [hoveredVisibilitySetting, setHoveredVisibilitySetting] =
-  //   useState<ProfileVisibility>({
-  //     name: false,
-  //     bio: false,
-  //     location: false,
-  //     email: false,
-  //     department: false,
-  //     jobTitle: false,
-  //     organization: false,
-  //   })
 
   const onSubmit: SubmitHandler<ProfileData> = async (data) => {
     const response = await fetch("/api/users/patch", {
@@ -129,11 +118,16 @@ const ManageProfilePage = () => {
     }
   }
 
+  // @ts-ignore
+  if (!session?.user?.id) {
+    return <Loading />
+  }
+
   return (
     <Shell
       variant="none"
       as="div"
-      className="flex flex-col items-start max-w-xl gap-3 px-4 pt-2 text-left"
+      className="flex flex-col items-start max-w-2xl gap-3 px-4 pt-2 text-left"
     >
       <h1 className="text-xl font-bold leading-tight md:text-2xl">
         Profile and visibility
@@ -152,12 +146,12 @@ const ManageProfilePage = () => {
           </h2>
           <Card className="w-full">
             <CardContent className="flex flex-col w-full gap-3 p-6">
-              <div className="flex flex-col items-start justify-between w-full gap-2 sm:items-center sm:flex-row">
+              <div className="w-full sm:grid sm:grid-cols-5 sm:items-end flex flex-col items-start gap-4">
                 <FormField
                   control={form.control}
                   name="image"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="sm:col-span-3 w-full">
                       <FormLabel className="font-medium text-muted-foreground">
                         Profile image
                       </FormLabel>
@@ -175,17 +169,17 @@ const ManageProfilePage = () => {
                   )}
                 />
 
-                <FormItem>
-                  <VisibilityDropdown />
+                <FormItem className="sm:col-span-2">
+                  <VisibilityDropdown value={Visibility.PUBLIC} />
                 </FormItem>
               </div>
 
-              <div className="flex flex-col items-start justify-between w-full gap-2 sm:items-center sm:flex-row">
+              <div className="w-full sm:grid sm:grid-cols-5 sm:items-end flex flex-col items-start gap-4">
                 <FormField
                   control={form.control}
                   name="bannerImage"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="sm:col-span-3 w-full">
                       <FormLabel className="font-medium text-muted-foreground">
                         Header image
                       </FormLabel>
@@ -201,8 +195,8 @@ const ManageProfilePage = () => {
                     </FormItem>
                   )}
                 />
-                <FormItem>
-                  <VisibilityDropdown />
+                <FormItem className="sm:col-span-2">
+                  <VisibilityDropdown value={Visibility.PUBLIC} />
                 </FormItem>
               </div>
             </CardContent>
@@ -210,12 +204,12 @@ const ManageProfilePage = () => {
           <h2 className="mt-3 text-lg font-semibold">About you</h2>
           <Card className="w-full">
             <CardContent className="flex flex-col w-full gap-3 p-6">
-              <div className="flex flex-col items-start justify-between w-full gap-2 sm:items-center sm:flex-row">
+              <div className="w-full sm:grid sm:grid-cols-5 sm:items-end flex flex-col items-start gap-4">
                 <FormField
                   control={form.control}
                   name="name"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="sm:col-span-3 w-full">
                       <FormLabel className="font-medium text-muted-foreground">
                         Username
                       </FormLabel>
@@ -232,16 +226,16 @@ const ManageProfilePage = () => {
                   )}
                 />
 
-                <FormItem>
-                  <VisibilityDropdown />
+                <FormItem className="sm:col-span-2">
+                  <VisibilityDropdown value={Visibility.PUBLIC} />
                 </FormItem>
               </div>
-              <div className="flex flex-col items-start justify-between w-full gap-2 sm:items-center sm:flex-row">
+              <div className="w-full sm:grid sm:grid-cols-5 sm:items-end flex flex-col items-start gap-4">
                 <FormField
                   control={form.control}
                   name="jobTitle"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="sm:col-span-3 w-full">
                       <FormLabel className="font-medium text-muted-foreground">
                         Job Title
                       </FormLabel>
@@ -258,16 +252,16 @@ const ManageProfilePage = () => {
                   )}
                 />
 
-                <FormItem>
-                  <VisibilityDropdown />
+                <FormItem className="sm:col-span-2">
+                  <VisibilityDropdown value={Visibility.PUBLIC} />
                 </FormItem>
               </div>
-              <div className="flex flex-col items-start justify-between w-full gap-2 sm:items-center sm:flex-row">
+              <div className="w-full sm:grid sm:grid-cols-5 sm:items-end flex flex-col items-start gap-4">
                 <FormField
                   control={form.control}
                   name="department"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="sm:col-span-3 w-full">
                       <FormLabel className="font-medium text-muted-foreground">
                         Department
                       </FormLabel>
@@ -284,17 +278,17 @@ const ManageProfilePage = () => {
                   )}
                 />
 
-                <FormItem>
-                  <VisibilityDropdown />
+                <FormItem className="sm:col-span-2">
+                  <VisibilityDropdown value={Visibility.PUBLIC} />
                 </FormItem>
               </div>
 
-              <div className="flex flex-col items-start justify-between w-full gap-2 sm:items-center sm:flex-row">
+              <div className="w-full sm:grid sm:grid-cols-5 sm:items-end flex flex-col items-start gap-4">
                 <FormField
                   control={form.control}
                   name="organization"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="sm:col-span-3 w-full">
                       <FormLabel className="font-medium text-muted-foreground">
                         Organization
                       </FormLabel>
@@ -311,17 +305,17 @@ const ManageProfilePage = () => {
                   )}
                 />
 
-                <FormItem>
-                  <VisibilityDropdown />
+                <FormItem className="sm:col-span-2">
+                  <VisibilityDropdown value={Visibility.PUBLIC} />
                 </FormItem>
               </div>
 
-              <div className="flex flex-col items-start justify-between w-full gap-2 sm:items-center sm:flex-row">
+              <div className="w-full sm:grid sm:grid-cols-5 sm:items-end flex flex-col items-start gap-4">
                 <FormField
                   control={form.control}
                   name="location"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="sm:col-span-3 w-full">
                       <FormLabel className="font-medium text-muted-foreground">
                         Based in
                       </FormLabel>
@@ -342,10 +336,10 @@ const ManageProfilePage = () => {
                   control={form.control}
                   name="locationVisibility"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="sm:col-span-2">
                       <FormControl>
                         <VisibilityDropdown
-                          value={field.value}
+                          value={field.value as Visibility}
                           onChange={field.onChange}
                         />
                       </FormControl>
@@ -354,17 +348,43 @@ const ManageProfilePage = () => {
                   )}
                 />
               </div>
+
+              <div className="w-full sm:grid sm:grid-cols-5 sm:items-end flex flex-col items-start gap-4">
+                <FormField
+                  control={form.control}
+                  name="bio"
+                  render={({ field }) => (
+                    <FormItem className="sm:col-span-3 w-full">
+                      <FormLabel className="font-medium text-muted-foreground">
+                        Bio
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          className="border-0 w-full focus:border-1 hover:bg-primary-foreground"
+                          placeholder="Tell us about yourself"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormItem className="sm:col-span-2">
+                  <VisibilityDropdown value={Visibility.PUBLIC} />
+                </FormItem>
+              </div>
             </CardContent>
           </Card>
           <h2 className="mt-3 text-lg font-semibold">Contact</h2>
           <Card className="w-full">
             <CardContent className="flex flex-col w-full gap-3 p-6">
-              <div className="flex flex-col items-start justify-between w-full gap-2 sm:items-center sm:flex-row">
+              <div className="w-full sm:grid sm:grid-cols-5 sm:items-end flex flex-col items-start gap-4">
                 <FormField
                   control={form.control}
                   name="email"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="sm:col-span-3 w-full">
                       <FormLabel className="font-medium text-muted-foreground">
                         Email
                       </FormLabel>
@@ -385,10 +405,10 @@ const ManageProfilePage = () => {
                   control={form.control}
                   name="emailVisibility"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="sm:col-span-2">
                       <FormControl>
                         <VisibilityDropdown
-                          value={field.value}
+                          value={field.value as Visibility}
                           onChange={field.onChange}
                         />
                       </FormControl>

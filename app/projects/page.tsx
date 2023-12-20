@@ -82,7 +82,7 @@ const ProjectsPage = async () => {
         <Link href="/projects/new" className={buttonVariants({ size: "sm" })}>
           Create project
         </Link>
-        {/* TODO: Fix all ts ignores related to the user session type */}
+        {/* TODO: Create a useAuth hook that wraps around the useSession hook and provides the full user */}
       </div>
       {/* @ts-ignore */}
       <ProjectsTable data={userProjects} />
