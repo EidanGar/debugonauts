@@ -33,12 +33,12 @@ export const newProjectSchema = z.object({
     .default(Visibility.PRIVATE),
   projectKey: z
     .string()
-    .min(2, {
+    .min(3, {
       message:
-        "Project keys must start with an uppercase letter, followed by one or more uppercase alphanumeric characters.",
+        "Project keys must start with an uppercase letter, followed by two or more uppercase alphanumeric characters.",
     })
-    .max(10, {
-      message: "The project key must not exceed 10 characters in length.",
+    .max(12, {
+      message: "The project key must not exceed 12 characters in length.",
     })
     .regex(/^[A-Z][A-Z0-9]+$/),
 })

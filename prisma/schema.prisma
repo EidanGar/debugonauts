@@ -98,7 +98,7 @@ enum Role {
 model Project {
   id            String          @id @default(uuid())
   name          String
-  description   String
+  description   String?
   projectKey    String          @unique
   visibility    Visibility      @default(PRIVATE)
   issues        Issue[]

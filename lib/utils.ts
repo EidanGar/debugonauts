@@ -32,7 +32,7 @@ export function randomProjectKey() {
 
   let key = ""
 
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 6; i++) {
     key += alphabet.charAt(Math.floor(Math.random() * alphabet.length))
   }
 

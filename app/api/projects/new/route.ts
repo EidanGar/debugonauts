@@ -53,6 +53,7 @@ export async function POST(req: Request) {
   const project = await prisma.project.create({
     data: {
       ...data,
+      projectLeadId,
     },
   })
 
