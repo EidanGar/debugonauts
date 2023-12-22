@@ -1,7 +1,7 @@
 import { Metadata } from "next"
 import Link from "next/link"
 
-import { siteConfig } from "@/config/site"
+import { siteConfig } from "@/lib/config/site"
 import { buttonVariants } from "@/components/ui/button"
 import { Shell } from "@/components/shell"
 

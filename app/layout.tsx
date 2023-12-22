@@ -1,8 +1,9 @@
 import "@/styles/globals.css"
 import { Metadata } from "next"
+import { Roboto } from "next/font/google"
 import { getServerSession } from "next-auth"
 
-import { siteConfig } from "@/config/site"
+import { siteConfig } from "@/lib/config/site"
 import { fontSans } from "@/lib/fonts"
 import { cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/toaster"
@@ -33,6 +34,11 @@ interface RootLayoutProps {
   children: React.ReactNode
 }
 
+const roboto = Roboto({
+  weight: "400",
+  subsets: ["latin"],
+})
+
 export default async function RootLayout({ children }: RootLayoutProps) {
   const session = await getServerSession()
 
@@ -43,7 +49,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         <body
           className={cn(
             "min-h-screen bg-background font-sans antialiased",
-            fontSans.variable
+            fontSans.variable ?? roboto.className
           )}
         >
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>

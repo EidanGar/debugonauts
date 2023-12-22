@@ -131,7 +131,7 @@ const SignUpForm = ({ setIsLoading, isLoading }: SignInFormProps) => {
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>name</FormLabel>
+              <FormLabel>Name</FormLabel>
               <FormControl>
                 <Input type="text" {...field} />
               </FormControl>

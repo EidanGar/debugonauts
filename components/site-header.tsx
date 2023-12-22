@@ -4,7 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { useSession } from "next-auth/react"
 
-import { siteConfig } from "@/config/site"
+import { siteConfig } from "@/lib/config/site"
 import { cn } from "@/lib/utils"
 import UserAvatar from "@/components/ui/avatar"
 import { buttonVariants } from "@/components/ui/button"

@@ -4,8 +4,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { signOut, useSession } from "next-auth/react"
 
-import { siteConfig } from "@/config/site"
-import { userConfig } from "@/config/user"
+import { siteConfig } from "@/lib/config/site"
+import { userConfig } from "@/lib/config/user"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,6 +29,7 @@ const UserAvatar = () => {
       <DropdownMenuTrigger asChild>
         <Image
           src={session?.user?.image ?? userConfig.defaultUserImage}
+          data-testid="user-avatar"
           width={36}
           height={36}
           alt={session?.user?.name ?? "User"}

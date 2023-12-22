@@ -4,7 +4,7 @@ import { Project } from "@prisma/client"
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown, MoreHorizontal } from "lucide-react"
 
-import { userConfig } from "@/config/user"
+import { userConfig } from "@/lib/config/user"
 import { capitalize, slugify } from "@/lib/utils"
 import {
   AlertDialog,
