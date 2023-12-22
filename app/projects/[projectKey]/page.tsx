@@ -17,13 +17,7 @@ const ProjectPage = async ({
 
   useEffect(() => {
     const fetchProject = async () => {
-      const projectRes = await fetch("/api/project", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ projectKey }),
-      })
+      const projectRes = await fetch(`/api/projects/${projectKey}`)
 
       const project = await projectRes.json()
 

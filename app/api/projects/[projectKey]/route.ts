@@ -1,8 +1,9 @@
 import prisma from "@/lib/db"
 
-export async function POST(req: Request) {
-  const { projectKey } = (await req.json()) as { projectKey: string }
-
+export async function GET(
+  req: Request,
+  { params: { projectKey } }: { params: { projectKey: string } }
+) {
   const project = await prisma.project.findUnique({
     where: {
       projectKey,

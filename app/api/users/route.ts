@@ -14,13 +14,17 @@ export interface UsersFetchResponse {
 export async function POST(req: Request) {
   const { userIds } = (await req.json()) as { userIds: string[] }
 
-  const users = await prisma.user.findMany({
-    where: {
-      id: {
-        in: userIds,
-      },
-    },
-  })
+  const users = await prisma.user.findMany(
+    userIds.length
+      ? {
+          where: {
+            id: {
+              in: userIds,
+            },
+          },
+        }
+      : undefined
+  )
 
   return new Response(
     JSON.stringify({

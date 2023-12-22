@@ -97,7 +97,8 @@ const ManageProfilePage = () => {
   })
 
   const onSubmit: SubmitHandler<ProfileData> = async (data) => {
-    const response = await fetch("/api/user/patch", {
+    // @ts-ignore
+    const response = await fetch(`/api/users/${session?.user.id}/patch`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",

@@ -9,7 +9,7 @@ import type {
 } from "@prisma/client"
 import { useSession } from "next-auth/react"
 
-import { UserFetchResponse } from "@/app/api/user/email/route"
+import { UserFetchResponse } from "@/app/api/users/email/route"
 
 export interface UserData extends User {
   projects: Project[]
@@ -25,7 +25,7 @@ const useAuth = async () => {
     if (!session || !session.user || !session.user.email) return null
     console.time("fetchUserInfo")
 
-    const userRes = await fetch("/api/user/email", {
+    const userRes = await fetch(`/api/users/email`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

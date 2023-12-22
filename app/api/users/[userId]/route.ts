@@ -1,22 +1,27 @@
 import prisma from "@/lib/db"
 
-export const DELETE = async (req: Request) => {
-  const { userId } = await req.json()
-
-  const foundUser = await prisma.user.findUnique({
+export async function GET(
+  req: Request,
+  {
+    params: { userId },
+  }: {
+    params: { userId: string }
+  }
+) {
+  const user = await prisma.user.findUnique({
     where: {
       id: userId,
     },
   })
 
-  if (!foundUser) {
+  if (!user) {
     return new Response(
       JSON.stringify({
         isError: true,
         user: null,
         error: {
           title: "User not found",
-          description: "This user does not exist",
+          description: "The user you are trying to fetch does not exist.",
         },
       }),
       {
@@ -25,17 +30,14 @@ export const DELETE = async (req: Request) => {
     )
   }
 
-  const user = await prisma.user.delete({
-    where: {
-      id: userId,
-    },
-  })
-
   return new Response(
     JSON.stringify({
       isError: false,
       user,
       error: null,
-    })
+    }),
+    {
+      status: 200,
+    }
   )
 }
