@@ -129,8 +129,8 @@ model ProjectMember {
 model Issue {
   id          String      @id @default(uuid())
   title       String
-  description String
-  status      IssueStatus
+  description String?
+  status      IssueStatus @default(OPEN)
   priority    Priority    @default(LOW)
   assigneeId  String
   reporterId  String

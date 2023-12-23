@@ -33,6 +33,7 @@ import {
 import { Button } from "./button"
 
 interface DataTableProps<TData, TValue> {
+  isLoading?: boolean
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   filterableCol?: string
@@ -43,6 +44,7 @@ interface DataTableProps<TData, TValue> {
 export default function DataTable<TData, TValue>({
   columns,
   data,
+  isLoading = false,
   filterableCol = "name",
   isFilterable = true,
   rowSelection = false,
@@ -70,7 +72,7 @@ export default function DataTable<TData, TValue>({
 
   return (
     <div>
-      <div className="flex items-center w-full justify-between gap-2">
+      <div className="flex items-center justify-between w-full gap-2">
         {isFilterable && (
           <div className="flex items-center py-4">
             <Input
@@ -117,8 +119,8 @@ export default function DataTable<TData, TValue>({
           </DropdownMenu>
         )}
       </div>
-      <div className="rounded-md border">
-        <Table>
+      <div className="border rounded-md">
+        <Table className="w-full">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -158,16 +160,18 @@ export default function DataTable<TData, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className={`h-24 text-center ${
+                    isLoading ? "bg-muted animate-pulse" : null
+                  }`}
                 >
-                  No results.
+                  {isLoading ? "Loading..." : "No results."}
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
+      <div className="flex items-center justify-end py-4 space-x-2">
         <Button
           variant="outline"
           size="sm"

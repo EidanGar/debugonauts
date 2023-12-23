@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { Project, User } from "@prisma/client"
 import { useSession } from "next-auth/react"
 
@@ -12,17 +11,17 @@ import { Shell } from "@/components/shell"
 import ProjectsTable, { ProjectWithLead } from "./projects-table"
 
 const ProjectsPage = async () => {
-  const [userProjects, setUserProjects] = useState<ProjectWithLead[]>([])
+  const [userProjects, setUserProjects] = useState<ProjectWithLead[] | null>(
+    null
+  )
   const { data: session } = useSession()
-  const router = useRouter()
 
   useEffect(() => {
     const fetchProjectsWithLeads = async () => {
-      const projectsResponse = await fetch("/api/projects", {
-        method: "POST",
+      const projectsResponse = await fetch(
         // @ts-ignore
-        body: JSON.stringify({ userId: session?.user?.id }),
-      })
+        `/api/users/${session?.user?.id}/projects`
+      )
 
       // TODO: Fix projects fetch fail error from projects page
       // TODO2: Add error toast and improve error handling
@@ -68,15 +67,13 @@ const ProjectsPage = async () => {
       setUserProjects(projectsWithLeads as ProjectWithLead[])
     }
 
-    if (session && userProjects.length === 0) fetchProjectsWithLeads()
-  }, [session, userProjects.length])
-
-  if (!session) router.push("/")
+    if (session && userProjects == null) fetchProjectsWithLeads()
+  }, [session, userProjects?.length, userProjects])
 
   return (
     <Shell as="div" className="static flex flex-col items-center gap-5 py-4">
       <div className="flex items-center justify-between w-full">
-        <h1 className="text-3xl font-extrabold leading-tight tracking-tighter md:text-4xl">
+        <h1 className="text-2xl font-medium leading-8 tracking-tighter md:text-4xl">
           Projects
         </h1>
         <Link href="/projects/new" className={buttonVariants({ size: "sm" })}>
@@ -84,7 +81,6 @@ const ProjectsPage = async () => {
         </Link>
         {/* TODO: Create a useAuth hook that wraps around the useSession hook and provides the full user */}
       </div>
-      {/* @ts-ignore */}
       <ProjectsTable data={userProjects} />
     </Shell>
   )

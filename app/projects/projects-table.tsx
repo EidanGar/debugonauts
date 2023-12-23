@@ -2,10 +2,10 @@ import Image from "next/image"
 import Link from "next/link"
 import { Project } from "@prisma/client"
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown, MoreHorizontal } from "lucide-react"
+import { ArrowUpDown } from "lucide-react"
 
 import { userConfig } from "@/lib/config/user"
-import { capitalize, slugify } from "@/lib/utils"
+import { capitalize } from "@/lib/utils"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,7 +17,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,6 +26,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Skeleton } from "@/components/ui/skeleton"
 // import { useToast } from "@/components/ui/use-toast"
 import { Icons } from "@/components/icons"
 import { Shell } from "@/components/shell"
@@ -38,7 +39,7 @@ export type ProjectWithLead = Project & {
   leadImage: string
 }
 
-const projectColumns: ColumnDef<ProjectWithLead>[] = [
+const projectColumns: ColumnDef<ProjectWithLead, unknown>[] = [
   {
     accessorKey: "name",
     id: "name",
@@ -152,7 +153,8 @@ const projectColumns: ColumnDef<ProjectWithLead>[] = [
                 </Link>
                 <DropdownMenuSeparator />
                 <AlertDialogTrigger asChild>
-                  <DropdownMenuItem className="text-pink-500 cursor-pointer hover:text-pink-600">
+                  {/* TODO: Fix project delete button's background on hover */}
+                  <DropdownMenuItem className="cursor-pointer text-destructive hover:font-medium">
                     <Icons.trash className="w-4 h-4 mr-2" />
                     <span>Delete</span>
                   </DropdownMenuItem>
@@ -183,15 +185,16 @@ const projectColumns: ColumnDef<ProjectWithLead>[] = [
   },
 ]
 
-const ProjectsTable = ({ data }: { data: Project[] }) => {
-  return data?.length ? (
+const ProjectsTable = ({ data }: { data: ProjectWithLead[] | null }) => {
+  return (
     <Shell variant={"none"}>
-      {/* TODO: Add a table shadow as a loading component */}
-      {/* @ts-ignore */}
-      <DataTable rowSelection={true} columns={projectColumns} data={data} />
+      <DataTable
+        isLoading={data == null}
+        rowSelection={true}
+        columns={projectColumns}
+        data={data ?? ([] as ProjectWithLead[])}
+      />
     </Shell>
-  ) : (
-    <Loading />
   )
 }
 

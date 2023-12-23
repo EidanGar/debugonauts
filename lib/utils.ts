@@ -20,7 +20,10 @@ export function slugify(text: string) {
 }
 
 export function capitalize(text: string) {
-  return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase()
+  return (
+    text.replace(/(_|-)/, " ").charAt(0).toUpperCase() +
+    text.slice(1).toLowerCase()
+  )
 }
 
 export async function hashPassword(pwd: string, salt: string, number?: number) {

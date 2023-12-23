@@ -18,12 +18,8 @@ const ProjectPage = async ({
   useEffect(() => {
     const fetchProject = async () => {
       const projectRes = await fetch(`/api/projects/${projectKey}`)
-
       const project = await projectRes.json()
-
-      if (!project) {
-        return
-      }
+      if (!project) return
 
       setProjectData(project)
     }
@@ -37,8 +33,8 @@ const ProjectPage = async ({
 
   return (
     <Shell as="main" className="flex flex-col gap-5 py-4">
-      <h1 className="text-3xl font-extrabold leading-tight tracking-tighter md:text-4xl">
-        {projectData.name}
+      <h1 className="text-2xl font-medium leading-8 tracking-tighter md:text-4xl">
+        {projectKey.slice(0, 3)} board
       </h1>
       <pre className="p-4 rounded-md bg-primary-foreground">
         <code>{JSON.stringify({ projectData, session }, null, 2)}</code>
