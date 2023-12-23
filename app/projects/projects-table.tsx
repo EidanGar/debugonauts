@@ -18,6 +18,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Button, buttonVariants } from "@/components/ui/button"
+import { DataTable } from "@/components/ui/data-table"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,7 +32,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Icons } from "@/components/icons"
 import { Shell } from "@/components/shell"
 
-import DataTable from "../../components/ui/data-table"
 import Loading from "../loading"
 
 export type ProjectWithLead = Project & {
@@ -190,7 +190,6 @@ const ProjectsTable = ({ data }: { data: ProjectWithLead[] | null }) => {
     <Shell variant={"none"}>
       <DataTable
         isLoading={data == null}
-        rowSelection={true}
         columns={projectColumns}
         data={data ?? ([] as ProjectWithLead[])}
       />
