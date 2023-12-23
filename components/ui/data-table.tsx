@@ -31,12 +31,14 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   isLoading?: boolean
+  filterBy?: string
 }
 
 export function DataTable<TData, TValue>({
   columns,
-  data,
+  data = [],
   isLoading,
+  filterBy,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
@@ -70,7 +72,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} />
+      <DataTableToolbar filterBy={filterBy} table={table} />
       <div className="border rounded-md">
         <Table>
           <TableHeader>

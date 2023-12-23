@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { Shell } from "@/components/shell"
 import CreateProjectForm from "@/app/projects/new/create-project-form"
 
 export const metadata: Metadata = {
@@ -18,17 +19,19 @@ export const metadata: Metadata = {
 
 const NewProjectPage = () => {
   return (
-    <Card className="mx-auto w-[min(460px,90vw)]">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl">New Project</CardTitle>
-        <CardDescription>
-          Create a new project to start working on your next big idea!
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <CreateProjectForm />
-      </CardContent>
-    </Card>
+    <Shell className="py-4 w-full">
+      <Card className="mx-auto w-[min(460px,90vw)]">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl">New Project</CardTitle>
+          <CardDescription>
+            Create a new project to start working on your next big idea!
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <CreateProjectForm />
+        </CardContent>
+      </Card>
+    </Shell>
   )
 }
 

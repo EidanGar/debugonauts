@@ -16,7 +16,7 @@ import SignInForm from "@/app/auth/signin/signin-form"
 
 const SignInPage = () => {
   return (
-    <Shell as="div" className="flex px-1 items-center">
+    <Shell as="div" className="flex px-1 py-4 items-center">
       <Card className="mx-auto w-[min(460px,90vw)]">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl">Sign in</CardTitle>

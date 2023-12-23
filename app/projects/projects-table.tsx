@@ -17,7 +17,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Button, buttonVariants } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/data-table"
 import {
   DropdownMenu,
@@ -27,12 +27,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Skeleton } from "@/components/ui/skeleton"
-// import { useToast } from "@/components/ui/use-toast"
 import { Icons } from "@/components/icons"
 import { Shell } from "@/components/shell"
-
-import Loading from "../loading"
 
 export type ProjectWithLead = Project & {
   leadName: string
@@ -57,7 +53,7 @@ const projectColumns: ColumnDef<ProjectWithLead, unknown>[] = [
     },
     cell: ({ row }) => (
       <Link
-        className="underline-offset-4 hover:underline text-primary"
+        className="ml-2 underline-offset-4 hover:underline text-primary"
         style={{
           padding: 0,
         }}
@@ -189,6 +185,7 @@ const ProjectsTable = ({ data }: { data: ProjectWithLead[] | null }) => {
   return (
     <Shell variant={"none"}>
       <DataTable
+        filterBy="name"
         isLoading={data == null}
         columns={projectColumns}
         data={data ?? ([] as ProjectWithLead[])}

@@ -9,7 +9,7 @@ export default withAuth({
 export const config = {
   matcher: [
     "/projects/:path*",
-    "/manage-profile",
+    "/settings/:path*",
     "/teams/:path*",
     "/your-work",
   ],

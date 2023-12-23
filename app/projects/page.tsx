@@ -11,9 +11,9 @@ import { Shell } from "@/components/shell"
 import ProjectsTable, { ProjectWithLead } from "./projects-table"
 
 const ProjectsPage = async () => {
-  const [userProjects, setUserProjects] = useState<ProjectWithLead[] | null>(
-    null
-  )
+  const [userProjectsData, setUserProjectsData] = useState<
+    ProjectWithLead[] | null
+  >(null)
   const { data: session } = useSession()
 
   useEffect(() => {
@@ -64,11 +64,13 @@ const ProjectsPage = async () => {
         }
       )
 
-      setUserProjects(projectsWithLeads as ProjectWithLead[])
+      // TODO: Fix no results found message when projects exist
+      console.log("Projects fetched:", projectsWithLeads)
+      setUserProjectsData(projectsWithLeads as ProjectWithLead[])
     }
 
-    if (session && userProjects == null) fetchProjectsWithLeads()
-  }, [session, userProjects?.length, userProjects])
+    if (session && userProjectsData == null) fetchProjectsWithLeads()
+  }, [session, userProjectsData?.length, userProjectsData])
 
   return (
     <Shell as="div" className="static flex flex-col items-center gap-5 py-4">
@@ -81,7 +83,7 @@ const ProjectsPage = async () => {
         </Link>
         {/* TODO: Create a useAuth hook that wraps around the useSession hook and provides the full user */}
       </div>
-      <ProjectsTable data={userProjects} />
+      <ProjectsTable data={userProjectsData} />
     </Shell>
   )
 }

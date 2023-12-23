@@ -1,5 +1,6 @@
 "use client"
 
+import { ProfileData, profileSchema } from "@/prisma/zod/profile"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Visibility } from "@prisma/client"
 import { getSession, useSession } from "next-auth/react"
@@ -39,9 +40,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
 import { Icons } from "@/components/icons"
 import { Shell } from "@/components/shell"
-
-import { ProfileData, profileSchema } from "../../prisma/zod/profile"
-import Loading from "../loading"
+import Loading from "@/app/loading"
 
 interface ProfileVisibilityProps {
   onChange?: (value: Visibility) => void

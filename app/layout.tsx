@@ -58,9 +58,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
               <main className="relative h-full w-full flex flex-col min-h-screen">
                 <SiteHeader />
                 <MobileHeader />
-                <div className="flex-1 w-full mx-auto py-4 items-center max-w-6xl">
-                  {children}
-                </div>
+                <div className="flex-1 w-full items-center">{children}</div>
               </main>
             </SessionProvider>
             <TailwindIndicator />
