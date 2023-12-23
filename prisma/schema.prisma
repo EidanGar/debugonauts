@@ -148,8 +148,8 @@ model Issue {
 enum IssueStatus {
   OPEN
   IN_PROGRESS
-  CLOSED
-  REOPENED
+  DONE
+  CANCELLED
 }
 
 enum Priority {
@@ -157,6 +157,14 @@ enum Priority {
   MEDIUM
   HIGH
   URGENT
+}
+
+enum IssueType {
+  BUG
+  FEATURE_REQUEST
+  TASK
+  STORY
+  EPIC
 }
 
 model Comment {
@@ -181,12 +189,4 @@ model Notification {
   recipientId String
   recipient   User     @relation(fields: [recipientId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
-}
-
-enum IssueType {
-  BUG
-  FEATURE_REQUEST
-  TASK
-  STORY
-  EPIC
 }

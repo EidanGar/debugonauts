@@ -1,7 +1,7 @@
 import { Visibility } from "@prisma/client"
 import { z } from "zod"
 
-const stringPreprocess = (foo: any) => {
+export const stringPreprocess = (foo: any) => {
   if (!foo || typeof foo !== "string") return undefined
   return foo === "" ? undefined : foo
 }
