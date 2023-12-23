@@ -40,8 +40,8 @@ import { useToast } from "@/components/ui/use-toast"
 import { Icons } from "@/components/icons"
 import { Shell } from "@/components/shell"
 
+import { ProfileData, profileSchema } from "../../prisma/zod/profile"
 import Loading from "../loading"
-import { ProfileData, profileSchema } from "./profile"
 
 interface ProfileVisibilityProps {
   onChange?: (value: Visibility) => void

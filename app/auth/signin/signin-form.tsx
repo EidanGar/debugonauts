@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useSearchParams } from "next/navigation"
+import { UserSignInData, userSignInSchema } from "@/prisma/zod/signin"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { signIn } from "next-auth/react"
 import { SubmitHandler, useForm } from "react-hook-form"
@@ -17,7 +18,6 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
-import { UserSignInData, userSignInSchema } from "@/app/auth/signin/signin"
 
 const SignInForm = () => {
   const searchParams = useSearchParams()
@@ -38,6 +38,8 @@ const SignInForm = () => {
     setTimeout(() => {
       setIsLoading(false)
     }, 15000)
+
+    console.log("Signing in with", data)
 
     const callbackUrl = decodeURIComponent(
       searchParams.get("callbackUrl") ?? "/"
@@ -61,6 +63,7 @@ const SignInForm = () => {
     <Form {...form}>
       <form
         className="flex flex-col w-full gap-4"
+        data-testid="signin-form"
         onSubmit={(...args) => void form.handleSubmit(handleUserLogin)(...args)}
       >
         <FormField
@@ -95,7 +98,12 @@ const SignInForm = () => {
           )}
         />
 
-        <Button disabled={isLoading} isLoading={isLoading} type="submit">
+        <Button
+          disabled={isLoading}
+          onClick={() => console.log("Submitting sign in details")}
+          isLoading={isLoading}
+          type="submit"
+        >
           Continue
           <span className="sr-only">Sign in</span>
         </Button>

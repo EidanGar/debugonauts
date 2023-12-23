@@ -1,5 +1,10 @@
 "use client"
 
+import {
+  UserSignUpData,
+  UserSignUpResponse,
+  userSignUpSchema,
+} from "@/prisma/zod/signup"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { signIn } from "next-auth/react"
 import { SubmitHandler, useForm } from "react-hook-form"
@@ -15,11 +20,6 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
-import {
-  UserSignUpData,
-  UserSignUpResponse,
-  userSignUpSchema,
-} from "@/app/auth/signup/signup"
 
 interface SignInFormProps {
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>

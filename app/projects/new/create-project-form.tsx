@@ -1,6 +1,12 @@
 "use client"
 
 import { useState } from "react"
+import {
+  CreateProjectRequest,
+  CreateProjectResponse,
+  NewProjectData,
+  newProjectSchema,
+} from "@/prisma/zod/project"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Visibility } from "@prisma/client"
 import { useSession } from "next-auth/react"
@@ -30,12 +36,6 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
-import {
-  CreateProjectRequest,
-  CreateProjectResponse,
-  NewProjectData,
-  newProjectSchema,
-} from "@/app/projects/project"
 
 const CreateProjectForm = () => {
   const { data: session } = useSession()

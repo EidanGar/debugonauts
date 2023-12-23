@@ -1,12 +1,12 @@
-import bcryptjs from "bcryptjs"
-import { z } from "zod"
-
-import prisma from "@/lib/db"
 import {
   SignInResponse,
   UserSignInData,
   userSignInSchema,
-} from "@/app/auth/signin/signin"
+} from "@/prisma/zod/signin"
+import bcryptjs from "bcryptjs"
+import { z } from "zod"
+
+import prisma from "@/lib/db"
 
 export async function POST(req: Request) {
   const { email, password } = (await req.json()) as UserSignInData
@@ -17,6 +17,8 @@ export async function POST(req: Request) {
         email,
         password,
       })
+
+    console.log("Accessing DB")
 
     const existingUser = await prisma.user.findUnique({
       where: {

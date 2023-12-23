@@ -1,8 +1,8 @@
 import { randomBytes } from "crypto"
+import { UserSignUpData, userSignUpSchema } from "@/prisma/zod/signup"
 
 import prisma from "@/lib/db"
 import { hashPassword } from "@/lib/utils"
-import { UserSignUpData, userSignUpSchema } from "@/app/auth/signup/signup"
 
 export async function POST(req: Request) {
   const { email, name, password } = (await req.json()) as UserSignUpData

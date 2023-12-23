@@ -1,7 +1,7 @@
+import { ProfileData } from "@/prisma/zod/profile"
 import { User } from "@prisma/client"
 
 import prisma from "@/lib/db"
-import { ProfileData } from "@/app/manage-profile/profile"
 
 export const PATCH = async (
   req: Request,

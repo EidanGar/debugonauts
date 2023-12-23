@@ -3,6 +3,7 @@ import type {
   NextApiRequest,
   NextApiResponse,
 } from "next"
+import { SignInResponse, UserSignInData } from "@/prisma/zod/signin"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { getServerSession, type NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
@@ -10,7 +11,6 @@ import GithubProvider from "next-auth/providers/github"
 import GoogleProvider from "next-auth/providers/google"
 
 import prisma from "@/lib/db"
-import { SignInResponse, UserSignInData } from "@/app/auth/signin/signin"
 
 export const authConfig = {
   adapter: PrismaAdapter(prisma),

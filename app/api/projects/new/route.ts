@@ -1,9 +1,10 @@
-import prisma from "@/lib/db"
 import {
   CreateProjectRequest,
   CreateProjectResponse,
   newProjectSchema,
-} from "@/app/projects/project"
+} from "@/prisma/zod/project"
+
+import prisma from "@/lib/db"
 
 export async function POST(req: Request) {
   const { projectLeadId, ...data } = (await req.json()) as CreateProjectRequest
