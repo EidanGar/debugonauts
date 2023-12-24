@@ -44,6 +44,7 @@ export const ProjectNav = ({ links, isCollapsed, projectKey }: NavProps) => {
                       "dark:bg-muted dark:text-muted-foreground"
                   )}
                 >
+                  {/* TODO: Fix project sidebar's icon rendering */}
                   {/* <link.Icon className="h-4 w-4" /> */}
                   <span className="sr-only">{link.label}</span>
                 </Link>

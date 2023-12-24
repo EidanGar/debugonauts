@@ -42,7 +42,7 @@ const UserAvatar = () => {
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <Link
-              href="/settings/manage-profile"
+              href="/settings"
               className="flex items-center justify-start w-full h-full gap-2"
             >
               <Icons.user className="w-4 h-4" />
