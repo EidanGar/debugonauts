@@ -1,14 +1,14 @@
 import { Visibility } from "@prisma/client"
 import { z } from "zod"
 
-export const stringPreprocess = (foo: any) => {
+export const stringPreprocessor = (foo: any) => {
   if (!foo || typeof foo !== "string") return undefined
   return foo === "" ? undefined : foo
 }
 
 export const profileSchema = z.object({
   name: z.preprocess(
-    stringPreprocess,
+    stringPreprocessor,
     z
       .string({
         invalid_type_error: "Name must be a string",
@@ -22,7 +22,7 @@ export const profileSchema = z.object({
       .optional()
   ),
   bio: z.preprocess(
-    stringPreprocess,
+    stringPreprocessor,
     z
       .string()
       .min(3, {
@@ -34,7 +34,7 @@ export const profileSchema = z.object({
       .optional()
   ),
   jobTitle: z.preprocess(
-    stringPreprocess,
+    stringPreprocessor,
     z
       .string()
       .min(3, {
@@ -46,7 +46,7 @@ export const profileSchema = z.object({
       .optional()
   ),
   department: z.preprocess(
-    stringPreprocess,
+    stringPreprocessor,
     z
       .string()
       .min(2, {
@@ -59,7 +59,7 @@ export const profileSchema = z.object({
   ),
 
   organization: z.preprocess(
-    stringPreprocess,
+    stringPreprocessor,
     z
       .string()
       .min(2, {
@@ -70,15 +70,15 @@ export const profileSchema = z.object({
       })
       .optional()
   ),
-  bannerImage: z.preprocess(stringPreprocess, z.string().url().optional()),
-  image: z.preprocess(stringPreprocess, z.string().url().optional()),
+  bannerImage: z.preprocess(stringPreprocessor, z.string().url().optional()),
+  image: z.preprocess(stringPreprocessor, z.string().url().optional()),
   email: z.string().email({
     message: "This is not a valid email address.",
   }),
   emailVisibility: z
     .enum([Visibility.PUBLIC, Visibility.PRIVATE])
     .default(Visibility.PUBLIC),
-  location: z.preprocess(stringPreprocess, z.string().optional()),
+  location: z.preprocess(stringPreprocessor, z.string().optional()),
   locationVisibility: z
     .enum([Visibility.PUBLIC, Visibility.PRIVATE])
     .default(Visibility.PUBLIC),

@@ -1,10 +1,13 @@
 "use client"
 
+import {
+  AppearanceFormValues,
+  appearanceFormSchema,
+} from "@/prisma/zod/appearance"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { AppTheme } from "@prisma/client"
 import { ChevronDownIcon } from "@radix-ui/react-icons"
 import { useForm } from "react-hook-form"
-import * as z from "zod"
 
 import { cn } from "@/lib/utils"
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -20,20 +23,6 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { useToast } from "@/components/ui/use-toast"
 import { FetchAccountResponse } from "@/app/api/users/[userId]/account/route"
-
-const appearanceFormSchema = z.object({
-  theme: z
-    .enum([AppTheme.DARK, AppTheme.LIGHT, AppTheme.SYSTEM], {
-      required_error: "Please select a theme.",
-    })
-    .default(AppTheme.SYSTEM),
-  font: z.string({
-    invalid_type_error: "Select a font",
-    required_error: "Please select a font.",
-  }),
-})
-
-export type AppearanceFormValues = z.infer<typeof appearanceFormSchema>
 
 interface AppearanceFormProps {
   defaultValues?: AppearanceFormValues

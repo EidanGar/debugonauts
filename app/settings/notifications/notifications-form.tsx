@@ -1,10 +1,13 @@
 "use client"
 
 import Link from "next/link"
+import {
+  NotificationsFormValues,
+  notificationsFormSchema,
+} from "@/prisma/zod/notifications"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { NotificationSettings } from "@prisma/client"
 import { useForm } from "react-hook-form"
-import * as z from "zod"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -21,26 +24,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/components/ui/use-toast"
 import { FetchAccountResponse } from "@/app/api/users/[userId]/account/route"
-
-const notificationsFormSchema = z.object({
-  type: z.enum(
-    [
-      NotificationSettings.NONE,
-      NotificationSettings.ALL,
-      NotificationSettings.MENTIONS_ONLY,
-    ],
-    {
-      required_error: "You need to select a notification type.",
-    }
-  ),
-  mobile: z.boolean().default(false).optional(),
-  communication_emails: z.boolean().default(false).optional(),
-  social_emails: z.boolean().default(false).optional(),
-  marketing_emails: z.boolean().default(false).optional(),
-  security_emails: z.boolean().default(false).optional(),
-})
-
-export type NotificationsFormValues = z.infer<typeof notificationsFormSchema>
 
 interface NotificationsFormProps {
   defaultValues?: NotificationsFormValues

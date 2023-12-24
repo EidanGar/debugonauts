@@ -12,7 +12,7 @@ import {
 } from "@radix-ui/react-icons"
 import { z } from "zod"
 
-import { stringPreprocess } from "./profile"
+import { stringPreprocessor } from "./profile"
 
 export const issuePriorities = [
   {
@@ -88,7 +88,7 @@ export const issueSchema = z.object({
   priority: z.nativeEnum(Priority).default(Priority.MEDIUM),
   status: z.nativeEnum(IssueStatus).default(IssueStatus.OPEN),
   type: z.nativeEnum(IssueType).default(IssueType.TASK),
-  description: z.preprocess(stringPreprocess, z.string().max(500)),
+  description: z.preprocess(stringPreprocessor, z.string().max(500)),
   assigneeId: z.string().uuid(),
 })
 

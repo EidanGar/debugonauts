@@ -141,15 +141,12 @@ export default NavAuth
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 hidden border-b-[1px] bg-background min-[800px]:block">
-      <Shell
-        as="div"
-        className="flex items-center h-16 space-x-4 sm:justify-between sm:space-x-0"
-      >
+      <div className="flex px-10 mx-auto w-full relative items-center h-16 space-x-4 sm:justify-between sm:space-x-0">
         <MainNav />
         <div className="flex items-center justify-end flex-1 space-x-4">
           <NavAuth />
         </div>
-      </Shell>
+      </div>
     </header>
   )
 }

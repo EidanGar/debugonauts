@@ -1,5 +1,6 @@
 import {
   CalendarDays,
+  ClipboardList,
   Cloud,
   CreditCard,
   Eye,
@@ -41,6 +42,7 @@ export const Icons: Record<
   lock: IoMdLock,
   cloud: Cloud,
   creditCard: CreditCard,
+  board: ClipboardList,
   trash: Trash2,
   logOut: LogOut,
   lifeBuoy: LifeBuoy,

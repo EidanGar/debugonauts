@@ -1,10 +1,10 @@
 "use client"
 
+import { AccountFormValues, accountFormSchema } from "@/prisma/zod/account"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { CalendarIcon, CaretSortIcon, CheckIcon } from "@radix-ui/react-icons"
 import { format } from "date-fns"
 import { useForm } from "react-hook-form"
-import * as z from "zod"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -46,25 +46,6 @@ const languages = [
   { label: "Chinese", value: "zh" },
 ] as const
 
-const accountFormSchema = z.object({
-  fullName: z
-    .string()
-    .min(2, {
-      message: "Name must be at least 2 characters.",
-    })
-    .max(30, {
-      message: "Name must not be longer than 30 characters.",
-    }),
-  dob: z.date({
-    required_error: "A date of birth is required.",
-  }),
-  language: z.string({
-    required_error: "Please select a language.",
-  }),
-})
-
-export type AccountFormValues = z.infer<typeof accountFormSchema>
-
 interface AccountFormProps {
   defaultValues?: AccountFormValues
   userId: string | null
@@ -78,6 +59,14 @@ export const AccountForm = ({ defaultValues, userId }: AccountFormProps) => {
   })
 
   const onSubmit = async (data: AccountFormValues) => {
+    if (data.dob === null && data.language === null && data.fullName === null) {
+      toast({
+        title: "No changes",
+        description: "You didn't change anything.",
+      })
+      return
+    }
+
     const response = await fetch(`/api/users/${userId}/account`, {
       method: "PATCH",
       headers: {
@@ -135,30 +124,32 @@ export const AccountForm = ({ defaultValues, userId }: AccountFormProps) => {
           control={form.control}
           name="dob"
           render={({ field }) => (
-            <FormItem className="flex flex-col">
+            <FormItem className="flex relative flex-col">
               <FormLabel>Date of birth</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-[240px] pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      {field.value ? (
-                        format(field.value, "PPP")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </FormControl>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-[240px] justify-start text-left font-normal",
+                      !field.value && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {field.value ? (
+                      format(field.value, "PPP")
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
+                  </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                {/* TODO: Check data popover on deployment */}
+                <PopoverContent className=" w-auto p-0">
                   <Calendar
                     mode="single"
+                    captionLayout="dropdown-buttons"
+                    fromYear={1960}
+                    toYear={2030}
                     selected={field.value}
                     onSelect={field.onChange}
                     disabled={(date: Date) =>

@@ -122,10 +122,6 @@ const UserAvatar = () => {
             <span>Support</span>
           </Link>
         </DropdownMenuItem>
-        {/* <DropdownMenuItem disabled>
-          <Icons.cloud className="w-4 h-4" />
-          <span>API</span>
-        </DropdownMenuItem> */}
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <button

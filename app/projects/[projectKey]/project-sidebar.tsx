@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { usePathname } from "next/navigation"
 
 import { cn } from "@/lib/utils"
 import {
@@ -11,9 +12,7 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { TooltipProvider } from "@/components/ui/tooltip"
 
-import { ProjectNav, ProjectNavLink } from "./project-nav"
-import { usePathname } from "next/navigation"
-import { Icons } from "@/components/icons"
+import ProjectNav from "./project-nav"
 
 interface ProjectSidebarProps {
   defaultLayout?: number[]
@@ -32,43 +31,6 @@ const ProjectSideBar = ({
 }: ProjectSidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState<boolean>(defaultCollapsed)
   const pathname = usePathname()
-
-  const projectLinks: ProjectNavLink[] = [
-    {
-      title: "board",
-      label: "Board",
-      Icon: Icons.board,
-      variant: pathname === `/projects/${projectKey}` ? "ghost" : "default",
-    },
-    {
-      title: "team",
-      label: "Team",
-      Icon: Icons.users,
-      variant:
-        pathname === `/projects/${projectKey}/team` ? "ghost" : "default",
-    },
-    {
-      title: "details",
-      label: "Details",
-      Icon: Icons.details,
-      variant:
-        pathname === `/projects/${projectKey}/details` ? "ghost" : "default",
-    },
-    {
-      title: "timeline",
-      label: "Timeline",
-      Icon: Icons.calendar,
-      variant:
-        pathname === `/projects/${projectKey}/timeline` ? "ghost" : "default",
-    },
-    {
-      title: "settings",
-      label: "Settings",
-      Icon: Icons.settings,
-      variant:
-        pathname === `/projects/${projectKey}/settings` ? "ghost" : "default",
-    },
-  ]
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -102,11 +64,7 @@ const ProjectSideBar = ({
           </div>
           <Separator />
           <div className={cn(isCollapsed ? "block" : "hidden")}>
-            <ProjectNav
-              projectKey={projectKey}
-              isCollapsed={isCollapsed}
-              links={projectLinks}
-            />
+            <ProjectNav projectKey={projectKey} isCollapsed={isCollapsed} />
           </div>
         </ResizablePanel>
         <ResizableHandle withHandle />

@@ -129,16 +129,16 @@ const projectColumns: ColumnDef<ProjectWithLead, unknown>[] = [
               <DropdownMenuContent className="w-56">
                 <DropdownMenuLabel>{row.original.name}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <Link href={`/projects/${row.original.projectKey}/team`}>
+                <Link href={`/projects/${row.original.projectKey}/teams`}>
                   <DropdownMenuItem className="cursor-pointer">
                     <Icons.users className="w-4 h-4 mr-2" />
-                    <span>Team</span>
+                    <span>Teams</span>
                   </DropdownMenuItem>
                 </Link>
-                <Link href={`/projects/${row.original.projectKey}/details`}>
+                <Link href={`/projects/${row.original.projectKey}/issues`}>
                   <DropdownMenuItem className="cursor-pointer">
                     <Icons.details className="w-4 h-4 mr-2" />
-                    <span>Details</span>
+                    <span>Issues</span>
                   </DropdownMenuItem>
                 </Link>
                 <Link href={`/projects/${row.original.projectKey}/timeline`}>

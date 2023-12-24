@@ -1,33 +1,20 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { Project } from "@prisma/client"
-import { useSession } from "next-auth/react"
+import { useContext } from "react"
 
 import { Shell } from "@/components/shell"
 import Loading from "@/app/loading"
+
+import { ProjectAndSession, ProjectContext } from "./layout"
 
 const ProjectPage = async ({
   params: { projectKey },
 }: {
   params: { projectKey: string }
 }) => {
-  const { data: session } = useSession()
-  const [projectData, setProjectData] = useState<Project | null>(null)
+  const { projectData, session } = useContext<ProjectAndSession>(ProjectContext)
 
-  useEffect(() => {
-    const fetchProject = async () => {
-      const projectRes = await fetch(`/api/projects/${projectKey}`)
-      const project = await projectRes.json()
-      if (!project) return
-
-      setProjectData(project)
-    }
-
-    fetchProject()
-  }, [projectKey])
-
-  if (!projectData) {
+  if (!projectData || !session) {
     return <Loading />
   }
 
