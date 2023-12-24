@@ -19,8 +19,6 @@ export const PATCH = async (
     },
   })
 
-  console.log("Found user:", foundUser)
-
   if (!foundUser) {
     return new Response(
       JSON.stringify({
@@ -37,14 +35,10 @@ export const PATCH = async (
     )
   }
 
-  console.log("User exists")
-
   const updatedUserData = {
     ...foundUser,
     ...profileData,
   }
-
-  console.log("Updated user data:", updatedUserData)
 
   const user: User = await prisma.user.update({
     where: {
@@ -52,8 +46,6 @@ export const PATCH = async (
     },
     data: updatedUserData as ProfileData,
   })
-
-  console.log("Updated user:", user)
 
   return new Response(
     JSON.stringify({

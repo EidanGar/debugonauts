@@ -1,10 +1,13 @@
 // import { cookies } from "next/headers"
 "use client"
 
-import { createContext, useEffect, useState } from "react"
+import { createContext } from "react"
 import { Project } from "@prisma/client"
+import { useQuery } from "@tanstack/react-query"
 import type { Session } from "next-auth"
 import { useSession } from "next-auth/react"
+
+import { useToast } from "@/components/ui/use-toast"
 
 import ProjectSideBar from "./project-sidebar"
 
@@ -23,30 +26,30 @@ export const ProjectContext = createContext<ProjectAndSession>({
   session: null,
 })
 
+const fetchProject = async (projectKey: string) => {
+  const projectRes = await fetch(`/api/projects/${projectKey}`)
+  if (!projectRes.ok) throw new Error("Failed to fetch project")
+  const project = await projectRes.json()
+  return project
+}
+
 export default function ProjectLayout({
   children,
   params: { projectKey },
 }: RootLayoutProps) {
   const { data: session } = useSession()
-  const [projectData, setProjectData] = useState<Project | null>(null)
+  const { toast } = useToast()
+  const { data: projectData, error } = useQuery({
+    queryKey: ["project", projectKey],
+    queryFn: () => fetchProject(projectKey),
+  })
 
-  useEffect(() => {
-    const fetchProject = async () => {
-      const projectRes = await fetch(`/api/projects/${projectKey}`)
-      const project = await projectRes.json()
-      if (!project) return
-
-      setProjectData(project)
-    }
-
-    fetchProject()
-  }, [projectKey])
-
-  // const layout = cookies().get("react-resizable-panels:layout")
-  // const collapsed = cookies().get("react-resizable-panels:collapsed")
-
-  // const defaultLayout = layout ? JSON.parse(layout.value) : undefined
-  // const defaultCollapsed = collapsed ? JSON.parse(collapsed.value) : undefined
+  if (error) {
+    toast({
+      title: error.name,
+      description: error.message,
+    })
+  }
 
   return (
     <ProjectContext.Provider value={{ projectData, session }}>

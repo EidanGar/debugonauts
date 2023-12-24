@@ -5,7 +5,12 @@ import type {
 } from "next"
 import { SignInResponse, UserSignInData } from "@/prisma/zod/signin"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
-import { getServerSession, type NextAuthOptions } from "next-auth"
+import {
+  Awaitable,
+  User,
+  getServerSession,
+  type NextAuthOptions,
+} from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import GithubProvider from "next-auth/providers/github"
 import GoogleProvider from "next-auth/providers/google"
@@ -33,7 +38,7 @@ export const authConfig = {
         },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, req) {
         if (!credentials) return null
 
         console.time("signin")
@@ -48,65 +53,29 @@ export const authConfig = {
 
         const data: SignInResponse | null = await res.json()
 
+        console.log("Fetched user data:", data)
+
         if (!data || data.error) return null
 
         console.timeEnd("signin")
 
-        return data.user
+        return {
+          name: data.user?.name,
+          email: data.user?.email,
+          id: data.user?.id,
+          image: data.user?.image,
+        } as Awaitable<User | null>
       },
     }),
   ],
   callbacks: {
-    session: async ({ session }) => {
-      console.time("session")
-
-      const user = await prisma.user.findUnique({
-        where: { email: session.user?.email ?? "" },
-      })
-
-      if (!user) return Promise.resolve(session)
-
-      // get user projects
-      const projects = await prisma.project.findMany({
-        where: {
-          members: {
-            some: {
-              userId: user.id,
-            },
-          },
-        },
-      })
-
-      // get user issues
-      const issues = await prisma.issue.findMany({
-        where: {
-          assigneeId: user.id,
-        },
-      })
-
-      // get user notifications
-      const notifications = await prisma.notification.findMany({
-        where: {
-          recipientId: user.id,
-        },
-      })
-
-      session.user = {
+    session: ({ session, token }) => ({
+      ...session,
+      user: {
         ...session.user,
-        ...{
-          ...user,
-          hashedPwd: undefined,
-          salt: undefined,
-          projects,
-          issues,
-          notifications,
-        },
-      }
-
-      console.timeEnd("session")
-
-      return Promise.resolve(session)
-    },
+        id: token.sub,
+      },
+    }),
   },
   secret: process.env.SECRET,
   pages: {

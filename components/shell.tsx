@@ -3,10 +3,10 @@ import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 
-const shellVariants = cva("mx-auto w-full relative max-w-6xl", {
+const shellVariants = cva("mx-auto w-full relative", {
   variants: {
     variant: {
-      default: "container",
+      default: "px-[calc(10vw/2)] sm:px-10",
       section: "max-w-screen-xl px-2.5 md:px-20",
       none: "",
       centered: "container flex h-[100dvh] max-w-2xl flex-col justify-center",

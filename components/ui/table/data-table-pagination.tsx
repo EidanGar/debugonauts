@@ -17,18 +17,22 @@ import {
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>
+  isSelectable?: boolean
 }
 
 export function DataTablePagination<TData>({
   table,
+  isSelectable = false,
 }: DataTablePaginationProps<TData>) {
   return (
     <div className="flex items-center justify-between px-2">
-      <div className="flex-1 text-sm text-muted-foreground">
-        {table.getFilteredSelectedRowModel().rows.length} of{" "}
-        {table.getFilteredRowModel().rows.length} row(s) selected.
-      </div>
-      <div className="flex items-center space-x-6 lg:space-x-8">
+      {isSelectable && (
+        <div className="flex-1 text-sm text-muted-foreground">
+          {table.getFilteredSelectedRowModel().rows.length} of{" "}
+          {table.getFilteredRowModel().rows.length} row(s) selected.
+        </div>
+      )}
+      <div className="flex flex-col flex-wrap items-start justify-between w-full gap-2 sm:flex-nowrap sm:space-x-6 sm:gap-0 sm:flex-row sm:items-center lg:space-x-8">
         <div className="flex items-center space-x-2">
           <p className="text-sm font-medium">Rows per page</p>
           <Select
@@ -49,6 +53,7 @@ export function DataTablePagination<TData>({
             </SelectContent>
           </Select>
         </div>
+
         <div className="flex w-[100px] items-center justify-center text-sm font-medium">
           Page {table.getState().pagination.pageIndex + 1} of{" "}
           {table.getPageCount()}

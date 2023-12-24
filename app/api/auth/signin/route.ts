@@ -18,8 +18,6 @@ export async function POST(req: Request) {
         password,
       })
 
-    console.log("Accessing DB")
-
     const existingUser = await prisma.user.findUnique({
       where: {
         email: validatedEmail,

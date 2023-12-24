@@ -39,8 +39,6 @@ const SignInForm = () => {
       setIsLoading(false)
     }, 15000)
 
-    console.log("Signing in with", data)
-
     const callbackUrl = decodeURIComponent(
       searchParams.get("callbackUrl") ?? "/"
     )

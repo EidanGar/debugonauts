@@ -1,76 +1,73 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Project, User } from "@prisma/client"
-import { useSession } from "next-auth/react"
+import { useQuery } from "@tanstack/react-query"
 
 import { buttonVariants } from "@/components/ui/button"
+import { useToast } from "@/components/ui/use-toast"
 import { Shell } from "@/components/shell"
 
 import ProjectsTable, { ProjectWithLead } from "./projects-table"
 
-const ProjectsPage = async () => {
-  const [userProjectsData, setUserProjectsData] = useState<
-    ProjectWithLead[] | null
-  >(null)
-  const { data: session } = useSession()
+const fetchProjectsWithLeads = async () => {
+  const projectsResponse = await fetch("/api/users/projects")
 
-  useEffect(() => {
-    const fetchProjectsWithLeads = async () => {
-      const projectsResponse = await fetch(
-        // @ts-ignore
-        `/api/users/${session?.user?.id}/projects`
-      )
+  // TODO3: Improve fetching efficiency
+  console.log("Projects response:", projectsResponse)
 
-      // TODO: Fix projects fetch fail error from projects page
-      // TODO2: Add error toast and improve error handling
-      // TODO3: Improve fetching efficiency
-      console.log("Projects response:", projectsResponse)
+  if (!projectsResponse.ok) throw new Error("Failed to fetch projects")
 
-      if (!projectsResponse.ok) throw new Error("Failed to fetch projects")
+  const projectsData = await projectsResponse.json()
 
-      const projectsData = await projectsResponse.json()
+  if (!projectsData.projects) throw new Error("Failed to fetch projects")
 
-      const projectLeadsResponse = await fetch("/api/users", {
-        method: "POST",
-        body: JSON.stringify({
-          userIds: projectsData.projects.map((project: Project) => {
-            return project.projectLeadId
-          }),
-        }),
-      })
+  const projectLeadsResponse = await fetch("/api/users", {
+    method: "POST",
+    body: JSON.stringify({
+      userIds: projectsData.projects.map((project: Project) => {
+        return project.projectLeadId
+      }),
+    }),
+  })
 
-      if (!projectLeadsResponse.ok)
-        throw new Error("Failed to fetch project leads")
+  if (!projectLeadsResponse.ok) throw new Error("Failed to fetch project leads")
 
-      const projectLeadsData = await projectLeadsResponse.json()
+  const projectLeadsData = await projectLeadsResponse.json()
 
-      const projectLeadsMap: { [key: string]: User } = {}
+  const projectLeadsMap: { [key: string]: User } = {}
 
-      projectLeadsData.users.forEach((user: User) => {
-        projectLeadsMap[user.id] = user
-      })
+  projectLeadsData.users.forEach((user: User) => {
+    projectLeadsMap[user.id] = user
+  })
 
-      const projectsWithLeads = projectsData.projects.map(
-        (project: Project) => {
-          const projectLead = projectLeadsMap[project.projectLeadId!]
+  const projectsWithLeads = projectsData.projects.map((project: Project) => {
+    const projectLead = projectLeadsMap[project.projectLeadId!]
 
-          return {
-            ...project,
-            leadName: projectLead.name,
-            leadImage: projectLead.image,
-          }
-        }
-      )
-
-      // TODO: Fix no results found message when projects exist
-      console.log("Projects fetched:", projectsWithLeads)
-      setUserProjectsData(projectsWithLeads as ProjectWithLead[])
+    return {
+      ...project,
+      leadName: projectLead.name,
+      leadImage: projectLead.image,
     }
+  })
 
-    if (session && userProjectsData == null) fetchProjectsWithLeads()
-  }, [session, userProjectsData?.length, userProjectsData])
+  return projectsWithLeads
+}
+
+const ProjectsPage = async () => {
+  const { toast } = useToast()
+
+  const { data, status, error } = useQuery<ProjectWithLead[]>({
+    queryKey: ["projects"],
+    queryFn: fetchProjectsWithLeads,
+  })
+
+  if (error) {
+    toast({
+      title: "Failed to fetch projects",
+      description: "Please try again later",
+    })
+  }
 
   return (
     <Shell as="div" className="static flex flex-col items-center gap-5 py-4">
@@ -81,9 +78,11 @@ const ProjectsPage = async () => {
         <Link href="/projects/new" className={buttonVariants({ size: "sm" })}>
           Create project
         </Link>
-        {/* TODO: Create a useAuth hook that wraps around the useSession hook and provides the full user */}
       </div>
-      <ProjectsTable data={userProjectsData} />
+      <ProjectsTable
+        isLoading={status === "pending"}
+        data={data as ProjectWithLead[]}
+      />
     </Shell>
   )
 }

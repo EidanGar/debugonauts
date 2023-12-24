@@ -32,6 +32,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[]
   isLoading?: boolean
   filterBy?: string
+  isSelectable?: boolean
 }
 
 export function DataTable<TData, TValue>({
@@ -39,6 +40,7 @@ export function DataTable<TData, TValue>({
   data = [],
   isLoading,
   filterBy,
+  isSelectable = false,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
@@ -57,7 +59,7 @@ export function DataTable<TData, TValue>({
       rowSelection,
       columnFilters,
     },
-    enableRowSelection: true,
+    enableRowSelection: isSelectable,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -125,7 +127,7 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} />
+      <DataTablePagination isSelectable={isSelectable} table={table} />
     </div>
   )
 }

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import {
   CreateProjectRequest,
   CreateProjectResponse,
@@ -40,6 +41,7 @@ import { useToast } from "@/components/ui/use-toast"
 const CreateProjectForm = () => {
   const { data: session } = useSession()
   const { toast } = useToast()
+  const router = useRouter()
   const [selectedTags, setSelectedTags] = useState<string[]>([])
 
   const form = useForm<NewProjectData>({
@@ -79,6 +81,8 @@ const CreateProjectForm = () => {
       })
       form.reset()
     }
+
+    router.push("/projects")
   }
 
   return (

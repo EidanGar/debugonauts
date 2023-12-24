@@ -13,6 +13,8 @@ import { TailwindIndicator } from "@/components/tailwind-indicator"
 import SessionProvider from "@/app/session-provider"
 import { ThemeProvider } from "@/app/theme-provider"
 
+import QueryProvider from "./query-provider"
+
 export const metadata: Metadata = {
   title: {
     default: siteConfig.name,
@@ -53,14 +55,16 @@ export default async function RootLayout({ children }: RootLayoutProps) {
           )}
         >
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <Toaster />
-            <SessionProvider session={session}>
-              <main className="relative h-full w-full flex flex-col min-h-screen">
-                <SiteHeader />
-                <MobileHeader />
-                <div className="flex-1 w-full items-center">{children}</div>
-              </main>
-            </SessionProvider>
+            <QueryProvider>
+              <Toaster />
+              <SessionProvider session={session}>
+                <main className="relative h-full w-full flex flex-col min-h-screen">
+                  <SiteHeader />
+                  <MobileHeader />
+                  <div className="flex-1 w-full items-center">{children}</div>
+                </main>
+              </SessionProvider>
+            </QueryProvider>
             <TailwindIndicator />
           </ThemeProvider>
         </body>

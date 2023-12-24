@@ -1,7 +1,6 @@
 "use client"
 
-import { useState } from "react"
-import { usePathname } from "next/navigation"
+import { useContext, useState } from "react"
 
 import { cn } from "@/lib/utils"
 import {
@@ -12,6 +11,7 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { TooltipProvider } from "@/components/ui/tooltip"
 
+import { ProjectContext } from "./layout"
 import ProjectNav from "./project-nav"
 
 interface ProjectSidebarProps {
@@ -30,7 +30,7 @@ const ProjectSideBar = ({
   projectKey,
 }: ProjectSidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState<boolean>(defaultCollapsed)
-  const pathname = usePathname()
+  const { projectData, session } = useContext(ProjectContext)
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -63,12 +63,15 @@ const ProjectSideBar = ({
             </div>
           </div>
           <Separator />
-          <div className={cn(isCollapsed ? "block" : "hidden")}>
-            <ProjectNav projectKey={projectKey} isCollapsed={isCollapsed} />
+          <div>
+            <ProjectNav
+              projectKey={projectData?.name ?? projectKey}
+              isCollapsed={isCollapsed}
+            />
           </div>
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={defaultLayout[1]} minSize={30}>
+        <ResizablePanel defaultSize={defaultLayout[1]} minSize={70}>
           {children}
         </ResizablePanel>
       </ResizablePanelGroup>

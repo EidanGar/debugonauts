@@ -181,12 +181,18 @@ const projectColumns: ColumnDef<ProjectWithLead, unknown>[] = [
   },
 ]
 
-const ProjectsTable = ({ data }: { data: ProjectWithLead[] | null }) => {
+const ProjectsTable = ({
+  data,
+  isLoading,
+}: {
+  data: ProjectWithLead[] | null
+  isLoading: boolean
+}) => {
   return (
     <Shell variant={"none"}>
       <DataTable
         filterBy="name"
-        isLoading={data == null}
+        isLoading={isLoading}
         columns={projectColumns}
         data={data ?? ([] as ProjectWithLead[])}
       />
