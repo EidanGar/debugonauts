@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { NotificationSettings } from "@prisma/client"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 
@@ -18,43 +19,84 @@ import {
 } from "@/components/ui/form"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Switch } from "@/components/ui/switch"
-import { toast } from "@/components/ui/use-toast"
+import { useToast } from "@/components/ui/use-toast"
+import { FetchAccountResponse } from "@/app/api/users/[userId]/account/route"
 
 const notificationsFormSchema = z.object({
-  type: z.enum(["all", "mentions", "none"], {
-    required_error: "You need to select a notification type.",
-  }),
+  type: z.enum(
+    [
+      NotificationSettings.NONE,
+      NotificationSettings.ALL,
+      NotificationSettings.MENTIONS_ONLY,
+    ],
+    {
+      required_error: "You need to select a notification type.",
+    }
+  ),
   mobile: z.boolean().default(false).optional(),
   communication_emails: z.boolean().default(false).optional(),
   social_emails: z.boolean().default(false).optional(),
   marketing_emails: z.boolean().default(false).optional(),
-  security_emails: z.boolean(),
+  security_emails: z.boolean().default(false).optional(),
 })
 
-type NotificationsFormValues = z.infer<typeof notificationsFormSchema>
+export type NotificationsFormValues = z.infer<typeof notificationsFormSchema>
 
-// This can come from your database or API.
-const defaultValues: Partial<NotificationsFormValues> = {
-  communication_emails: false,
-  marketing_emails: false,
-  social_emails: true,
-  security_emails: true,
+interface NotificationsFormProps {
+  defaultValues?: NotificationsFormValues
+  userId: string | null
 }
 
-export function NotificationsForm() {
+export const NotificationsForm = ({
+  defaultValues,
+  userId,
+}: NotificationsFormProps) => {
+  const { toast } = useToast()
   const form = useForm<NotificationsFormValues>({
     resolver: zodResolver(notificationsFormSchema),
     defaultValues,
   })
 
-  function onSubmit(data: NotificationsFormValues) {
+  const onSubmit = async (data: NotificationsFormValues) => {
+    const accountData = {
+      notifications: data.type,
+      mobileNotifsDiff: data.mobile,
+      commNotifs: data.communication_emails,
+      socialNotifs: data.social_emails,
+      marketingNotifs: data.marketing_emails,
+      securityNotifs: data.security_emails,
+    }
+
+    const response = await fetch(`/api/users/${userId}/account`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(accountData),
+    })
+
+    if (!response.ok) {
+      toast({
+        title: "Error",
+        description: "Something went wrong, try again later.",
+      })
+      return
+    }
+
+    const accountResponseData: FetchAccountResponse = await response.json()
+
+    if (accountResponseData.isError && !accountResponseData.account) {
+      toast({
+        title: accountResponseData.error?.title,
+        description: accountResponseData.error?.description,
+      })
+      return
+    }
+
     toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
+      title: "Account successfuly updated",
+      description:
+        "Your account has been updated, it will take some time to see the changes.",
     })
   }
 
@@ -75,7 +117,7 @@ export function NotificationsForm() {
                 >
                   <FormItem className="flex items-center space-x-3 space-y-0">
                     <FormControl>
-                      <RadioGroupItem value="all" />
+                      <RadioGroupItem value={NotificationSettings.ALL} />
                     </FormControl>
                     <FormLabel className="font-normal">
                       All new messages
@@ -83,7 +125,9 @@ export function NotificationsForm() {
                   </FormItem>
                   <FormItem className="flex items-center space-x-3 space-y-0">
                     <FormControl>
-                      <RadioGroupItem value="mentions" />
+                      <RadioGroupItem
+                        value={NotificationSettings.MENTIONS_ONLY}
+                      />
                     </FormControl>
                     <FormLabel className="font-normal">
                       Direct messages and mentions
@@ -91,7 +135,7 @@ export function NotificationsForm() {
                   </FormItem>
                   <FormItem className="flex items-center space-x-3 space-y-0">
                     <FormControl>
-                      <RadioGroupItem value="none" />
+                      <RadioGroupItem value={NotificationSettings.NONE} />
                     </FormControl>
                     <FormLabel className="font-normal">Nothing</FormLabel>
                   </FormItem>
@@ -183,7 +227,6 @@ export function NotificationsForm() {
                     <Switch
                       checked={field.value}
                       onCheckedChange={field.onChange}
-                      disabled
                       aria-readonly
                     />
                   </FormControl>

@@ -31,7 +31,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { toast } from "@/components/ui/use-toast"
+import { useToast } from "@/components/ui/use-toast"
+import { FetchAccountResponse } from "@/app/api/users/[userId]/account/route"
 
 const languages = [
   { label: "English", value: "en" },
@@ -46,7 +47,7 @@ const languages = [
 ] as const
 
 const accountFormSchema = z.object({
-  name: z
+  fullName: z
     .string()
     .min(2, {
       message: "Name must be at least 2 characters.",
@@ -62,28 +63,51 @@ const accountFormSchema = z.object({
   }),
 })
 
-type AccountFormValues = z.infer<typeof accountFormSchema>
+export type AccountFormValues = z.infer<typeof accountFormSchema>
 
-// This can come from your database or API.
-const defaultValues: Partial<AccountFormValues> = {
-  // name: "Your name",
-  // dob: new Date("2023-01-23"),
+interface AccountFormProps {
+  defaultValues?: AccountFormValues
+  userId: string | null
 }
 
-export function AccountForm() {
+export const AccountForm = ({ defaultValues, userId }: AccountFormProps) => {
+  const { toast } = useToast()
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountFormSchema),
     defaultValues,
   })
 
-  function onSubmit(data: AccountFormValues) {
+  const onSubmit = async (data: AccountFormValues) => {
+    const response = await fetch(`/api/users/${userId}/account`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+
+    if (!response.ok) {
+      toast({
+        title: "Error",
+        description: "Something went wrong, try again later.",
+      })
+      return
+    }
+
+    const accountResponseData: FetchAccountResponse = await response.json()
+
+    if (accountResponseData.isError && !accountResponseData.account) {
+      toast({
+        title: accountResponseData.error?.title,
+        description: accountResponseData.error?.description,
+      })
+      return
+    }
+
     toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
+      title: "Account successfuly updated",
+      description:
+        "Your account has been updated, it will take some time to see the changes.",
     })
   }
 
@@ -92,7 +116,7 @@ export function AccountForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
-          name="name"
+          name="fullName"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Name</FormLabel>

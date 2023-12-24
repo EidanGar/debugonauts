@@ -9,7 +9,7 @@ import type {
 } from "@prisma/client"
 import { useSession } from "next-auth/react"
 
-import { UserFetchResponse } from "@/app/api/users/email/route"
+import { UserFetchResponse } from "@/app/api/users/[email]/route"
 
 export interface UserData extends User {
   projects: Project[]

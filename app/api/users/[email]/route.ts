@@ -10,9 +10,16 @@ export interface UserFetchResponse {
   } | null
 }
 
-export async function POST(req: Request) {
-  const { email } = await req.json()
-
+export async function GET(
+  req: Request,
+  {
+    params: { email },
+  }: {
+    params: {
+      email: string
+    }
+  }
+) {
   console.log("Route email", email)
 
   const user = await prisma.user.findUnique({

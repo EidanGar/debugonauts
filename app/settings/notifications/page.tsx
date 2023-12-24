@@ -1,10 +1,28 @@
 "use client"
 
+import { useContext } from "react"
+import { Account } from "@prisma/client"
+
 import { Separator } from "@/components/ui/separator"
 
-import { NotificationsForm } from "./notifications-form"
+import { AccountContext, AccountContextType } from "../layout"
+import {
+  NotificationsForm,
+  NotificationsFormValues,
+} from "./notifications-form"
 
 export default function SettingsNotificationsPage() {
+  const { account, userId } = useContext<AccountContextType>(AccountContext)
+
+  const defaultFormValues = {
+    communication_emails: account?.commNotifs,
+    marketing_emails: account?.marketingNotifs,
+    social_emails: account?.socialNotifs,
+    mobile: account?.mobileNotifsDiff,
+    security_emails: account?.securityNotifs,
+    type: account?.notifications,
+  } as NotificationsFormValues
+
   return (
     <div className="space-y-6">
       <div>
@@ -14,7 +32,7 @@ export default function SettingsNotificationsPage() {
         </p>
       </div>
       <Separator />
-      <NotificationsForm />
+      <NotificationsForm userId={userId} defaultValues={defaultFormValues} />
     </div>
   )
 }

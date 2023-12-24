@@ -1,6 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
+import { AppTheme } from "@prisma/client"
 import { ChevronDownIcon } from "@radix-ui/react-icons"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -17,39 +18,74 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { toast } from "@/components/ui/use-toast"
+import { useToast } from "@/components/ui/use-toast"
+import { FetchAccountResponse } from "@/app/api/users/[userId]/account/route"
 
 const appearanceFormSchema = z.object({
-  theme: z.enum(["light", "dark"], {
-    required_error: "Please select a theme.",
-  }),
-  font: z.enum(["inter", "manrope", "system"], {
+  theme: z
+    .enum([AppTheme.DARK, AppTheme.LIGHT, AppTheme.SYSTEM], {
+      required_error: "Please select a theme.",
+    })
+    .default(AppTheme.SYSTEM),
+  font: z.string({
     invalid_type_error: "Select a font",
     required_error: "Please select a font.",
   }),
 })
 
-type AppearanceFormValues = z.infer<typeof appearanceFormSchema>
+export type AppearanceFormValues = z.infer<typeof appearanceFormSchema>
 
-// This can come from your database or API.
-const defaultValues: Partial<AppearanceFormValues> = {
-  theme: "light",
+interface AppearanceFormProps {
+  defaultValues?: AppearanceFormValues
+  userId: string | null
 }
 
-export function AppearanceForm() {
+export const AppearanceForm = ({
+  defaultValues,
+  userId,
+}: AppearanceFormProps) => {
+  const { toast } = useToast()
   const form = useForm<AppearanceFormValues>({
     resolver: zodResolver(appearanceFormSchema),
     defaultValues,
   })
 
-  function onSubmit(data: AppearanceFormValues) {
+  const onSubmit = async (data: AppearanceFormValues) => {
+    const accountData = {
+      fontPreference: data.font,
+      themePreference: data.theme,
+    }
+
+    const response = await fetch(`/api/users/${userId}/account`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(accountData),
+    })
+
+    if (!response.ok) {
+      toast({
+        title: "Error",
+        description: "Something went wrong, try again later.",
+      })
+      return
+    }
+
+    const accountResponseData: FetchAccountResponse = await response.json()
+
+    if (accountResponseData.isError && !accountResponseData.account) {
+      toast({
+        title: accountResponseData.error?.title,
+        description: accountResponseData.error?.description,
+      })
+      return
+    }
+
     toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
+      title: "Account successfuly updated",
+      description:
+        "Your account has been updated, it will take some time to see the changes.",
     })
   }
 
@@ -103,7 +139,10 @@ export function AppearanceForm() {
                 <FormItem>
                   <FormLabel className="[&:has([data-state=checked])>div]:border-primary">
                     <FormControl>
-                      <RadioGroupItem value="light" className="sr-only" />
+                      <RadioGroupItem
+                        value={AppTheme.LIGHT}
+                        className="sr-only"
+                      />
                     </FormControl>
                     <div className="items-center rounded-md border-2 border-muted p-1 hover:border-accent">
                       <div className="space-y-2 rounded-sm bg-[#ecedef] p-2">
@@ -129,7 +168,10 @@ export function AppearanceForm() {
                 <FormItem>
                   <FormLabel className="[&:has([data-state=checked])>div]:border-primary">
                     <FormControl>
-                      <RadioGroupItem value="dark" className="sr-only" />
+                      <RadioGroupItem
+                        value={AppTheme.DARK}
+                        className="sr-only"
+                      />
                     </FormControl>
                     <div className="items-center rounded-md border-2 border-muted bg-popover p-1 hover:bg-accent hover:text-accent-foreground">
                       <div className="space-y-2 rounded-sm bg-slate-950 p-2">

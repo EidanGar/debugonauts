@@ -45,13 +45,36 @@ model User {
   @@index(id)
 }
 
+enum NotificationSettings {
+  ALL
+  MENTIONS_ONLY
+  NONE
+}
+
+enum AppTheme {
+  LIGHT
+  DARK
+  SYSTEM
+}
+
 model Account {
-  id               String    @id @default(uuid())
-  userId           String
+  id               String                @id @default(uuid())
+  userId           String                @unique
   provider         Provider
-  providerId       String
+  providerId       String?
   resetToken       String? // Token for password reset
   resetTokenExpiry DateTime? // Expiry for reset token
+  fullName         String?
+  themePreference  AppTheme              @default(SYSTEM)
+  language         String?               @default("english")
+  dob              DateTime?
+  fontPreference   String?               @default("inter")
+  notifications    NotificationSettings? @default(ALL)
+  commNotifs       Boolean?              @default(true) // comminications notifications
+  marketingNotifs  Boolean?              @default(true) // marketing notifications
+  socialNotifs     Boolean?              @default(true) // social notifications
+  securityNotifs   Boolean?              @default(true) // security notifications
+  mobileNotifsDiff Boolean?              @default(false) // mobile notifications different from web
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())

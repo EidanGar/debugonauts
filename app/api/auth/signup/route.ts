@@ -1,5 +1,6 @@
 import { randomBytes } from "crypto"
 import { UserSignUpData, userSignUpSchema } from "@/prisma/zod/signup"
+import { Provider } from "@prisma/client"
 
 import prisma from "@/lib/db"
 import { hashPassword } from "@/lib/utils"
@@ -48,6 +49,14 @@ export async function POST(req: Request) {
         email: validatedEmail,
         hashedPwd: await hashPassword(validatedPwd, userSalt),
         salt: userSalt,
+      },
+    })
+
+    // create account
+    await prisma.account.create({
+      data: {
+        userId: user.id,
+        provider: Provider.EMAIL,
       },
     })
 

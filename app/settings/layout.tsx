@@ -1,16 +1,16 @@
 "use client"
 
-import { Metadata } from "next"
+import { createContext, useEffect, useState } from "react"
 import Image from "next/image"
+import { Account } from "@prisma/client"
+import { useSession } from "next-auth/react"
 
 import { Separator } from "@/components/ui/separator"
+import { useToast } from "@/components/ui/use-toast"
 
+import { FetchAccountResponse } from "../api/users/[userId]/account/route"
+import Loading from "../loading"
 import { SidebarNav } from "./sidebar-nav"
-
-// export const metadata: Metadata = {
-//   title: "Forms",
-//   description: "Advanced form example using react-hook-form and Zod.",
-// }
 
 const sidebarNavItems = [
   {
@@ -31,13 +31,85 @@ const sidebarNavItems = [
   },
 ]
 
+export type AccountContextType = {
+  account: Account | null
+  userId: string | null
+}
+
+export const AccountContext = createContext<AccountContextType>({
+  account: null,
+  userId: null,
+})
+
 interface SettingsLayoutProps {
   children: React.ReactNode
 }
 
 const SettingsLayout = ({ children }: SettingsLayoutProps) => {
+  const [userAccount, setUserAccount] = useState<Account | null>(null)
+  const { data: session } = useSession()
+  const { toast } = useToast()
+
+  useEffect(() => {
+    const fetchAccountInfo = async () => {
+      // @ts-ignore
+      const response = await fetch(`/api/users/${session?.user?.id}/account`)
+      const data: FetchAccountResponse = await response.json()
+
+      setUserAccount(data.account)
+    }
+
+    // @ts-ignore
+    if (session?.user?.id) fetchAccountInfo()
+    // @ts-ignore
+  }, [session?.user?.id])
+
+  const setAccount = (userId: string) => {
+    return async (account: Partial<Account>) => {
+      console.log("New account info:", account)
+
+      const response = await fetch(`/api/users/${userId}/account`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(account),
+      })
+
+      if (!response.ok) {
+        toast({
+          title: "Error",
+          description: "Something went wrong, try again later.",
+        })
+        return
+      }
+
+      const data: FetchAccountResponse = await response.json()
+
+      if (data.isError && !data.account) {
+        toast({
+          title: data.error?.title,
+          description: data.error?.description,
+        })
+        return
+      }
+
+      toast({
+        title: "Account successfuly updated",
+        description:
+          "Your account has been updated, it will take some time to see the changes.",
+      })
+    }
+  }
+
   return (
-    <>
+    <AccountContext.Provider
+      value={{
+        account: userAccount,
+        // @ts-ignore
+        userId: session?.user?.id,
+      }}
+    >
       <div className="md:hidden">
         <Image
           src="/examples/forms-light.png"
@@ -66,10 +138,13 @@ const SettingsLayout = ({ children }: SettingsLayoutProps) => {
           <aside className="-mx-4 lg:w-1/5">
             <SidebarNav items={sidebarNavItems} />
           </aside>
-          <div className="flex-1 lg:max-w-2xl">{children}</div>
+          <div className="flex-1 lg:max-w-2xl relative">
+            {/* @ts-ignore */}
+            {session?.user?.id ? children : <Loading />}
+          </div>
         </div>
       </div>
-    </>
+    </AccountContext.Provider>
   )
 }
 
