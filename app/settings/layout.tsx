@@ -102,6 +102,7 @@ const SettingsLayout = ({ children }: SettingsLayoutProps) => {
     }
   }
 
+  // TODO: Settings doesn't render on smaller screens
   return (
     <AccountContext.Provider
       value={{
@@ -126,7 +127,7 @@ const SettingsLayout = ({ children }: SettingsLayoutProps) => {
           className="hidden dark:block"
         />
       </div>
-      <div className="hidden space-y-6 p-10 pb-16 md:block">
+      <div className="hidden p-10 pb-16 space-y-6 md:block">
         <div className="space-y-0.5">
           <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
           <p className="text-muted-foreground">
@@ -138,7 +139,7 @@ const SettingsLayout = ({ children }: SettingsLayoutProps) => {
           <aside className="-mx-4 lg:w-1/5">
             <SidebarNav items={sidebarNavItems} />
           </aside>
-          <div className="flex-1 lg:max-w-2xl relative">
+          <div className="relative flex-1 lg:max-w-2xl">
             {/* @ts-ignore */}
             {session?.user?.id ? children : <Loading />}
           </div>

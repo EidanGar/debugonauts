@@ -11,6 +11,25 @@ export const GET = async (req: Request, { params: { projectId } }: Params) => {
     where: {
       projectId,
     },
+    select: {
+      assignee: true,
+      assigneeId: true,
+      comments: true,
+      createdAt: true,
+      description: true,
+      id: true,
+      issueKey: true,
+      issueType: true,
+      priority: true,
+      projectId: true,
+      reporter: true,
+      reporterId: true,
+      status: true,
+      project: true,
+      tags: true,
+      title: true,
+      updatedAt: true,
+    },
   })
 
   return new Response(

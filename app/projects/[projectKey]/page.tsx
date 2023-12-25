@@ -23,8 +23,8 @@ const ProjectPage = async ({
 
   const { issues } = projectData
   const issuesByStatus = {
-    [IssueStatus.OPEN]: issues.filter(
-      (issue) => issue.status === IssueStatus.OPEN
+    [IssueStatus.TO_DO]: issues.filter(
+      (issue) => issue.status === IssueStatus.TO_DO
     ),
     [IssueStatus.IN_PROGRESS]: issues.filter(
       (issue) => issue.status === IssueStatus.IN_PROGRESS
@@ -40,16 +40,16 @@ const ProjectPage = async ({
       <h1 className="text-2xl font-medium leading-8 tracking-tighter md:text-4xl">
         {projectKey.slice(0, 3)} board
       </h1>
-      <div className="flex flex-col items-center w-full gap-3 sm:items-start sm:flex-row">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-3">
+        <Board
+          issues={issuesByStatus[IssueStatus.TO_DO]}
+          boardTitle="In progress"
+          boardType={IssueStatus.TO_DO}
+        />
         <Board
           issues={issuesByStatus[IssueStatus.IN_PROGRESS]}
           boardTitle="To do"
           boardType={IssueStatus.IN_PROGRESS}
-        />
-        <Board
-          issues={issuesByStatus[IssueStatus.OPEN]}
-          boardTitle="In progress"
-          boardType={IssueStatus.OPEN}
         />
         <Board
           issues={issuesByStatus[IssueStatus.DONE]}

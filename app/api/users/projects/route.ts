@@ -1,12 +1,20 @@
 import { NextRequest } from "next/server"
-import { Project } from "@prisma/client"
+import { Project, User, Visibility } from "@prisma/client"
 import { getToken } from "next-auth/jwt"
 
 import prisma from "@/lib/db"
 
-export interface ProjectsFetchResponse {
+export interface ProjectWithFullLead {
+  id: Project["id"]
+  projectKey: Project["projectKey"]
+  name: Project["name"]
+  visibility: Visibility
+  projectLead: User
+}
+
+export interface ProjectsFetchData {
   isError: boolean
-  projects: Project[]
+  projectsWithLeads: ProjectWithFullLead[]
   error: {
     title: string
     description: string
@@ -32,8 +40,8 @@ export async function GET(req: NextRequest) {
     )
   }
 
-  // find all projects that the user is a member or project lead of
-  const projects = await prisma.project.findMany({
+  // find all projects along with thier project lead
+  const projectsWithLeads = await prisma.project.findMany({
     where: {
       OR: [
         {
@@ -48,14 +56,21 @@ export async function GET(req: NextRequest) {
         },
       ],
     },
+    select: {
+      id: true,
+      projectKey: true,
+      projectLead: true,
+      name: true,
+      visibility: true,
+    },
   })
 
   return new Response(
     JSON.stringify({
       isError: false,
-      projects,
+      projectsWithLeads,
       error: null,
-    }),
+    } as ProjectsFetchData),
     {
       status: 200,
     }

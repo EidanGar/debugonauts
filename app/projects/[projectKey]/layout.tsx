@@ -2,7 +2,7 @@
 "use client"
 
 import { createContext } from "react"
-import { useQuery } from "@tanstack/react-query"
+import { queryOptions, useQuery } from "@tanstack/react-query"
 import type { Session } from "next-auth"
 import { useSession } from "next-auth/react"
 
@@ -26,12 +26,20 @@ export const ProjectContext = createContext<ProjectAndSession>({
   session: null,
 })
 
-const fetchProject = async (projectKey: string) => {
+const fetchProjectData = async (projectKey: string) => {
   const projectRes = await fetch(`/api/projects/key/${projectKey}`)
   if (!projectRes.ok) throw new Error("Failed to fetch project")
   const projectData = await projectRes.json()
   return projectData.project
 }
+
+export const getProjectDataQueryOptions = (projectKey: string) =>
+  queryOptions<FullProject>({
+    queryKey: ["project", projectKey],
+    queryFn: () => fetchProjectData(projectKey),
+    enabled: !!projectKey,
+    staleTime: 60000,
+  })
 
 export default function ProjectLayout({
   children,
@@ -39,11 +47,9 @@ export default function ProjectLayout({
 }: ProjectLayoutProps) {
   const { data: session } = useSession()
   const { toast } = useToast()
-  const { data: projectData, error } = useQuery<FullProject>({
-    queryKey: ["project", projectKey],
-    queryFn: () => fetchProject(projectKey),
-    enabled: !!projectKey,
-  })
+  const { data: projectData, error } = useQuery<FullProject>(
+    getProjectDataQueryOptions(projectKey)
+  )
 
   if (error) {
     // toast({

@@ -105,7 +105,7 @@ const IssueComponent = ({ issue }: { issue: Issue }) => {
 
 const Board = ({ issues, boardTitle }: BoardProps) => {
   return (
-    <Card className="w-full h-full bg-primary-foreground">
+    <Card className="w-full h-full col-span-3 border-none sm:col-span-1 bg-primary-foreground">
       <CardHeader className="p-2 px-3 space-y-1">
         <CardTitle className="text-xl font-medium">{boardTitle}</CardTitle>
       </CardHeader>
@@ -114,7 +114,7 @@ const Board = ({ issues, boardTitle }: BoardProps) => {
           <IssueComponent key={issue.id} issue={issue} />
         ))}
       </CardContent>
-      <CardFooter className="p-2">
+      <CardFooter className="p-2 mt-auto">
         <Button variant="ghost" className="w-full">
           Create issue
         </Button>

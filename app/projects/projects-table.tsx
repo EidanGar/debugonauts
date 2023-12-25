@@ -1,6 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
-import { Project } from "@prisma/client"
+import { useQueryClient } from "@tanstack/react-query"
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown } from "lucide-react"
 
@@ -30,12 +30,37 @@ import {
 import { Icons } from "@/components/icons"
 import { Shell } from "@/components/shell"
 
-export type ProjectWithLead = Project & {
-  leadName: string
-  leadImage: string
+import { ProjectWithFullLead } from "../api/users/projects/route"
+import { getProjectDataQueryOptions } from "./[projectKey]/layout"
+
+const ProjectName = ({
+  projectKey,
+  name,
+}: {
+  projectKey: string
+  name: string
+}) => {
+  const queryClient = useQueryClient()
+
+  const prefetch = () => {
+    queryClient.prefetchQuery(getProjectDataQueryOptions(projectKey))
+  }
+
+  return (
+    <Link
+      onMouseEnter={prefetch}
+      className="ml-2 underline-offset-4 hover:underline text-primary"
+      style={{
+        padding: 0,
+      }}
+      href={`/projects/${projectKey}`}
+    >
+      {name}
+    </Link>
+  )
 }
 
-const projectColumns: ColumnDef<ProjectWithLead, unknown>[] = [
+const projectColumns: ColumnDef<ProjectWithFullLead, unknown>[] = [
   {
     accessorKey: "name",
     id: "name",
@@ -52,15 +77,10 @@ const projectColumns: ColumnDef<ProjectWithLead, unknown>[] = [
       )
     },
     cell: ({ row }) => (
-      <Link
-        className="ml-2 underline-offset-4 hover:underline text-primary"
-        style={{
-          padding: 0,
-        }}
-        href={`/projects/${row.original.projectKey}`}
-      >
-        {row.original.name}
-      </Link>
+      <ProjectName
+        name={row.original.name}
+        projectKey={row.original.projectKey}
+      />
     ),
   },
   {
@@ -88,10 +108,10 @@ const projectColumns: ColumnDef<ProjectWithLead, unknown>[] = [
             className="inline-block mr-2 rounded-full w-7 h-7"
             width={28}
             height={28}
-            src={row.original.leadImage ?? userConfig.defaultUserImage}
-            alt={row.original.leadName}
+            src={row.original.projectLead.image ?? userConfig.defaultUserImage}
+            alt={row.original.projectLead.name}
           />
-          <span>{row.original.leadName}</span>
+          <span>{row.original.projectLead.name}</span>
         </div>
       )
     },
@@ -179,7 +199,7 @@ const ProjectsTable = ({
   data,
   isLoading,
 }: {
-  data: ProjectWithLead[] | null
+  data: ProjectWithFullLead[] | null
   isLoading: boolean
 }) => {
   return (
@@ -188,7 +208,7 @@ const ProjectsTable = ({
         filterBy="name"
         isLoading={isLoading}
         columns={projectColumns}
-        data={data ?? ([] as ProjectWithLead[])}
+        data={data ?? ([] as ProjectWithFullLead[])}
       />
     </Shell>
   )
