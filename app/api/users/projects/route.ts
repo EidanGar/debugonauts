@@ -32,8 +32,6 @@ export async function GET(req: NextRequest) {
     )
   }
 
-  console.log("Fetching projects for user:", token.name, "with id:", token.sub)
-
   // find all projects that the user is a member or project lead of
   const projects = await prisma.project.findMany({
     where: {

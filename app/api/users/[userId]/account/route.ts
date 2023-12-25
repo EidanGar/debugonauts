@@ -15,7 +15,6 @@ export const GET = async (
   req: Request,
   { params: { userId } }: { params: { userId: string } }
 ) => {
-  console.log("userId", userId)
   const userAccount = await prisma.account.findUnique({
     where: {
       userId,

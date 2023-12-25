@@ -2,16 +2,36 @@ import prisma from "@/lib/db"
 
 interface Params {
   params: {
-    projectKey: string
+    projectId: string
   }
 }
 
-export async function DELETE(req: Request, { params: { projectKey } }: Params) {
+export const GET = async (req: Request, { params: { projectId } }: Params) => {
+  const issues = await prisma.issue.findMany({
+    where: {
+      projectId,
+    },
+  })
+
+  return new Response(
+    JSON.stringify({
+      issues,
+    }),
+    {
+      headers: {
+        "content-type": "application/json",
+      },
+      status: 200,
+    }
+  )
+}
+
+export async function DELETE(req: Request, { params: { projectId } }: Params) {
   // delete project
   await prisma.project
     .delete({
       where: {
-        projectKey,
+        id: projectId,
       },
     })
     .catch((e) => {

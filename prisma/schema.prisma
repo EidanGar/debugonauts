@@ -155,12 +155,13 @@ model Issue {
   description String?
   status      IssueStatus @default(OPEN)
   priority    Priority    @default(LOW)
-  assigneeId  String
+  issueKey    String      @unique
+  assigneeId  String?
   reporterId  String
   projectId   String
   issueType   IssueType?
   comments    Comment[]
-  assignee    User        @relation("IssueAssignee", fields: [assigneeId], references: [id])
+  assignee    User?       @relation("IssueAssignee", fields: [assigneeId], references: [id])
   project     Project     @relation(fields: [projectId], references: [id])
   reporter    User        @relation("IssueReporter", fields: [reporterId], references: [id])
   tags        Tag[]       @relation("IssueTags")

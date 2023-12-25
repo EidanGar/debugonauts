@@ -14,8 +14,6 @@ const fetchProjectsWithLeads = async () => {
   const projectsResponse = await fetch("/api/users/projects")
 
   // TODO3: Improve fetching efficiency
-  console.log("Projects response:", projectsResponse)
-
   if (!projectsResponse.ok) throw new Error("Failed to fetch projects")
 
   const projectsData = await projectsResponse.json()

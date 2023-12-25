@@ -22,6 +22,7 @@ interface ProjectSidebarProps {
   projectKey: string
 }
 
+// TODO: Change the sidebar to be the same kind as that of the settings page
 const ProjectSideBar = ({
   defaultLayout = [30, 70],
   defaultCollapsed = false,
@@ -44,7 +45,7 @@ const ProjectSideBar = ({
         className="h-full max-h-[800px] items-stretch"
       >
         <ResizablePanel
-          defaultSize={defaultLayout[0]}
+          defaultSize={30}
           collapsedSize={navCollapsedSize}
           collapsible={true}
           minSize={15}
@@ -71,9 +72,7 @@ const ProjectSideBar = ({
           </div>
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={defaultLayout[1]} minSize={70}>
-          {children}
-        </ResizablePanel>
+        <ResizablePanel defaultSize={70}>{children}</ResizablePanel>
       </ResizablePanelGroup>
     </TooltipProvider>
   )

@@ -8,8 +8,6 @@ export const secret = process.env.SECRET
 export const GET = async (req: NextApiRequest) => {
   const token = await getToken({ req, secret })
 
-  console.log("Token:", token)
-
   const user = await prisma.user.findUnique({
     where: {
       id: token?.sub,

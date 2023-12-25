@@ -2,22 +2,22 @@
 "use client"
 
 import { createContext } from "react"
-import { Project } from "@prisma/client"
 import { useQuery } from "@tanstack/react-query"
 import type { Session } from "next-auth"
 import { useSession } from "next-auth/react"
 
 import { useToast } from "@/components/ui/use-toast"
+import { FullProject } from "@/app/api/projects/key/[projectKey]/route"
 
 import ProjectSideBar from "./project-sidebar"
 
-interface RootLayoutProps {
+interface ProjectLayoutProps {
   children: React.ReactNode
   params: { projectKey: string }
 }
 
 export interface ProjectAndSession {
-  projectData: Project | null
+  projectData: FullProject | null
   session: Session | null
 }
 
@@ -27,32 +27,36 @@ export const ProjectContext = createContext<ProjectAndSession>({
 })
 
 const fetchProject = async (projectKey: string) => {
-  const projectRes = await fetch(`/api/projects/${projectKey}`)
+  const projectRes = await fetch(`/api/projects/key/${projectKey}`)
   if (!projectRes.ok) throw new Error("Failed to fetch project")
-  const project = await projectRes.json()
-  return project
+  const projectData = await projectRes.json()
+  return projectData.project
 }
 
 export default function ProjectLayout({
   children,
   params: { projectKey },
-}: RootLayoutProps) {
+}: ProjectLayoutProps) {
   const { data: session } = useSession()
   const { toast } = useToast()
-  const { data: projectData, error } = useQuery({
+  const { data: projectData, error } = useQuery<FullProject>({
     queryKey: ["project", projectKey],
     queryFn: () => fetchProject(projectKey),
+    enabled: !!projectKey,
   })
 
   if (error) {
-    toast({
-      title: error.name,
-      description: error.message,
-    })
+    // toast({
+    //   title: error.name,
+    //   description: error.message,
+    // })
+    console.error(error.message)
   }
 
   return (
-    <ProjectContext.Provider value={{ projectData, session }}>
+    <ProjectContext.Provider
+      value={{ projectData: projectData ?? null, session }}
+    >
       <main className="w-full">
         <ProjectSideBar projectKey={projectKey} navCollapsedSize={4}>
           {children}

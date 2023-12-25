@@ -1,9 +1,27 @@
+import { Issue, Project, Role, Team, TeamMember, User } from "@prisma/client"
+
 import prisma from "@/lib/db"
 
 interface Params {
   params: {
     projectKey: string
   }
+}
+
+export interface FullProject extends Project {
+  members:
+    | TeamMember[]
+    | {
+        id: string
+        projectId: string
+        userId: string
+        role: Role
+        createdAt: Date
+      }[]
+  issues: Issue[]
+  projectLead: User | null
+  teams: Team[]
+  User: User | null
 }
 
 export async function GET(req: Request, { params: { projectKey } }: Params) {
@@ -50,7 +68,7 @@ export async function GET(req: Request, { params: { projectKey } }: Params) {
   return new Response(
     JSON.stringify({
       isError: false,
-      project,
+      project: project as FullProject,
       error: null,
     }),
     {

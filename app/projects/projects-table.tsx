@@ -100,14 +100,8 @@ const projectColumns: ColumnDef<ProjectWithLead, unknown>[] = [
     id: "actions",
     cell: ({ row }) => {
       const deleteProject = async (id: string) => {
-        const res = await fetch("/api/projects/delete", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            projectId: id,
-          }),
+        const res = await fetch(`/api/projects/${id}`, {
+          method: "DELETE",
         })
 
         const response = await res.json()
