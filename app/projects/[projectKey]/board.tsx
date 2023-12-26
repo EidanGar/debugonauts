@@ -6,13 +6,7 @@ import { Issue, IssueStatus } from "@prisma/client"
 import { userConfig } from "@/lib/config/user"
 import { slugify } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   DropdownMenu,
@@ -59,7 +53,7 @@ const IssueComponent = ({ issue }: { issue: Issue }) => {
         <h4>{issue.title}</h4>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost">
+            <Button variant="ghost" className="h-5 p-2 py-4">
               <Icons.moreHorizontal className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -105,15 +99,17 @@ const IssueComponent = ({ issue }: { issue: Issue }) => {
 
 const Board = ({ issues, boardTitle }: BoardProps) => {
   return (
-    <Card className="w-full h-full col-span-3 border-none sm:col-span-1 bg-primary-foreground">
-      <CardHeader className="p-2 px-3 space-y-1">
-        <CardTitle className="text-xl font-medium">{boardTitle}</CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-col items-center w-full gap-4 p-2 px-3">
-        {issues.map((issue) => (
-          <IssueComponent key={issue.id} issue={issue} />
-        ))}
-      </CardContent>
+    <Card className="flex flex-col justify-between w-full h-full col-span-3 border-none sm:col-span-1 bg-primary-foreground">
+      <div className="flex flex-col w-full">
+        <div className="p-2 space-y-1.5 px-3">
+          <CardTitle className="text-xl font-medium">{boardTitle}</CardTitle>
+        </div>
+        <CardContent className="flex flex-col items-center w-full gap-4 p-2 px-3">
+          {issues.map((issue) => (
+            <IssueComponent key={issue.id} issue={issue} />
+          ))}
+        </CardContent>
+      </div>
       <CardFooter className="p-2 mt-auto">
         <Button variant="ghost" className="w-full">
           Create issue

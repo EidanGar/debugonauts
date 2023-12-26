@@ -7,9 +7,10 @@ import type { Session } from "next-auth"
 import { useSession } from "next-auth/react"
 
 import { useToast } from "@/components/ui/use-toast"
+import { Icons } from "@/components/icons"
+import { SidebarNav } from "@/components/sidebar-nav"
 import { FullProject } from "@/app/api/projects/key/[projectKey]/route"
-
-import ProjectSideBar from "./project-sidebar"
+import Loading from "@/app/loading"
 
 interface ProjectLayoutProps {
   children: React.ReactNode
@@ -47,27 +48,61 @@ export default function ProjectLayout({
 }: ProjectLayoutProps) {
   const { data: session } = useSession()
   const { toast } = useToast()
-  const { data: projectData, error } = useQuery<FullProject>(
-    getProjectDataQueryOptions(projectKey)
-  )
+  const {
+    data: projectData,
+    error,
+    status,
+  } = useQuery<FullProject>(getProjectDataQueryOptions(projectKey))
 
   if (error) {
-    // toast({
-    //   title: error.name,
-    //   description: error.message,
-    // })
-    console.error(error.message)
+    toast({
+      title: error.name,
+      description: error.message,
+    })
   }
+
+  const sidebarNavProjectItems = [
+    {
+      title: "Board",
+      Icon: Icons.board,
+      href: `/projects/${projectKey}`,
+    },
+    {
+      title: "Teams",
+      Icon: Icons.users,
+      href: `/projects/${projectKey}/teams`,
+    },
+    {
+      title: "Issues",
+      Icon: Icons.details,
+      href: `/projects/${projectKey}/issues`,
+    },
+    {
+      title: "Timeline",
+      Icon: Icons.calendar,
+      href: `/projects/${projectKey}/timeline`,
+    },
+    {
+      title: "Settings",
+      Icon: Icons.settings,
+      href: `/projects/${projectKey}/settings`,
+    },
+  ]
 
   return (
     <ProjectContext.Provider
       value={{ projectData: projectData ?? null, session }}
     >
-      <main className="w-full">
-        <ProjectSideBar projectKey={projectKey} navCollapsedSize={4}>
-          {children}
-        </ProjectSideBar>
-      </main>
+      <div className="px-[calc(10vw/2)] pt-4 pb-8 w-full space-y-6 sm:p-10 sm:pb-16">
+        <div className="flex flex-col items-start w-full gap-6 lg:gap-16 lg:flex-row">
+          <aside className="w-full sm:-mx-4 lg:w-1/5 sm:px-0">
+            <SidebarNav items={sidebarNavProjectItems} />
+          </aside>
+          <div className="flex items-center flex-1 flex-grow w-full">
+            {status === "pending" ? <Loading /> : children}
+          </div>
+        </div>
+      </div>
     </ProjectContext.Provider>
   )
 }

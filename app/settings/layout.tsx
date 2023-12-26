@@ -12,6 +12,7 @@ import { useSession } from "next-auth/react"
 
 import { Separator } from "@/components/ui/separator"
 import { useToast } from "@/components/ui/use-toast"
+import { SidebarNav } from "@/components/sidebar-nav"
 
 import {
   UserAccount,
@@ -19,7 +20,6 @@ import {
   setUserAccountPatch,
 } from "../api/users/[userId]/route"
 import Loading from "../loading"
-import { SidebarNav } from "./sidebar-nav"
 
 const sidebarNavItems = [
   {
@@ -100,7 +100,7 @@ const SettingsLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
         <Separator className="my-6" />
         <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
-          <aside className="-mx-4 lg:w-1/5">
+          <aside className="w-full sm:-mx-4 lg:w-1/5 sm:px-0">
             <SidebarNav items={sidebarNavItems} />
           </aside>
           <div className="relative flex-1 lg:max-w-2xl">

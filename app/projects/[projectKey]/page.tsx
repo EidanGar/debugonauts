@@ -4,7 +4,6 @@ import { useContext } from "react"
 import { IssueStatus } from "@prisma/client"
 
 import BreadCrumbs from "@/components/breadcrumbs"
-import { Shell } from "@/components/shell"
 import Loading from "@/app/loading"
 
 import Board from "./board"
@@ -35,7 +34,7 @@ const ProjectPage = async ({
   }
 
   return (
-    <Shell as="main" className="flex flex-col gap-5 py-4">
+    <main className="flex flex-col w-full gap-5">
       <BreadCrumbs />
       <h1 className="text-2xl font-medium leading-8 tracking-tighter md:text-4xl">
         {projectKey.slice(0, 3)} board
@@ -57,7 +56,7 @@ const ProjectPage = async ({
           boardType={IssueStatus.DONE}
         />
       </div>
-    </Shell>
+    </main>
   )
 }
 

@@ -4,6 +4,8 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { ChevronRight, Home } from "lucide-react"
 
+import { capitalize } from "@/lib/utils"
+
 const BreadCrumbs = () => {
   const pathname = usePathname()
 
@@ -17,7 +19,7 @@ const BreadCrumbs = () => {
             href="/"
             className="inline-flex items-center text-sm font-medium text-gray-700 duration-300 hover:opacity-80 dark:text-gray-400 dark:hover:text-white"
           >
-            <Home className="w-3 h-3 me-2.5" />
+            <Home className="w-4 h-4 me-2.5" />
             Home
           </Link>
         </li>
@@ -26,12 +28,14 @@ const BreadCrumbs = () => {
 
           return (
             <li key={crumb} className="inline-flex items-center">
-              <ChevronRight className="w-3 h-3 me-2.5" />
+              <ChevronRight className="w-4 h-4 me-2.5" />
               <Link
                 className="inline-flex items-center text-sm font-medium text-gray-700 duration-300 hover:opacity-80 dark:text-gray-400 dark:hover:text-white"
                 href={href}
               >
-                {crumb}
+                {crumb[0] === crumb[0].toUpperCase()
+                  ? crumb
+                  : capitalize(crumb)}
               </Link>
             </li>
           )

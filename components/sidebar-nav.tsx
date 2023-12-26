@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { Icon, LucideProps } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
@@ -10,6 +11,7 @@ interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
   items: {
     href: string
     title: string
+    Icon?: Icon | ((arg: LucideProps) => JSX.Element)
   }[]
 }
 
@@ -19,7 +21,7 @@ export const SidebarNav = ({ className, items, ...props }: SidebarNavProps) => {
   return (
     <nav
       className={cn(
-        "flex md:justify-normal w-full justify-evenly lg:flex-col lg:space-x-0 lg:space-y-1",
+        "flex md:justify-normal w-full justify-between lg:flex-col lg:space-x-0 lg:space-y-1",
         className
       )}
       {...props}
@@ -38,7 +40,8 @@ export const SidebarNav = ({ className, items, ...props }: SidebarNavProps) => {
             "justify-start md:px-4 md:py-2 underline-offset-4 md:underline-offset-0 md:hover:no-underline hover:underline text-primary"
           )}
         >
-          {item.title}
+          {item.Icon && <item.Icon className="hidden w-4 h-4 mr-2 sm:block" />}
+          <span>{item.title}</span>
         </Link>
       ))}
     </nav>
