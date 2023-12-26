@@ -132,7 +132,6 @@ const CreateProjectForm = () => {
           )}
         />
 
-        {/* TODO: Make project description optional when creating a project */}
         <FormField
           name="description"
           control={form.control}

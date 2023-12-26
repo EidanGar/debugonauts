@@ -19,7 +19,7 @@ export const SidebarNav = ({ className, items, ...props }: SidebarNavProps) => {
   return (
     <nav
       className={cn(
-        "flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1",
+        "flex md:justify-normal w-full justify-evenly lg:flex-col lg:space-x-0 lg:space-y-1",
         className
       )}
       {...props}
@@ -29,11 +29,13 @@ export const SidebarNav = ({ className, items, ...props }: SidebarNavProps) => {
           key={item.href}
           href={item.href}
           className={cn(
-            buttonVariants({ variant: "ghost" }),
+            buttonVariants({
+              variant: "ghost",
+            }),
             pathname === item.href
-              ? "bg-muted hover:bg-muted"
-              : "hover:bg-transparent hover:underline",
-            "justify-start"
+              ? "bg-muted hover:bg-muted no-underline px-4 py-2"
+              : "hover:bg-transparent p-0 hover:underline",
+            "justify-start md:px-4 md:py-2 underline-offset-4 md:underline-offset-0 md:hover:no-underline hover:underline text-primary"
           )}
         >
           {item.title}

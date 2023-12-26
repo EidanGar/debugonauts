@@ -84,7 +84,6 @@ const SettingsLayout = ({ children }: { children: React.ReactNode }) => {
     },
   })
 
-  // TODO: Settings doesn't render on smaller screens
   return (
     <AccountContext.Provider
       value={{
@@ -92,23 +91,7 @@ const SettingsLayout = ({ children }: { children: React.ReactNode }) => {
         setUserAccount,
       }}
     >
-      <div className="md:hidden">
-        <Image
-          src="/examples/forms-light.png"
-          width={1280}
-          height={791}
-          alt="Forms"
-          className="block dark:hidden"
-        />
-        <Image
-          src="/examples/forms-dark.png"
-          width={1280}
-          height={791}
-          alt="Forms"
-          className="hidden dark:block"
-        />
-      </div>
-      <div className="hidden p-10 pb-16 space-y-6 md:block">
+      <div className="px-[calc(10vw/2)] pt-4 pb-8 space-y-6 sm:p-10 sm:pb-16">
         <div className="space-y-0.5">
           <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
           <p className="text-muted-foreground">
