@@ -1,15 +1,15 @@
 "use client"
 
 import { useContext } from "react"
-import { Account } from "@prisma/client"
+import { AccountData } from "@/prisma/zod/account"
 
 import { Separator } from "@/components/ui/separator"
 
-import { AccountContext, AccountContextType } from "../layout"
-import { AccountForm, AccountFormValues } from "./account-form"
+import { AccountContext } from "../layout"
+import { AccountForm } from "./account-form"
 
 export default function SettingsAccountPage() {
-  const { account, userId } = useContext<AccountContextType>(AccountContext)
+  const { userAccount, setUserAccount } = useContext(AccountContext)
 
   return (
     <div className="space-y-6">
@@ -22,8 +22,8 @@ export default function SettingsAccountPage() {
       </div>
       <Separator />
       <AccountForm
-        userId={userId}
-        defaultValues={account as AccountFormValues}
+        setUserAccount={setUserAccount}
+        defaultValues={userAccount?.account as AccountData}
       />
     </div>
   )

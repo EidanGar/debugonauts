@@ -2,7 +2,7 @@ import { NotificationSettings } from "@prisma/client"
 import { z } from "zod"
 
 export const notificationsFormSchema = z.object({
-  type: z
+  notifications: z
     .enum([
       NotificationSettings.NONE,
       NotificationSettings.ALL,
@@ -10,11 +10,11 @@ export const notificationsFormSchema = z.object({
     ])
     .default(NotificationSettings.ALL)
     .optional(),
-  mobile: z.boolean().default(false).optional(),
-  communication_emails: z.boolean().default(false).optional(),
-  social_emails: z.boolean().default(false).optional(),
-  marketing_emails: z.boolean().default(false).optional(),
-  security_emails: z.boolean().default(false).optional(),
+  mobileNotifsDiff: z.boolean().default(false).optional(),
+  commNotifs: z.boolean().default(false).optional(),
+  socialNotifs: z.boolean().default(false).optional(),
+  marketingNotifs: z.boolean().default(false).optional(),
+  securityNotifs: z.boolean().default(false).optional(),
 })
 
-export type NotificationsFormValues = z.infer<typeof notificationsFormSchema>
+export type NotificationsData = z.infer<typeof notificationsFormSchema>

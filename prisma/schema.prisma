@@ -38,7 +38,8 @@ model User {
   reportedIssues     Issue[]         @relation("IssueReporter")
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
-  Account            Account[]
+  accountId          String?         @unique
+  account            Account?        @relation(fields: [accountId], references: [id])
   Project            Project[]
 
   @@index(email)
@@ -59,7 +60,6 @@ enum AppTheme {
 
 model Account {
   id               String                @id @default(uuid())
-  userId           String                @unique
   provider         Provider
   providerId       String?
   resetToken       String? // Token for password reset
@@ -75,9 +75,8 @@ model Account {
   socialNotifs     Boolean?              @default(true) // social notifications
   securityNotifs   Boolean?              @default(true) // security notifications
   mobileNotifsDiff Boolean?              @default(false) // mobile notifications different from web
-
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+  user             User?
+  createdAt        DateTime              @default(now())
 
   @@unique([provider, providerId])
 }

@@ -1,10 +1,16 @@
 "use client"
 
+import { useContext } from "react"
+import { ProfileData } from "@/prisma/zod/profile"
+
 import { Separator } from "@/components/ui/separator"
 
+import { AccountContext } from "./layout"
 import ProfileForm from "./profile-form"
 
 const SettingsProfilePage = () => {
+  const { userAccount, setUserAccount } = useContext(AccountContext)
+
   return (
     <div className="space-y-6">
       <div>
@@ -15,7 +21,10 @@ const SettingsProfilePage = () => {
         </p>
       </div>
       <Separator />
-      <ProfileForm />
+      <ProfileForm
+        setUserAccount={setUserAccount}
+        defaultValues={userAccount as ProfileData}
+      />
     </div>
   )
 }

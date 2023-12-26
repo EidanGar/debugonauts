@@ -15,7 +15,7 @@ const themePreprocessor = (foo: any) => {
 }
 
 export const appearanceFormSchema = z.object({
-  theme: z.preprocess(
+  themePreference: z.preprocess(
     themePreprocessor,
     z
       .enum([AppTheme.DARK, AppTheme.LIGHT, AppTheme.SYSTEM], {
@@ -23,7 +23,7 @@ export const appearanceFormSchema = z.object({
       })
       .default(AppTheme.SYSTEM)
   ),
-  font: z.preprocess(
+  fontPreference: z.preprocess(
     stringPreprocessor,
     z.string({
       invalid_type_error: "Select a font",
@@ -32,4 +32,4 @@ export const appearanceFormSchema = z.object({
   ),
 })
 
-export type AppearanceFormValues = z.infer<typeof appearanceFormSchema>
+export type AppearanceData = z.infer<typeof appearanceFormSchema>

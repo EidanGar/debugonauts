@@ -1,10 +1,10 @@
 "use client"
 
-import { AccountFormValues, accountFormSchema } from "@/prisma/zod/account"
+import { AccountData, accountFormSchema } from "@/prisma/zod/account"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { CalendarIcon, CaretSortIcon, CheckIcon } from "@radix-ui/react-icons"
 import { format } from "date-fns"
-import { useForm } from "react-hook-form"
+import { SubmitHandler, useForm } from "react-hook-form"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -31,8 +31,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { useToast } from "@/components/ui/use-toast"
-import { FetchAccountResponse } from "@/app/api/users/[userId]/account/route"
+import { UserAccount } from "@/app/api/users/[userId]/route"
+
+import { UserAccountContextType } from "../layout"
 
 const languages = [
   { label: "English", value: "en" },
@@ -47,57 +48,21 @@ const languages = [
 ] as const
 
 interface AccountFormProps {
-  defaultValues?: AccountFormValues
-  userId: string | null
+  defaultValues?: AccountData
+  setUserAccount: UserAccountContextType["setUserAccount"]
 }
 
-export const AccountForm = ({ defaultValues, userId }: AccountFormProps) => {
-  const { toast } = useToast()
-  const form = useForm<AccountFormValues>({
+export const AccountForm = ({
+  defaultValues,
+  setUserAccount,
+}: AccountFormProps) => {
+  const form = useForm<AccountData>({
     resolver: zodResolver(accountFormSchema),
     defaultValues,
   })
 
-  const onSubmit = async (data: AccountFormValues) => {
-    if (data.dob === null && data.language === null && data.fullName === null) {
-      toast({
-        title: "No changes",
-        description: "You didn't change anything.",
-      })
-      return
-    }
-
-    const response = await fetch(`/api/users/${userId}/account`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
-
-    if (!response.ok) {
-      toast({
-        title: "Error",
-        description: "Something went wrong, try again later.",
-      })
-      return
-    }
-
-    const accountResponseData: FetchAccountResponse = await response.json()
-
-    if (accountResponseData.isError && !accountResponseData.account) {
-      toast({
-        title: accountResponseData.error?.title,
-        description: accountResponseData.error?.description,
-      })
-      return
-    }
-
-    toast({
-      title: "Account successfuly updated",
-      description:
-        "Your account has been updated, it will take some time to see the changes.",
-    })
+  const onSubmit: SubmitHandler<AccountData> = async (accountData) => {
+    setUserAccount({ account: accountData } as UserAccount)
   }
 
   return (
@@ -124,7 +89,7 @@ export const AccountForm = ({ defaultValues, userId }: AccountFormProps) => {
           control={form.control}
           name="dob"
           render={({ field }) => (
-            <FormItem className="flex relative flex-col">
+            <FormItem className="relative flex flex-col">
               <FormLabel>Date of birth</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
@@ -135,7 +100,7 @@ export const AccountForm = ({ defaultValues, userId }: AccountFormProps) => {
                       !field.value && "text-muted-foreground"
                     )}
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    <CalendarIcon className="w-4 h-4 mr-2" />
                     {field.value ? (
                       format(field.value, "PPP")
                     ) : (
@@ -144,7 +109,7 @@ export const AccountForm = ({ defaultValues, userId }: AccountFormProps) => {
                   </Button>
                 </PopoverTrigger>
                 {/* TODO: Check data popover on deployment */}
-                <PopoverContent className=" w-auto p-0">
+                <PopoverContent className="w-auto p-0 ">
                   <Calendar
                     mode="single"
                     captionLayout="dropdown-buttons"
@@ -188,7 +153,7 @@ export const AccountForm = ({ defaultValues, userId }: AccountFormProps) => {
                             (language) => language.value === field.value
                           )?.label
                         : "Select language"}
-                      <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      <CaretSortIcon className="w-4 h-4 ml-2 opacity-50 shrink-0" />
                     </Button>
                   </FormControl>
                 </PopoverTrigger>

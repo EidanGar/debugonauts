@@ -1,13 +1,10 @@
 "use client"
 
-import {
-  AppearanceFormValues,
-  appearanceFormSchema,
-} from "@/prisma/zod/appearance"
+import { AppearanceData, appearanceFormSchema } from "@/prisma/zod/appearance"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { AppTheme } from "@prisma/client"
 import { ChevronDownIcon } from "@radix-ui/react-icons"
-import { useForm } from "react-hook-form"
+import { SubmitHandler, useForm } from "react-hook-form"
 
 import { cn } from "@/lib/utils"
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -21,61 +18,26 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { useToast } from "@/components/ui/use-toast"
-import { FetchAccountResponse } from "@/app/api/users/[userId]/account/route"
+import { UserAccount } from "@/app/api/users/[userId]/route"
+
+import { UserAccountContextType } from "../layout"
 
 interface AppearanceFormProps {
-  defaultValues?: AppearanceFormValues
-  userId: string | null
+  defaultValues?: AppearanceData
+  setUserAccount: UserAccountContextType["setUserAccount"]
 }
 
 export const AppearanceForm = ({
   defaultValues,
-  userId,
+  setUserAccount,
 }: AppearanceFormProps) => {
-  const { toast } = useToast()
-  const form = useForm<AppearanceFormValues>({
+  const form = useForm<AppearanceData>({
     resolver: zodResolver(appearanceFormSchema),
     defaultValues,
   })
 
-  const onSubmit = async (data: AppearanceFormValues) => {
-    const accountData = {
-      fontPreference: data.font,
-      themePreference: data.theme,
-    }
-
-    const response = await fetch(`/api/users/${userId}/account`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(accountData),
-    })
-
-    if (!response.ok) {
-      toast({
-        title: "Error",
-        description: "Something went wrong, try again later.",
-      })
-      return
-    }
-
-    const accountResponseData: FetchAccountResponse = await response.json()
-
-    if (accountResponseData.isError && !accountResponseData.account) {
-      toast({
-        title: accountResponseData.error?.title,
-        description: accountResponseData.error?.description,
-      })
-      return
-    }
-
-    toast({
-      title: "Account successfuly updated",
-      description:
-        "Your account has been updated, it will take some time to see the changes.",
-    })
+  const onSubmit: SubmitHandler<AppearanceData> = async (appearanceData) => {
+    setUserAccount({ account: appearanceData } as UserAccount)
   }
 
   return (
@@ -83,7 +45,7 @@ export const AppearanceForm = ({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
-          name="font"
+          name="fontPreference"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Font</FormLabel>
@@ -112,7 +74,7 @@ export const AppearanceForm = ({
         />
         <FormField
           control={form.control}
-          name="theme"
+          name="themePreference"
           render={({ field }) => (
             <FormItem className="space-y-1">
               <FormLabel>Theme</FormLabel>
@@ -133,23 +95,23 @@ export const AppearanceForm = ({
                         className="sr-only"
                       />
                     </FormControl>
-                    <div className="items-center rounded-md border-2 border-muted p-1 hover:border-accent">
+                    <div className="items-center p-1 border-2 rounded-md border-muted hover:border-accent">
                       <div className="space-y-2 rounded-sm bg-[#ecedef] p-2">
-                        <div className="space-y-2 rounded-md bg-white p-2 shadow-sm">
+                        <div className="p-2 space-y-2 bg-white rounded-md shadow-sm">
                           <div className="h-2 w-[80px] rounded-lg bg-[#ecedef]" />
                           <div className="h-2 w-[100px] rounded-lg bg-[#ecedef]" />
                         </div>
-                        <div className="flex items-center space-x-2 rounded-md bg-white p-2 shadow-sm">
+                        <div className="flex items-center p-2 space-x-2 bg-white rounded-md shadow-sm">
                           <div className="h-4 w-4 rounded-full bg-[#ecedef]" />
                           <div className="h-2 w-[100px] rounded-lg bg-[#ecedef]" />
                         </div>
-                        <div className="flex items-center space-x-2 rounded-md bg-white p-2 shadow-sm">
+                        <div className="flex items-center p-2 space-x-2 bg-white rounded-md shadow-sm">
                           <div className="h-4 w-4 rounded-full bg-[#ecedef]" />
                           <div className="h-2 w-[100px] rounded-lg bg-[#ecedef]" />
                         </div>
                       </div>
                     </div>
-                    <span className="block w-full p-2 text-center font-normal">
+                    <span className="block w-full p-2 font-normal text-center">
                       Light
                     </span>
                   </FormLabel>
@@ -162,23 +124,23 @@ export const AppearanceForm = ({
                         className="sr-only"
                       />
                     </FormControl>
-                    <div className="items-center rounded-md border-2 border-muted bg-popover p-1 hover:bg-accent hover:text-accent-foreground">
-                      <div className="space-y-2 rounded-sm bg-slate-950 p-2">
-                        <div className="space-y-2 rounded-md bg-slate-800 p-2 shadow-sm">
+                    <div className="items-center p-1 border-2 rounded-md border-muted bg-popover hover:bg-accent hover:text-accent-foreground">
+                      <div className="p-2 space-y-2 rounded-sm bg-slate-950">
+                        <div className="p-2 space-y-2 rounded-md shadow-sm bg-slate-800">
                           <div className="h-2 w-[80px] rounded-lg bg-slate-400" />
                           <div className="h-2 w-[100px] rounded-lg bg-slate-400" />
                         </div>
-                        <div className="flex items-center space-x-2 rounded-md bg-slate-800 p-2 shadow-sm">
-                          <div className="h-4 w-4 rounded-full bg-slate-400" />
+                        <div className="flex items-center p-2 space-x-2 rounded-md shadow-sm bg-slate-800">
+                          <div className="w-4 h-4 rounded-full bg-slate-400" />
                           <div className="h-2 w-[100px] rounded-lg bg-slate-400" />
                         </div>
-                        <div className="flex items-center space-x-2 rounded-md bg-slate-800 p-2 shadow-sm">
-                          <div className="h-4 w-4 rounded-full bg-slate-400" />
+                        <div className="flex items-center p-2 space-x-2 rounded-md shadow-sm bg-slate-800">
+                          <div className="w-4 h-4 rounded-full bg-slate-400" />
                           <div className="h-2 w-[100px] rounded-lg bg-slate-400" />
                         </div>
                       </div>
                     </div>
-                    <span className="block w-full p-2 text-center font-normal">
+                    <span className="block w-full p-2 font-normal text-center">
                       Dark
                     </span>
                   </FormLabel>

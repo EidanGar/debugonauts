@@ -1,15 +1,15 @@
 "use client"
 
 import { useContext } from "react"
-import { Account } from "@prisma/client"
+import { AppearanceData } from "@/prisma/zod/appearance"
 
 import { Separator } from "@/components/ui/separator"
 
-import { AccountContext, AccountContextType } from "../layout"
-import { AppearanceForm, AppearanceFormValues } from "./appearance-form"
+import { AccountContext } from "../layout"
+import { AppearanceForm } from "./appearance-form"
 
 export default function SettingsAppearancePage() {
-  const { account, userId } = useContext<AccountContextType>(AccountContext)
+  const { userAccount, setUserAccount } = useContext(AccountContext)
 
   return (
     <div className="space-y-6">
@@ -22,13 +22,8 @@ export default function SettingsAppearancePage() {
       </div>
       <Separator />
       <AppearanceForm
-        userId={userId}
-        defaultValues={
-          {
-            font: account?.fontPreference,
-            theme: account?.themePreference,
-          } as AppearanceFormValues
-        }
+        setUserAccount={setUserAccount}
+        defaultValues={userAccount?.account as AppearanceData}
       />
     </div>
   )

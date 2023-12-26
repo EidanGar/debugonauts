@@ -2,12 +2,12 @@
 
 import Link from "next/link"
 import {
-  NotificationsFormValues,
+  NotificationsData,
   notificationsFormSchema,
 } from "@/prisma/zod/notifications"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { NotificationSettings } from "@prisma/client"
-import { useForm } from "react-hook-form"
+import { SubmitHandler, useForm } from "react-hook-form"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -22,73 +22,37 @@ import {
 } from "@/components/ui/form"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Switch } from "@/components/ui/switch"
-import { useToast } from "@/components/ui/use-toast"
-import { FetchAccountResponse } from "@/app/api/users/[userId]/account/route"
+import { UserAccount } from "@/app/api/users/[userId]/route"
+
+import { UserAccountContextType } from "../layout"
 
 interface NotificationsFormProps {
-  defaultValues?: NotificationsFormValues
-  userId: string | null
+  defaultValues?: NotificationsData
+  setUserAccount: UserAccountContextType["setUserAccount"]
 }
 
 export const NotificationsForm = ({
   defaultValues,
-  userId,
+  setUserAccount,
 }: NotificationsFormProps) => {
-  const { toast } = useToast()
-  const form = useForm<NotificationsFormValues>({
+  const form = useForm<NotificationsData>({
     resolver: zodResolver(notificationsFormSchema),
     defaultValues,
   })
 
-  const onSubmit = async (data: NotificationsFormValues) => {
-    const accountData = {
-      notifications: data.type,
-      mobileNotifsDiff: data.mobile,
-      commNotifs: data.communication_emails,
-      socialNotifs: data.social_emails,
-      marketingNotifs: data.marketing_emails,
-      securityNotifs: data.security_emails,
-    }
-
-    const response = await fetch(`/api/users/${userId}/account`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(accountData),
-    })
-
-    if (!response.ok) {
-      toast({
-        title: "Error",
-        description: "Something went wrong, try again later.",
-      })
-      return
-    }
-
-    const accountResponseData: FetchAccountResponse = await response.json()
-
-    if (accountResponseData.isError && !accountResponseData.account) {
-      toast({
-        title: accountResponseData.error?.title,
-        description: accountResponseData.error?.description,
-      })
-      return
-    }
-
-    toast({
-      title: "Account successfuly updated",
-      description:
-        "Your account has been updated, it will take some time to see the changes.",
-    })
+  const onSubmit: SubmitHandler<NotificationsData> = async (notifData) => {
+    setUserAccount({ account: notifData } as UserAccount)
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form
+        onSubmit={(...args) => void form.handleSubmit(onSubmit)(...args)}
+        className="space-y-8"
+      >
         <FormField
           control={form.control}
-          name="type"
+          name="notifications"
           render={({ field }) => (
             <FormItem className="space-y-3">
               <FormLabel>Notify me about...</FormLabel>
@@ -133,9 +97,9 @@ export const NotificationsForm = ({
           <div className="space-y-4">
             <FormField
               control={form.control}
-              name="communication_emails"
+              name="commNotifs"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <FormItem className="flex flex-row items-center justify-between p-4 border rounded-lg">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">
                       Communication emails
@@ -155,9 +119,9 @@ export const NotificationsForm = ({
             />
             <FormField
               control={form.control}
-              name="marketing_emails"
+              name="marketingNotifs"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <FormItem className="flex flex-row items-center justify-between p-4 border rounded-lg">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">
                       Marketing emails
@@ -177,9 +141,9 @@ export const NotificationsForm = ({
             />
             <FormField
               control={form.control}
-              name="social_emails"
+              name="socialNotifs"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <FormItem className="flex flex-row items-center justify-between p-4 border rounded-lg">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">Social emails</FormLabel>
                     <FormDescription>
@@ -197,9 +161,9 @@ export const NotificationsForm = ({
             />
             <FormField
               control={form.control}
-              name="security_emails"
+              name="securityNotifs"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <FormItem className="flex flex-row items-center justify-between p-4 border rounded-lg">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">Security emails</FormLabel>
                     <FormDescription>
@@ -220,7 +184,7 @@ export const NotificationsForm = ({
         </div>
         <FormField
           control={form.control}
-          name="mobile"
+          name="mobileNotifsDiff"
           render={({ field }) => (
             <FormItem className="flex flex-row items-start space-x-3 space-y-0">
               <FormControl>

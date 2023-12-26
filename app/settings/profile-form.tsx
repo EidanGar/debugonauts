@@ -3,7 +3,6 @@
 import { ProfileData, profileSchema } from "@/prisma/zod/profile"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Visibility } from "@prisma/client"
-import { getSession, useSession } from "next-auth/react"
 import { SubmitHandler, useForm } from "react-hook-form"
 
 import {
@@ -37,10 +36,10 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { useToast } from "@/components/ui/use-toast"
 import { Icons } from "@/components/icons"
-import { Shell } from "@/components/shell"
-import Loading from "@/app/loading"
+
+import { UserAccount } from "../api/users/[userId]/route"
+import { UserAccountContextType } from "./layout"
 
 interface ProfileVisibilityProps {
   onChange?: (value: Visibility) => void
@@ -77,50 +76,19 @@ const VisibilityDropdown = ({ onChange, value }: ProfileVisibilityProps) => {
   )
 }
 
-const ProfileForm = () => {
-  const { toast } = useToast()
-  const { data: session } = useSession()
+interface ProfileFormProps {
+  defaultValues?: ProfileData
+  setUserAccount: UserAccountContextType["setUserAccount"]
+}
 
+const ProfileForm = ({ setUserAccount, defaultValues }: ProfileFormProps) => {
   const form = useForm({
     resolver: zodResolver(profileSchema),
-    defaultValues: async (): Promise<ProfileData> => {
-      const session = await getSession()
-      while (true) {
-        // @ts-ignore
-        if (session?.user?.id) {
-          return session.user as ProfileData
-        }
-        await new Promise((resolve) => setTimeout(resolve, 100))
-      }
-    },
+    defaultValues,
   })
 
-  const onSubmit: SubmitHandler<ProfileData> = async (data) => {
-    // @ts-ignore
-    const response = await fetch(`/api/users/${session?.user.id}/patch`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data as ProfileData),
-    })
-
-    if (response.ok) {
-      toast({
-        title: "Your profile has been updated.",
-        description: "Your change might take a while to show everywhere",
-      })
-    } else {
-      toast({
-        title: "Something went wrong",
-        description: "Your profile could not be updated.",
-      })
-    }
-  }
-
-  // @ts-ignore
-  if (!session?.user?.id) {
-    return <Loading />
+  const onSubmit: SubmitHandler<ProfileData> = async (profileData) => {
+    setUserAccount(profileData as UserAccount)
   }
 
   return (

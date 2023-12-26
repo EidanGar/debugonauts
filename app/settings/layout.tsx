@@ -1,14 +1,23 @@
 "use client"
 
-import { createContext, useEffect, useState } from "react"
+import { createContext } from "react"
 import Image from "next/image"
-import { Account } from "@prisma/client"
+import {
+  QueryClient,
+  UseMutateFunction,
+  useMutation,
+  useQuery,
+} from "@tanstack/react-query"
 import { useSession } from "next-auth/react"
 
 import { Separator } from "@/components/ui/separator"
 import { useToast } from "@/components/ui/use-toast"
 
-import { FetchAccountResponse } from "../api/users/[userId]/account/route"
+import {
+  UserAccount,
+  getUserAccount,
+  setUserAccountPatch,
+} from "../api/users/[userId]/route"
 import Loading from "../loading"
 import { SidebarNav } from "./sidebar-nav"
 
@@ -31,84 +40,56 @@ const sidebarNavItems = [
   },
 ]
 
-export type AccountContextType = {
-  account: Account | null
-  userId: string | null
+export type UserAccountContextType = {
+  userAccount: UserAccount | null
+  setUserAccount: UseMutateFunction<
+    UserAccount | null,
+    Error,
+    UserAccount,
+    unknown
+  >
 }
 
-export const AccountContext = createContext<AccountContextType>({
-  account: null,
-  userId: null,
+export const AccountContext = createContext<UserAccountContextType>({
+  userAccount: null,
+  setUserAccount: async () => {},
 })
 
-interface SettingsLayoutProps {
-  children: React.ReactNode
-}
-
-const SettingsLayout = ({ children }: SettingsLayoutProps) => {
-  const [userAccount, setUserAccount] = useState<Account | null>(null)
+const SettingsLayout = ({ children }: { children: React.ReactNode }) => {
+  const queryClient = new QueryClient()
   const { data: session } = useSession()
   const { toast } = useToast()
+  const { data: userAccount, status } = useQuery<UserAccount>({
+    queryKey: ["userAccount"],
+    queryFn: () => getUserAccount(session?.user?.id!),
+    enabled: !!session?.user?.id,
+    staleTime: Infinity,
+  })
 
-  useEffect(() => {
-    const fetchAccountInfo = async () => {
-      // @ts-ignore
-      const response = await fetch(`/api/users/${session?.user?.id}/account`)
-      const data: FetchAccountResponse = await response.json()
-
-      setUserAccount(data.account)
-    }
-
-    // @ts-ignore
-    if (session?.user?.id) fetchAccountInfo()
-    // @ts-ignore
-  }, [session?.user?.id])
-
-  const setAccount = (userId: string) => {
-    return async (account: Partial<Account>) => {
-      console.log("New account info:", account)
-
-      const response = await fetch(`/api/users/${userId}/account`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(account),
-      })
-
-      if (!response.ok) {
-        toast({
-          title: "Error",
-          description: "Something went wrong, try again later.",
-        })
-        return
-      }
-
-      const data: FetchAccountResponse = await response.json()
-
-      if (data.isError && !data.account) {
-        toast({
-          title: data.error?.title,
-          description: data.error?.description,
-        })
-        return
-      }
-
+  const { mutate: setUserAccount } = useMutation({
+    mutationFn: setUserAccountPatch(session?.user?.id!),
+    onSuccess(data) {
+      queryClient.setQueryData(["userAccount"], data)
       toast({
         title: "Account successfuly updated",
         description:
           "Your account has been updated, it will take some time to see the changes.",
       })
-    }
-  }
+    },
+    onError(error) {
+      toast({
+        title: error.name ?? "Something went wrong",
+        description: error.message,
+      })
+    },
+  })
 
   // TODO: Settings doesn't render on smaller screens
   return (
     <AccountContext.Provider
       value={{
-        account: userAccount,
-        // @ts-ignore
-        userId: session?.user?.id,
+        userAccount: (userAccount as UserAccount) ?? null,
+        setUserAccount,
       }}
     >
       <div className="md:hidden">
@@ -140,8 +121,7 @@ const SettingsLayout = ({ children }: SettingsLayoutProps) => {
             <SidebarNav items={sidebarNavItems} />
           </aside>
           <div className="relative flex-1 lg:max-w-2xl">
-            {/* @ts-ignore */}
-            {session?.user?.id ? children : <Loading />}
+            {status === "pending" ? <Loading /> : children}
           </div>
         </div>
       </div>
