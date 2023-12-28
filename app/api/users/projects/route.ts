@@ -4,6 +4,19 @@ import { getToken } from "next-auth/jwt"
 
 import prisma from "@/lib/db"
 
+export const fetchProjectsWithLeads = async () => {
+  const projectsWithLeadsResponse = await fetch("/api/users/projects")
+
+  if (!projectsWithLeadsResponse.ok) throw new Error("Failed to fetch projects")
+
+  const { projectsWithLeads }: ProjectsFetchData =
+    await projectsWithLeadsResponse.json()
+
+  if (!projectsWithLeads) throw new Error("Failed to fetch projects")
+
+  return projectsWithLeads
+}
+
 export interface ProjectWithFullLead {
   id: Project["id"]
   projectKey: Project["projectKey"]

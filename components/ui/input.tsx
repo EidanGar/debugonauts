@@ -17,7 +17,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const [isPrivate, setIsPrivate] = useState(true)
 
     return (
-      <div className="relative">
+      <div className="relative peer">
         <input
           type={
             isPrivateable

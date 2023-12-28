@@ -1,7 +1,4 @@
-import { useState } from "react"
 import Image from "next/image"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
 import {
   IssueData,
   issuePriorities,
@@ -10,22 +7,12 @@ import {
   issueTypes,
 } from "@/prisma/zod/issues"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ProjectMember, type Issue } from "@prisma/client"
-import { CaretSortIcon } from "@radix-ui/react-icons"
-import { CheckIcon } from "lucide-react"
+import { type Issue } from "@prisma/client"
+import { UseMutateFunction } from "@tanstack/react-query"
 import { SubmitHandler, useForm } from "react-hook-form"
 
 import { userConfig } from "@/lib/config/user"
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,11 +31,6 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import {
   CustomSelect,
   Select,
   SelectContent,
@@ -65,23 +47,24 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet"
 import { Textarea } from "@/components/ui/textarea"
 import { Icons } from "@/components/icons"
 import { ProjectUser } from "@/app/api/projects/key/[projectKey]/route"
 
-const MemberAvatar = ({
+export const MemberAvatar = ({
   image,
   name,
+  size = 36,
 }: {
   image?: string | null
   name?: string
+  size?: number
 }) => {
   return (
     <Image
-      width={36}
-      height={36}
+      width={size}
+      height={size}
       className="object-cover duration-300 rounded-full cursor-pointer hover:ring-4 hover:ring-accent"
       alt={name ?? "Unassigned user"}
       src={image ?? userConfig.defaultUserImage}
@@ -89,25 +72,13 @@ const MemberAvatar = ({
   )
 }
 
-const IssueActions = ({ issue }: { issue: Issue }) => {
-  const deleteIssue = async (issueId: string) => {
-    const response = await fetch(`/api/issues/${issueId}`, {
-      method: "DELETE",
-    })
-
-    if (!response.ok) {
-      console.error("Failed to delete issue")
-    }
-
-    const data = await response.json()
-
-    if (data.isError) {
-      throw new Error(JSON.stringify(data, null, 2))
-    }
-
-    return data
-  }
-
+export const IssueActions = ({
+  issue,
+  deleteIssue,
+}: {
+  issue: Issue
+  deleteIssue: UseMutateFunction<() => Promise<any>, Error, string, unknown>
+}) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -142,95 +113,20 @@ const IssueActions = ({ issue }: { issue: Issue }) => {
   )
 }
 
-export const IssueComponent = ({
-  issue,
-  projectUsers,
-}: {
-  issue: Issue
-  projectUsers?: ProjectUser[]
-}) => {
-  const [issueTitle, setIssueTitle] = useState("Untitled Issue")
-  const [assigneeId, setAssigneeId] = useState<null | string>(null)
-  const pathname = usePathname()
-  const issueHref = `${pathname}/?selectedIssue=${issue.issueKey}`
-
-  return (
-    <Link
-      href={issueHref}
-      className="flex cursor-pointer flex-col items-center w-full gap-2 p-3 rounded-md bg-background"
-    >
-      <div className="flex items-center justify-between w-full gap-3">
-        <div className="relative">
-          <Input
-            onChange={(e) => setIssueTitle(e.target.value as string)}
-            defaultValue={issueTitle}
-            type="text"
-            className="peer hover:bg-primary-foreground outline-none text-base px-2 rounded-none border-none ring-0 focus-visible:ring-0 w-full focus:bg-background bg-background border-none"
-          />
-          <CheckIcon className="absolute peer-focus:block hidden left-[87%] top-1/2 h-4 w-4 -translate-y-1/2" />
-        </div>
-        <IssueActions issue={issue} />
-      </div>
-      <div className="flex items-center justify-between w-full gap-3">
-        <div className="flex items-center gap-2">
-          <Checkbox
-            defaultChecked={true}
-            className="pointer-events-none"
-            disabled
-          />
-          <span>{issue.issueKey}</span>
-        </div>
-        <Popover>
-          <PopoverTrigger className="cursor-pointer" asChild>
-            <MemberAvatar />
-          </PopoverTrigger>
-          <PopoverContent className="w-[200px] p-0">
-            <Command>
-              <CommandInput placeholder="Assign Issue" />
-              <CommandEmpty>No member found</CommandEmpty>
-              <CommandGroup>
-                {projectUsers &&
-                  projectUsers?.map((member) => (
-                    <CommandItem
-                      value={member.id}
-                      key={member.id}
-                      onSelect={() => {
-                        setAssigneeId(member.id)
-                      }}
-                    >
-                      <CheckIcon
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          member.id === assigneeId ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      <div className="flex items-center gap-2">
-                        <MemberAvatar
-                          image={member.user.image}
-                          name={member.user.name}
-                        />
-                        <span>{member.user.name}</span>
-                      </div>
-                    </CommandItem>
-                  ))}
-              </CommandGroup>
-            </Command>
-          </PopoverContent>
-        </Popover>
-      </div>
-    </Link>
-  )
-}
-
 interface CurrentIssueProps {
-  selectedIssue: Issue
+  selectedIssue?: Issue
   projectUsers: ProjectUser[]
+  deleteIssue: UseMutateFunction<() => Promise<any>, Error, string, unknown>
 }
 
-const CurrentIssue = ({ selectedIssue, projectUsers }: CurrentIssueProps) => {
+const CurrentIssue = ({
+  selectedIssue,
+  projectUsers,
+  deleteIssue,
+}: CurrentIssueProps) => {
   const form = useForm<IssueData>({
     resolver: zodResolver(issueSchema),
-    defaultValues: selectedIssue as IssueData,
+    defaultValues: { ...(selectedIssue as IssueData) },
   })
 
   const onSubmit: SubmitHandler<IssueData> = async (issueData) => {}
@@ -267,7 +163,9 @@ const CurrentIssue = ({ selectedIssue, projectUsers }: CurrentIssueProps) => {
                   </FormItem>
                 )}
               />
-              {selectedIssue && <IssueActions issue={selectedIssue} />}
+              {selectedIssue && (
+                <IssueActions deleteIssue={deleteIssue} issue={selectedIssue} />
+              )}
             </div>
             <div className="flex items-center w-full gap-3">
               <FormField
@@ -308,7 +206,10 @@ const CurrentIssue = ({ selectedIssue, projectUsers }: CurrentIssueProps) => {
                   <FormItem className="w-full">
                     <FormControl>
                       <FormLabel>Assignee</FormLabel>
-                      <Select onValueChange={onChange} value={value}>
+                      <Select
+                        onValueChange={onChange}
+                        value={value as string | undefined}
+                      >
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>

@@ -2,6 +2,37 @@ import { IssueData } from "@/prisma/zod/issues"
 
 import prisma from "@/lib/db"
 
+export const createProjectIssue = (
+  projectKey: string,
+  largestIssueIdx: number,
+  projectId?: string,
+  projectMemberId?: string
+) => {
+  if (!projectMemberId || !projectId) {
+    throw new Error("Reporter ID is required to create issue")
+  }
+
+  const remainingIssueData = {
+    projectId,
+    reporterId: projectMemberId,
+    issueKey: `${projectKey}-${largestIssueIdx + 1}`,
+  }
+
+  return async (issueData: IssueData) => {
+    const response = await fetch(`/api/projects/${projectId}/issues`, {
+      method: "POST",
+      body: JSON.stringify({
+        ...issueData,
+        ...remainingIssueData,
+      }),
+    })
+
+    if (!response.ok) throw new Error("Failed to create issue")
+    const data = await response.json()
+    return data
+  }
+}
+
 interface Params {
   params: {
     projectId: string
@@ -86,21 +117,14 @@ export const POST = async (req: Request, { params: { projectId } }: Params) => {
 
   const issueData = {
     ...issueReqData,
-    id: issueReqData.id ?? undefined,
     projectId,
   }
 
   console.log("Issue data", issueData)
 
-  // upsert issue
-  const issue = await prisma.issue.upsert({
-    where: {
-      issueKey: issueData.issueKey,
-    },
-    update: {
-      ...issueData,
-    },
-    create: {
+  // create issue
+  const issue = await prisma.issue.create({
+    data: {
       ...issueData,
     },
   })
@@ -125,7 +149,9 @@ export const POST = async (req: Request, { params: { projectId } }: Params) => {
 
   return new Response(
     JSON.stringify({
+      isError: false,
       issue,
+      error: null,
     }),
     {
       headers: {

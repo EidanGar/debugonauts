@@ -3,16 +3,37 @@
 import { useContext } from "react"
 import { useSearchParams } from "next/navigation"
 import { IssueData } from "@/prisma/zod/issues"
-import { Issue, IssueStatus } from "@prisma/client"
-import { useMutation } from "@tanstack/react-query"
+import { IssueStatus } from "@prisma/client"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 
+import { capitalize } from "@/lib/utils"
 import { useToast } from "@/components/ui/use-toast"
 import BreadCrumbs from "@/components/breadcrumbs"
+import { updateProjectIssue } from "@/app/api/issues/[issueId]/route"
+import { createProjectIssue } from "@/app/api/projects/[projectId]/issues/route"
 import Loading from "@/app/loading"
 
 import Board from "./board"
+import CurrentIssue from "./edit-issue"
 import { ProjectAndSession, ProjectContext } from "./layout"
-import CurrentIssue from "./project-issue"
+
+const deleteProjectIssue = async (issueId: string) => {
+  const response = await fetch(`/api/issues/${issueId}`, {
+    method: "DELETE",
+  })
+
+  if (!response.ok) {
+    console.error("Failed to delete issue")
+  }
+
+  const data = await response.json()
+
+  if (data.isError) {
+    throw new Error(JSON.stringify(data, null, 2))
+  }
+
+  return data
+}
 
 const ProjectPage = async ({
   params: { projectKey },
@@ -28,66 +49,92 @@ const ProjectPage = async ({
 
   const projectUsers = projectData?.members
 
-  console.log("selectedIssue", selectedIssue)
+  const queryClient = useQueryClient()
 
-  const upsertProjectIssue = () => {
-    const projectId = projectData?.id
-    if (!projectId) throw new Error("No project id found")
+  const largestIssueIdx = Math.max(
+    ...(projectData?.issues.map((issue) => +issue.issueKey.split("-")[1]) ??
+      ([] as number[]))
+  )
 
-    const projectMemberId = projectUsers?.find(
-      (member) => member.userId === session?.user?.id
-    )?.id
+  const projectMemberId = projectUsers?.find(
+    (member) => member.userId === session?.user?.id
+  )?.id
 
-    const remainingIssueData = {
-      projectId,
-      reporterId: projectMemberId,
-      issueKey: `${projectKey}-${projectData?.issueCount + 1}`,
-    }
-
-    return async (issueData: IssueData) => {
-      console.log("Running upsertProjectIssue")
-      const response = await fetch(`/api/projects/${projectId}/issues`, {
-        method: "POST",
-        body: JSON.stringify({
-          ...issueData,
-          ...remainingIssueData,
-        } as Issue),
-      })
-
-      if (!response.ok) throw new Error("Failed to create issue")
-      const data = await response.json()
-      return data
-    }
-  }
-
-  const { mutate: upsertIssue } = useMutation<
+  const {
+    mutate: createIssue,
+    isPending,
+    variables,
+  } = useMutation<
     () => Promise<(issueData: IssueData) => Promise<any>>,
     Error,
     IssueData,
     unknown
   >({
-    mutationFn: upsertProjectIssue(),
+    mutationFn: createProjectIssue(
+      projectKey,
+      largestIssueIdx,
+      projectData?.id,
+      projectMemberId
+    ),
     onSuccess: () => {
       toast({
         title: "Issue created",
         description: `Give it a second to show up on the board.`,
       })
     },
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: ["project", projectKey] }),
   })
+
+  const { mutate: updateIssue } = useMutation<
+    () => Promise<(issueData: IssueData) => Promise<any>>,
+    Error,
+    IssueData,
+    unknown
+  >({
+    mutationFn: updateProjectIssue,
+    onSuccess: () => {
+      toast({
+        title: "Issue updated",
+        description: `Give it a second to show up on the board.`,
+      })
+    },
+  })
+
+  const {
+    mutate: deleteIssue,
+    isPending: isPendingDeletion,
+    variables: deletionVariableId,
+  } = useMutation<() => Promise<any>, Error, string, unknown>({
+    mutationFn: deleteProjectIssue,
+    onSuccess: () => {
+      toast({
+        title: "Issue deleted",
+        description: `Give it a second to disappear from the board.`,
+      })
+    },
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: ["project", projectKey] }),
+  })
+
+  const issueHandlers = {
+    createIssue,
+    updateIssue,
+    deleteIssue,
+  }
 
   if (!projectData) {
     return <Loading />
   }
 
-  const { issues } = projectData
   const issuesByStatus = {
-    [IssueStatus.TO_DO]: issues.filter(
+    [IssueStatus.TO_DO]: projectData.issues.filter(
       (issue) => issue.status === IssueStatus.TO_DO
     ),
-    [IssueStatus.IN_PROGRESS]: issues.filter(
+    [IssueStatus.IN_PROGRESS]: projectData.issues.filter(
       (issue) => issue.status === IssueStatus.IN_PROGRESS
     ),
-    [IssueStatus.DONE]: issues.filter(
+    [IssueStatus.DONE]: projectData.issues.filter(
       (issue) => issue.status === IssueStatus.DONE
     ),
   }
@@ -98,34 +145,27 @@ const ProjectPage = async ({
       <h1 className="text-2xl font-medium leading-8 tracking-tighter md:text-4xl">
         {projectKey.slice(0, 3)} board
       </h1>
-      {/* {selectedIssue && (
-        <CurrentIssue
-          selectedIssue={selectedIssue}
-          projectUsers={projectData?.members}
-        />
-      )} */}
+      {/* <CurrentIssue
+        deleteIssue={deleteIssue}
+        selectedIssue={selectedIssue}
+        projectUsers={projectData?.members}
+      /> */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-3">
-        <Board
-          issues={issuesByStatus[IssueStatus.IN_PROGRESS]}
-          boardTitle="In progress"
-          projectUsers={projectUsers}
-          boardIssueStatusType={IssueStatus.IN_PROGRESS}
-          upsertIssue={upsertIssue}
-        />
-        <Board
-          issues={issuesByStatus[IssueStatus.TO_DO]}
-          boardTitle="To do"
-          projectUsers={projectUsers}
-          boardIssueStatusType={IssueStatus.TO_DO}
-          upsertIssue={upsertIssue}
-        />
-        <Board
-          issues={issuesByStatus[IssueStatus.DONE]}
-          boardTitle="Done"
-          projectUsers={projectUsers}
-          boardIssueStatusType={IssueStatus.DONE}
-          upsertIssue={upsertIssue}
-        />
+        {Object.entries(issuesByStatus).map(([status, issues]) => (
+          <Board
+            issues={issues}
+            boardTitle={capitalize(status.split("_").join(" "))}
+            projectUsers={projectUsers}
+            boardIssueStatusType={status as IssueStatus}
+            issueHandlers={issueHandlers}
+            pendingCreationIssue={
+              isPending && variables.status === status
+                ? (variables as IssueData)
+                : undefined
+            }
+            pendingDeletion={{ isPendingDeletion, deletionVariableId }}
+          />
+        ))}
       </div>
     </main>
   )

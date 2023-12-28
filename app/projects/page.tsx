@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useQuery } from "@tanstack/react-query"
+import { queryOptions, useQuery } from "@tanstack/react-query"
 import { useSession } from "next-auth/react"
 
 import { buttonVariants } from "@/components/ui/button"
@@ -10,32 +10,21 @@ import { Shell } from "@/components/shell"
 
 import {
   ProjectWithFullLead,
-  ProjectsFetchData,
+  fetchProjectsWithLeads,
 } from "../api/users/projects/route"
 import ProjectsTable from "./projects-table"
 
-const fetchProjectsWithLeads = async () => {
-  const projectsWithLeadsResponse = await fetch("/api/users/projects")
-
-  if (!projectsWithLeadsResponse.ok) throw new Error("Failed to fetch projects")
-
-  const { projectsWithLeads }: ProjectsFetchData =
-    await projectsWithLeadsResponse.json()
-
-  if (!projectsWithLeads) throw new Error("Failed to fetch projects")
-
-  return projectsWithLeads
-}
+export const ProjectsQueryOptions = queryOptions<ProjectWithFullLead[]>({
+  queryKey: ["projectsWithLeads"],
+  queryFn: fetchProjectsWithLeads,
+  staleTime: 60000,
+})
 
 const ProjectsPage = async () => {
   const { data: session } = useSession()
   const { toast } = useToast()
 
-  const { data, status, error } = useQuery<ProjectWithFullLead[]>({
-    queryKey: ["projectsWithLeads"],
-    queryFn: fetchProjectsWithLeads,
-    staleTime: 60000,
-  })
+  const { data, status, error } = useQuery(ProjectsQueryOptions)
 
   if (error) {
     toast({

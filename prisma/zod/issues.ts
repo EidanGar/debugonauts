@@ -91,7 +91,10 @@ export const issueSchema = z.object({
   status: z.nativeEnum(IssueStatus).default(IssueStatus.TO_DO).optional(),
   issueType: z.nativeEnum(IssueType).default(IssueType.TASK).optional(),
   description: z.preprocess(stringPreprocessor, z.string().max(500).optional()),
-  assigneeId: z.preprocess(stringPreprocessor, z.string().uuid().optional()),
+  assigneeId: z.preprocess(
+    stringPreprocessor,
+    z.string().uuid().nullable().optional()
+  ),
 })
 
 export type IssueData = z.infer<typeof issueSchema>

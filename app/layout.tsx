@@ -1,6 +1,7 @@
 import "@/styles/globals.css"
 import { Metadata } from "next"
 import { Roboto } from "next/font/google"
+import { useQuery } from "@tanstack/react-query"
 import { getServerSession } from "next-auth"
 
 import { siteConfig } from "@/lib/config/site"
@@ -13,6 +14,7 @@ import { TailwindIndicator } from "@/components/tailwind-indicator"
 import SessionProvider from "@/app/session-provider"
 import { ThemeProvider } from "@/app/theme-provider"
 
+import { ProjectsQueryOptions } from "./projects/page"
 import QueryProvider from "./query-provider"
 
 export const metadata: Metadata = {

@@ -136,16 +136,15 @@ model Project {
 }
 
 model ProjectMember {
-  id             String  @id @default(uuid())
+  id             String   @id @default(uuid())
   projectId      String
   userId         String
-  assignedIssues Issue[] @relation("IssueAssignee")
-  reportedIssues Issue[] @relation("IssueReporter")
-
-  role      Role     @default(TESTER)
-  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+  assignedIssues Issue[]  @relation("IssueAssignee")
+  reportedIssues Issue[]  @relation("IssueReporter")
+  role           Role     @default(TESTER)
+  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
 
   @@unique([projectId, userId])
 }

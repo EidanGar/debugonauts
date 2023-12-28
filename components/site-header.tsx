@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { useQueryClient } from "@tanstack/react-query"
 import { useSession } from "next-auth/react"
 
 import { siteConfig } from "@/lib/config/site"
@@ -21,8 +22,15 @@ import {
 } from "@/components/ui/navigation-menu"
 import { Icons } from "@/components/icons"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { ProjectsQueryOptions } from "@/app/projects/page"
 
 const MainNavigationMenu = () => {
+  const queryClient = useQueryClient()
+
+  const prefetch = () => {
+    queryClient.prefetchQuery(ProjectsQueryOptions)
+  }
+
   return (
     <NavigationMenu>
       <NavigationMenuList>
@@ -30,7 +38,12 @@ const MainNavigationMenu = () => {
           <NavigationMenuTrigger>Projects</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="flex w-[300px] flex-col gap-3 p-4">
-              <NavItem id="search" title="View projects" href="/projects">
+              <NavItem
+                onMouseEnter={prefetch}
+                id="search"
+                title="View projects"
+                href="/projects"
+              >
                 See how far you&apos;ve come and what&apos;s up next.
               </NavItem>
               <NavItem
