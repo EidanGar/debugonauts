@@ -25,7 +25,7 @@ With Debugonauts, you can manage multiple projects, create and assign tasks, and
 
 ## Database
 
-[![Debugonauts-DB.png](https://i.postimg.cc/PNGzmkHW/Debugonauts-DB.png)](https://postimg.cc/1VHqQ2fX)
+[![Debugonauts-DB.png](https://i.postimg.cc/4xJDMk3Q/Debugonauts-DB-1.png)](https://postimg.cc/1VHqQ2fX)
 
 ## Installation
 
