@@ -73,7 +73,7 @@ export function DataTable<TData, TValue>({
   })
 
   return (
-    <div className="space-y-4">
+    <div className="w-full space-y-4">
       <DataTableToolbar filterBy={filterBy} table={table} />
       <div className="border rounded-md">
         <Table>

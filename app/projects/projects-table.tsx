@@ -161,7 +161,7 @@ const ProjectsTable = ({ data, isLoading, userId }: ProjectsTableProps) => {
             <AlertDialog onOpenChange={() => console.log("Changed")}>
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex justify-end">
-                  <Button variant="ghost" className="px-4 py-2">
+                  <Button variant="ghost" className="h-5 p-2 py-4">
                     <Icons.moreHorizontal className="w-4 h-4 ml-auto" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -188,7 +188,6 @@ const ProjectsTable = ({ data, isLoading, userId }: ProjectsTableProps) => {
                   </Link>
                   <DropdownMenuSeparator />
                   <AlertDialogTrigger asChild>
-                    {/* TODO: Fix project delete button's background on hover */}
                     <DropdownMenuItem className="cursor-pointer text-destructive hover:font-medium">
                       <Icons.trash className="w-4 h-4 mr-2" />
                       <span>{isProjectLead ? "Delete" : "Leave project"}</span>

@@ -8,10 +8,6 @@ export const createProjectIssue = (
   projectId?: string,
   projectMemberId?: string
 ) => {
-  if (!projectMemberId || !projectId) {
-    throw new Error("Reporter ID is required to create issue")
-  }
-
   const remainingIssueData = {
     projectId,
     reporterId: projectMemberId,

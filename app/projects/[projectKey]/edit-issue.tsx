@@ -72,18 +72,20 @@ export const MemberAvatar = ({
   )
 }
 
-export const IssueActions = ({
-  issue,
-  deleteIssue,
-}: {
-  issue: Issue
+interface IssueActionsProps {
+  issue: {
+    id: string
+    issueKey: string
+  }
   deleteIssue: UseMutateFunction<() => Promise<any>, Error, string, unknown>
-}) => {
+}
+
+export const IssueActions = ({ issue, deleteIssue }: IssueActionsProps) => {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger className="flex justify-end" asChild>
         <Button variant="ghost" className="h-5 p-2 py-4">
-          <Icons.moreHorizontal className="w-4 h-4" />
+          <Icons.moreHorizontal className="w-4 h-4 ml-auto" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
@@ -142,7 +144,7 @@ const CurrentIssue = ({
         </SheetHeader>
         <Form {...form}>
           <form
-            className="space-y-8 flex flex-col w-full items-center gap-3 px-4"
+            className="flex flex-col items-center w-full gap-3 px-4 space-y-8"
             onSubmit={(...args) => void form.handleSubmit(onSubmit)(...args)}
           >
             <div className="flex items-center w-full gap-3">
@@ -198,7 +200,7 @@ const CurrentIssue = ({
               />
             </div>
             <h3 className="w-full text-start">Issue details</h3>
-            <div className="flex flex-col bg-primary-foreground w-full items-center p-2">
+            <div className="flex flex-col items-center w-full p-2 bg-primary-foreground">
               <FormField
                 control={form.control}
                 name="assigneeId"

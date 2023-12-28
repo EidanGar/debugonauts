@@ -8,6 +8,24 @@ interface Params {
   }
 }
 
+export const deleteProjectIssue = async (issueId: string) => {
+  const response = await fetch(`/api/issues/${issueId}`, {
+    method: "DELETE",
+  })
+
+  if (!response.ok) {
+    console.error("Failed to delete issue")
+  }
+
+  const data = await response.json()
+
+  if (data.isError) {
+    throw new Error(JSON.stringify(data, null, 2))
+  }
+
+  return data
+}
+
 export const updateProjectIssue = async (issueData: IssueData) => {
   const response = await fetch(`/api/issues/${issueData.id}`, {
     method: "PATCH",

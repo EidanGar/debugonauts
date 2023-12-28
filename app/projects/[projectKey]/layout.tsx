@@ -1,7 +1,15 @@
 "use client"
 
 import { createContext } from "react"
-import { queryOptions, useQuery } from "@tanstack/react-query"
+import { IssueData } from "@/prisma/zod/issues"
+import {
+  UseMutateFunction,
+  UseMutationResult,
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query"
 import type { Session } from "next-auth"
 import { useSession } from "next-auth/react"
 
@@ -9,47 +17,53 @@ import { useToast } from "@/components/ui/use-toast"
 import { Icons } from "@/components/icons"
 import { SidebarNav } from "@/components/sidebar-nav"
 import {
+  deleteProjectIssue,
+  updateProjectIssue,
+} from "@/app/api/issues/[issueId]/route"
+import { createProjectIssue } from "@/app/api/projects/[projectId]/issues/route"
+import {
   FullProject,
   ProjectResponse,
+  fetchProjectData,
 } from "@/app/api/projects/key/[projectKey]/route"
 import Loading from "@/app/loading"
 import NotFoundPage from "@/app/not-found"
 
-class FetchError extends Error {
-  constructor(public res: Response, message?: string) {
-    super(message)
-  }
+export interface IssueHandler {
+  createIssueMutation: UseMutationResult<IssueData, Error, IssueData, unknown>
+  updateIssue: UseMutateFunction<any, Error, IssueData, unknown>
+  deleteIssueMutation: UseMutationResult<any, Error, string, unknown>
+}
+
+export interface ProjectContextData {
+  issueHandlers: IssueHandler
+  projectData: FullProject | null
+  session: Session | null
+}
+
+export const ProjectContext = createContext<ProjectContextData>({
+  projectData: null,
+  session: null,
+  issueHandlers: {
+    createIssueMutation: {} as IssueHandler["createIssueMutation"],
+    updateIssue: {} as IssueHandler["updateIssue"],
+    deleteIssueMutation: {} as IssueHandler["deleteIssueMutation"],
+  },
+})
+
+export const getProjectDataQueryOptions = (projectKey: string) => {
+  return queryOptions<ProjectResponse["project"], Error>({
+    queryKey: ["project", projectKey],
+    queryFn: () => fetchProjectData(projectKey),
+    enabled: !!projectKey,
+    staleTime: 60000,
+  })
 }
 
 interface ProjectLayoutProps {
   children: React.ReactNode
   params: { projectKey: string }
 }
-
-export interface ProjectAndSession {
-  projectData: FullProject | null
-  session: Session | null
-}
-
-export const ProjectContext = createContext<ProjectAndSession>({
-  projectData: null,
-  session: null,
-})
-
-const fetchProjectData = async (projectKey: string) => {
-  const response = await fetch(`/api/projects/key/${projectKey}`)
-  if (!response.ok) throw new FetchError(response)
-  const projectData: ProjectResponse = await response.json()
-  return projectData.project as FullProject
-}
-
-export const getProjectDataQueryOptions = (projectKey: string) =>
-  queryOptions<ProjectResponse["project"], FetchError>({
-    queryKey: ["project", projectKey],
-    queryFn: () => fetchProjectData(projectKey),
-    enabled: !!projectKey,
-    staleTime: 60000,
-  })
 
 export default function ProjectLayout({
   children,
@@ -62,6 +76,62 @@ export default function ProjectLayout({
     error,
     status,
   } = useQuery(getProjectDataQueryOptions(projectKey))
+  const queryClient = useQueryClient()
+
+  const largestIssueIdx = Math.max(
+    ...(projectData?.issues.map((issue) => +issue.issueKey.split("-")[1]) ??
+      ([] as number[]))
+  )
+
+  const projectUsers = projectData?.members
+
+  const projectMemberId = projectUsers?.find(
+    (member) => member.userId === session?.user?.id
+  )?.id
+
+  const createIssueMutation: IssueHandler["createIssueMutation"] = useMutation({
+    mutationFn: createProjectIssue(
+      projectKey,
+      largestIssueIdx,
+      projectData?.id,
+      projectMemberId
+    ),
+    onSuccess: () => {
+      toast({
+        title: "Issue created",
+        description: `Give it a second to show up on the board.`,
+      })
+    },
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: ["project", projectKey] }),
+  })
+
+  const { mutate: updateIssue } = useMutation<
+    () => Promise<(issueData: IssueData) => Promise<any>>,
+    Error,
+    IssueData,
+    unknown
+  >({
+    mutationFn: updateProjectIssue,
+    onSuccess: () => {
+      toast({
+        title: "Issue updated",
+        description: `Give it a second to show up on the board.`,
+      })
+    },
+  })
+
+  const deleteIssueMutation: IssueHandler["deleteIssueMutation"] = useMutation({
+    mutationFn: deleteProjectIssue,
+    onSuccess: () => {
+      toast({
+        title: "Issue deleted",
+        description: `Give it a second to disappear from the board.`,
+      })
+    },
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: ["project", projectKey] }),
+  })
 
   if (error) {
     toast({
@@ -102,7 +172,15 @@ export default function ProjectLayout({
 
   return (
     <ProjectContext.Provider
-      value={{ projectData: projectData ?? null, session }}
+      value={{
+        projectData: projectData ?? null,
+        session,
+        issueHandlers: {
+          createIssueMutation,
+          updateIssue,
+          deleteIssueMutation,
+        } as IssueHandler,
+      }}
     >
       <div className="px-[calc(10vw/2)] pt-4 pb-8 w-full space-y-6 sm:p-10 sm:pb-16">
         <div className="flex flex-col items-start w-full gap-6 lg:gap-16 lg:flex-row">

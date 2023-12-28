@@ -28,42 +28,22 @@ import {
 import { ProjectUser } from "@/app/api/projects/key/[projectKey]/route"
 
 import { IssueActions, MemberAvatar } from "./edit-issue"
-
-interface IssueHandler {
-  createIssue: UseMutateFunction<
-    () => Promise<(issueData: IssueData) => Promise<any>>,
-    Error,
-    IssueData,
-    unknown
-  >
-  updateIssue: UseMutateFunction<
-    () => Promise<(issueData: IssueData) => Promise<any>>,
-    Error,
-    IssueData,
-    unknown
-  >
-  deleteIssue: UseMutateFunction<() => Promise<any>, Error, string, unknown>
-}
+import { IssueHandler } from "./layout"
 
 interface BoardProps {
   issues: Issue[]
   boardTitle: string
   boardIssueStatusType: IssueStatus
   projectUsers?: ProjectUser[]
-  issueHandlers: IssueHandler
-  pendingCreationIssue?: IssueData
-  pendingDeletion: {
-    isPendingDeletion?: boolean
-    deletionVariableId?: string
-  }
+  issueHandlers: Required<IssueHandler>
 }
 
 interface IssueProps {
   updateIssue: IssueHandler["updateIssue"]
-  issue: Issue
+  issue: Partial<Issue>
   projectUsers?: ProjectUser[]
   isPending?: boolean
-  deleteIssue: IssueHandler["deleteIssue"]
+  deleteIssue: UseMutateFunction<any, Error, string, unknown>
 }
 
 export const IssueComponent = ({
@@ -79,17 +59,19 @@ export const IssueComponent = ({
   const pathname = usePathname()
   const issueHref = `${pathname}/?selectedIssue=${issue.issueKey}`
 
+  if (!updateIssue || !deleteIssue) return
+
   const updateIssueAssignee = (val: string | null) => {
     setAssigneeId(val)
     updateIssue({
-      id: issue.id,
+      id: issue?.id,
       assigneeId: val,
     } as IssueData)
   }
 
   const updateIssueTitle = () => {
     updateIssue({
-      id: issue.id,
+      id: issue?.id,
       title: issueTitle,
     } as IssueData)
   }
@@ -106,9 +88,10 @@ export const IssueComponent = ({
             onFocus={() => setIsInputFocused(true)}
             onBlur={() => setTimeout(() => setIsInputFocused(false), 500)}
             onChange={(e) => setIssueTitle(e.target.value as string)}
-            defaultValue={issue.title ?? issueTitle}
+            defaultValue={issue?.title ?? issueTitle}
+            disabled={isPending || !issue}
             type="text"
-            className="hover:bg-primary-foreground outline-none text-base px-2 rounded-sm border-none ring-0 focus-visible:ring-0 w-full focus:bg-background bg-background border-none"
+            className="w-full px-2 text-base border-none rounded-sm outline-none hover:bg-primary-foreground ring-0 focus-visible:ring-0 focus:bg-background bg-background"
           />
           {isInputFocused && (
             <Check
@@ -126,9 +109,14 @@ export const IssueComponent = ({
           )}
           href={issueHref}
         >
-          <Pencil className="h-4 w-4" />
+          <Pencil className="w-4 h-4" />
         </Link>
-        <IssueActions deleteIssue={deleteIssue} issue={issue} />
+        {issue.id && issue.issueKey && (
+          <IssueActions
+            deleteIssue={deleteIssue}
+            issue={{ id: issue.id, issueKey: issue.issueKey }}
+          />
+        )}
       </div>
       <div className="flex items-center justify-between w-full gap-3">
         <div className="flex items-center gap-2">
@@ -137,11 +125,14 @@ export const IssueComponent = ({
             className="pointer-events-none"
             disabled
           />
-          <span>{issue.issueKey}</span>
+          <span>{issue?.issueKey}</span>
         </div>
         <Popover>
           <PopoverTrigger className="cursor-pointer" asChild>
-            <Button variant="ghost" className="p-0">
+            <Button
+              variant="ghost"
+              className="p-0 hover:bg-transparent focus-visible:ring-0"
+            >
               <MemberAvatar />
             </Button>
           </PopoverTrigger>
@@ -150,7 +141,10 @@ export const IssueComponent = ({
               <CommandInput placeholder="Assign Issue" />
               <CommandEmpty>No member found</CommandEmpty>
               <CommandGroup>
-                <CommandItem onSelect={(val) => updateIssueAssignee(val)}>
+                <CommandItem
+                  className="cursor-pointer"
+                  onSelect={(val) => updateIssueAssignee(val)}
+                >
                   <div className="flex items-center gap-2">
                     <MemberAvatar
                       size={18}
@@ -165,6 +159,7 @@ export const IssueComponent = ({
                     <CommandItem
                       value={member.id}
                       key={member.id}
+                      className="cursor-pointer"
                       onSelect={(val) => updateIssueAssignee(val)}
                     >
                       <Check
@@ -197,32 +192,19 @@ const Board = ({
   boardTitle,
   boardIssueStatusType,
   projectUsers,
-  pendingCreationIssue,
-  pendingDeletion,
   issueHandlers,
 }: BoardProps) => {
+  const pendingCreationIssue =
+    issueHandlers.createIssueMutation.isPending &&
+    issueHandlers.createIssueMutation.variables.status === boardIssueStatusType
+      ? (issueHandlers.createIssueMutation.variables as IssueData)
+      : undefined
+
   const createIssue = () => {
-    issueHandlers.createIssue({
+    issueHandlers.createIssueMutation.mutate({
       status: boardIssueStatusType,
     })
   }
-
-  // TODO: Remove this temp issue
-  const tempIssue = {
-    title: "Untitled Issue",
-    issueType: IssueType.TASK,
-    id: "temp-issue",
-    issueKey: "ABC-123",
-    summary: "Untitled Issue",
-    status: boardIssueStatusType,
-    priority: Priority.LOW as Priority,
-    description: "",
-    projectId: "",
-    reporterId: "",
-    createdAt: new Date() as Date,
-    updatedAt: new Date() as Date,
-    assigneeId: "",
-  } as Issue
 
   return (
     <Card className="flex flex-col justify-between w-full h-full col-span-3 border-none sm:col-span-1 bg-primary-foreground">
@@ -233,14 +215,14 @@ const Board = ({
         <CardContent className="flex flex-col items-center w-full gap-4 p-2 px-3">
           {issues.map((issue) => {
             const isIssuePendingDeletion =
-              pendingDeletion.isPendingDeletion &&
-              pendingDeletion.deletionVariableId === issue.id
+              issueHandlers.deleteIssueMutation.isPending &&
+              issueHandlers.deleteIssueMutation.variables === issue.id
 
             return (
               <IssueComponent
                 isPending={isIssuePendingDeletion}
                 projectUsers={projectUsers}
-                deleteIssue={issueHandlers.deleteIssue}
+                deleteIssue={issueHandlers.deleteIssueMutation.mutate}
                 key={issue.id}
                 updateIssue={issueHandlers.updateIssue}
                 issue={issue}
@@ -252,12 +234,11 @@ const Board = ({
               isPending={true}
               projectUsers={projectUsers}
               updateIssue={issueHandlers.updateIssue}
-              deleteIssue={issueHandlers.deleteIssue}
+              deleteIssue={issueHandlers.deleteIssueMutation.mutate}
               issue={
                 {
-                  ...tempIssue,
                   ...pendingCreationIssue,
-                } as Issue
+                } as IssueData
               }
             />
           )}
