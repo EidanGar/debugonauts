@@ -19,13 +19,13 @@ With Debugonauts, you can manage multiple projects, create and assign tasks, and
 
 - Next.js and TypeScript: Main framework for building the application.
 - Prisma and PostgreSQL: Database management.
-- TailwindCSS: For styling the frontend.
+- TailwindCSS and Shadcn/ui: For styling the frontend.
 - NextAuth: For user authentication.
 - Zod: For input validation.
 
 ## Database
 
-![Agile-Track-DB.png](https://i.postimg.cc/Wb26jKPj/Agile-Track-DB.png)
+[![Debugonauts-DB.png](https://i.postimg.cc/PNGzmkHW/Debugonauts-DB.png)](https://postimg.cc/1VHqQ2fX)
 
 ## Installation
 

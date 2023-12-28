@@ -1,103 +1,39 @@
-import Image from "next/image"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Issue, IssueStatus } from "@prisma/client"
+import { IssueData } from "@/prisma/zod/issues"
+import { Issue, IssueStatus, IssueType } from "@prisma/client"
+import { UseMutateFunction } from "@tanstack/react-query"
 
-import { userConfig } from "@/lib/config/user"
-import { slugify } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Icons } from "@/components/icons"
+import { ProjectUser } from "@/app/api/projects/key/[projectKey]/route"
+
+import { IssueComponent } from "./project-issue"
 
 interface BoardProps {
   issues: Issue[]
   boardTitle: string
-  boardType: IssueStatus
+  boardIssueStatusType: IssueStatus
+  projectUsers?: ProjectUser[]
+  upsertIssue: UseMutateFunction<
+    () => Promise<(issueData: IssueData) => Promise<any>>,
+    Error,
+    IssueData,
+    unknown
+  >
 }
 
-const MemberAvatar = ({ image, name }: { image?: string; name?: string }) => {
-  const memberHref = `${process.env.NEXTAUTH_URL}/${name ? slugify(name) : ""}`
+const Board = ({
+  issues,
+  boardTitle,
+  boardIssueStatusType,
+  projectUsers,
+  upsertIssue,
+}: BoardProps) => {
+  const createIssue = () => {
+    upsertIssue({
+      status: boardIssueStatusType,
+    })
+  }
 
-  return (
-    <Link href={memberHref}>
-      <Image
-        width={36}
-        height={36}
-        className="object-cover duration-300 rounded-full cursor-pointer hover:ring-4 hover:ring-accent"
-        alt={name ?? "Unassigned user"}
-        src={image ?? userConfig.defaultUserImage}
-      />
-    </Link>
-  )
-}
-
-const IssueComponent = ({ issue }: { issue: Issue }) => {
-  "use client"
-  const pathname = usePathname()
-
-  return (
-    <Link
-      href={`${pathname}/issues/${issue.issueKey}`}
-      className="flex flex-col items-center w-full gap-2 p-3 rounded-md bg-background"
-    >
-      <div className="flex items-center justify-between w-full gap-3">
-        <h4>{issue.title}</h4>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-5 p-2 py-4">
-              <Icons.moreHorizontal className="w-4 h-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <span>Copy issue link</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <span>Copy issue key</span>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <span>Move issue</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <span>Edit issue</span>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">
-              <span>Delete issue</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      <div className="flex items-center justify-between w-full gap-3">
-        <div className="flex items-center gap-2">
-          <Checkbox
-            defaultChecked={true}
-            className="pointer-events-none"
-            disabled
-          />
-          <span>{issue.issueKey}</span>
-        </div>
-        <MemberAvatar />
-      </div>
-    </Link>
-  )
-}
-
-const Board = ({ issues, boardTitle }: BoardProps) => {
   return (
     <Card className="flex flex-col justify-between w-full h-full col-span-3 border-none sm:col-span-1 bg-primary-foreground">
       <div className="flex flex-col w-full">
@@ -106,12 +42,16 @@ const Board = ({ issues, boardTitle }: BoardProps) => {
         </div>
         <CardContent className="flex flex-col items-center w-full gap-4 p-2 px-3">
           {issues.map((issue) => (
-            <IssueComponent key={issue.id} issue={issue} />
+            <IssueComponent
+              projectUsers={projectUsers}
+              key={issue.id}
+              issue={issue}
+            />
           ))}
         </CardContent>
       </div>
       <CardFooter className="p-2 mt-auto">
-        <Button variant="ghost" className="w-full">
+        <Button onClick={createIssue} variant="ghost" className="w-full">
           Create issue
         </Button>
       </CardFooter>

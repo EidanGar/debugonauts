@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { useQuery } from "@tanstack/react-query"
+import { useSession } from "next-auth/react"
 
 import { buttonVariants } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
@@ -27,6 +28,7 @@ const fetchProjectsWithLeads = async () => {
 }
 
 const ProjectsPage = async () => {
+  const { data: session } = useSession()
   const { toast } = useToast()
 
   const { data, status, error } = useQuery<ProjectWithFullLead[]>({
@@ -55,6 +57,7 @@ const ProjectsPage = async () => {
       <ProjectsTable
         isLoading={status === "pending"}
         data={data as ProjectWithFullLead[]}
+        userId={session?.user?.id}
       />
     </Shell>
   )

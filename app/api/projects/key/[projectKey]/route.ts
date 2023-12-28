@@ -1,4 +1,6 @@
-import { Issue, Project, Role, Team, TeamMember, User } from "@prisma/client"
+import { NextRequest } from "next/server"
+import { Issue, Project, ProjectMember, Team, User } from "@prisma/client"
+import { getToken } from "next-auth/jwt"
 
 import prisma from "@/lib/db"
 
@@ -8,29 +10,59 @@ interface Params {
   }
 }
 
+export type ProjectUser = ProjectMember & {
+  user: User
+}
+
 export interface FullProject extends Project {
-  members:
-    | TeamMember[]
-    | {
-        id: string
-        projectId: string
-        userId: string
-        role: Role
-        createdAt: Date
-      }[]
+  members: ProjectUser[]
   issues: Issue[]
   projectLead: User | null
   teams: Team[]
   User: User | null
+  issueCount: number
 }
 
-export async function GET(req: Request, { params: { projectKey } }: Params) {
+export interface ProjectResponse {
+  isError: boolean
+  project: FullProject | null
+  error: {
+    title: string
+    description: string
+  } | null
+}
+
+export async function GET(
+  req: NextRequest,
+  { params: { projectKey } }: Params
+) {
+  const token = await getToken({
+    req,
+    secret: process.env.SECRET,
+  })
+
+  const authenticatedUserdId = token?.sub
+
   const project = await prisma.project.findUnique({
     where: {
       projectKey,
+      OR: [
+        {
+          members: {
+            some: {
+              userId: authenticatedUserdId,
+            },
+          },
+          projectLeadId: authenticatedUserdId,
+        },
+      ],
     },
     select: {
-      members: true,
+      members: {
+        include: {
+          user: true,
+        },
+      },
       name: true,
       description: true,
       repository: true,
@@ -40,14 +72,36 @@ export async function GET(req: Request, { params: { projectKey } }: Params) {
       createdAt: true,
       updatedAt: true,
       id: true,
-      issues: true,
+      issues: {
+        include: {
+          comments: true,
+          assignee: true,
+          tags: true,
+          reporter: true,
+        },
+      },
       projectLead: true,
       projectLeadId: true,
-      teams: true,
+      teams: {
+        include: {
+          members: {
+            include: {
+              user: true,
+            },
+          },
+        },
+      },
       User: true,
       userId: true,
     },
   })
+
+  const issueCount = project?.issues.length
+
+  const fullProject = {
+    ...project,
+    issueCount,
+  } as FullProject
 
   if (!project) {
     return new Response(
@@ -68,9 +122,9 @@ export async function GET(req: Request, { params: { projectKey } }: Params) {
   return new Response(
     JSON.stringify({
       isError: false,
-      project: project as FullProject,
+      project: fullProject,
       error: null,
-    }),
+    } as ProjectResponse),
     {
       status: 200,
     }

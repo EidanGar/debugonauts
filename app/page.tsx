@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     "Debugonauts is a simple issue tracking software that helps you to manage your projects and tasks.",
 }
 
-export default function IndexPage() {
+const HomePage = () => {
   return (
     <Shell as="section" className="grid items-center gap-6 pt-6 pb-8 md:py-10">
       <div className="flex max-w-[980px] flex-col items-start gap-2">
@@ -45,3 +45,5 @@ export default function IndexPage() {
     </Shell>
   )
 }
+
+export default HomePage

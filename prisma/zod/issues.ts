@@ -5,42 +5,43 @@ import {
   ArrowUpIcon,
   CheckCircledIcon,
   CircleIcon,
-  CrossCircledIcon,
   ExclamationTriangleIcon,
   QuestionMarkCircledIcon,
   StopwatchIcon,
 } from "@radix-ui/react-icons"
 import { z } from "zod"
 
+import { CustomSelectItem } from "@/components/ui/select"
+
 import { stringPreprocessor } from "./profile"
 
-export const issuePriorities = [
+export const issuePriorities: CustomSelectItem[] = [
   {
     value: Priority.LOW,
-    label: "Low",
     icon: ArrowDownIcon,
+    label: "Low",
   },
   {
     value: Priority.MEDIUM,
-    label: "Medium",
     icon: ArrowRightIcon,
+    label: "Medium",
   },
   {
     value: Priority.HIGH,
-    label: "High",
     icon: ArrowUpIcon,
+    label: "High",
   },
   {
     value: Priority.URGENT,
-    label: "Urgent",
     icon: ExclamationTriangleIcon,
+    label: "Urgent",
   },
 ]
 
-export const issueStatuses = [
+export const issueStatuses: CustomSelectItem[] = [
   {
-    value: IssueStatus.OPEN,
-    label: "Open",
+    value: IssueStatus.TO_DO,
+    label: "To do",
     icon: CircleIcon,
   },
   {
@@ -60,7 +61,7 @@ export const issueStatuses = [
   },
 ]
 
-export const issueTypes = [
+export const issueTypes: CustomSelectItem[] = [
   {
     value: IssueType.BUG,
     label: "Bug",
@@ -84,12 +85,13 @@ export const issueTypes = [
 ]
 
 export const issueSchema = z.object({
-  title: z.string().min(1).max(50),
-  priority: z.nativeEnum(Priority).default(Priority.MEDIUM),
-  status: z.nativeEnum(IssueStatus).default(IssueStatus.OPEN),
-  type: z.nativeEnum(IssueType).default(IssueType.TASK),
-  description: z.preprocess(stringPreprocessor, z.string().max(500)),
-  assigneeId: z.string().uuid(),
+  id: z.preprocess(stringPreprocessor, z.string().uuid().optional()),
+  title: z.string().min(1).max(50).default("Untitled Issue").optional(),
+  priority: z.nativeEnum(Priority).default(Priority.MEDIUM).optional(),
+  status: z.nativeEnum(IssueStatus).default(IssueStatus.TO_DO).optional(),
+  issueType: z.nativeEnum(IssueType).default(IssueType.TASK).optional(),
+  description: z.preprocess(stringPreprocessor, z.string().max(500).optional()),
+  assigneeId: z.preprocess(stringPreprocessor, z.string().uuid().optional()),
 })
 
 export type IssueData = z.infer<typeof issueSchema>

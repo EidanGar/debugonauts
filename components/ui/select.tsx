@@ -1,4 +1,5 @@
 import * as React from "react"
+import { IconProps } from "@radix-ui/react-icons/dist/types"
 import * as SelectPrimitive from "@radix-ui/react-select"
 import { Check, ChevronDown } from "lucide-react"
 
@@ -116,4 +117,40 @@ export {
   SelectLabel,
   SelectItem,
   SelectSeparator,
+}
+
+export interface CustomSelectItem {
+  value: string
+  icon?: React.ForwardRefExoticComponent<
+    IconProps & React.RefAttributes<SVGSVGElement>
+  >
+  label: string
+}
+
+export interface CustomSelectProps {
+  onChange: (value: string) => void
+  value: any
+  items: CustomSelectItem[]
+}
+
+export const CustomSelect = ({ onChange, value, items }: CustomSelectProps) => {
+  return (
+    <Select onValueChange={onChange} value={value}>
+      <SelectTrigger>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          {items.map((item) => (
+            <SelectItem key={item.value} value={item.value}>
+              <div className={item.icon ? "flex items-center gap-2" : ""}>
+                {item.icon && <item.icon className="w-4 h-4" />}
+                <span>{item.label}</span>
+              </div>
+            </SelectItem>
+          ))}
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  )
 }

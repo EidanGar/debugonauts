@@ -1,3 +1,5 @@
+import { IssueData } from "@/prisma/zod/issues"
+
 import prisma from "@/lib/db"
 
 interface Params {
@@ -71,6 +73,64 @@ export async function DELETE(req: Request, { params: { projectId } }: Params) {
       error: null,
     }),
     {
+      status: 200,
+    }
+  )
+}
+
+export const POST = async (req: Request, { params: { projectId } }: Params) => {
+  const issueReqData: IssueData & {
+    issueKey: string
+    reporterId: string
+  } = await req.json()
+
+  const issueData = {
+    ...issueReqData,
+    id: issueReqData.id ?? undefined,
+    projectId,
+  }
+
+  console.log("Issue data", issueData)
+
+  // upsert issue
+  const issue = await prisma.issue.upsert({
+    where: {
+      issueKey: issueData.issueKey,
+    },
+    update: {
+      ...issueData,
+    },
+    create: {
+      ...issueData,
+    },
+  })
+
+  console.log("Issue", issue)
+
+  if (!issue) {
+    return new Response(
+      JSON.stringify({
+        isError: true,
+        issue: null,
+        error: {
+          title: "Issue not found",
+          description: "Issue not found",
+        },
+      }),
+      {
+        status: 404,
+      }
+    )
+  }
+
+  return new Response(
+    JSON.stringify({
+      issue,
+    }),
+    {
+      headers: {
+        "content-type": "application/json",
+      },
       status: 200,
     }
   )

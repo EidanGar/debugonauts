@@ -9,6 +9,8 @@ node_modules
 coverage
 
 tsconfig.tsbuildinfo
+story.md
+
 
 # next.js
 .next/

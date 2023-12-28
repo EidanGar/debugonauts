@@ -1,4 +1,3 @@
-// import { cookies } from "next/headers"
 "use client"
 
 import { createContext } from "react"
@@ -9,8 +8,18 @@ import { useSession } from "next-auth/react"
 import { useToast } from "@/components/ui/use-toast"
 import { Icons } from "@/components/icons"
 import { SidebarNav } from "@/components/sidebar-nav"
-import { FullProject } from "@/app/api/projects/key/[projectKey]/route"
+import {
+  FullProject,
+  ProjectResponse,
+} from "@/app/api/projects/key/[projectKey]/route"
 import Loading from "@/app/loading"
+import NotFoundPage from "@/app/not-found"
+
+class FetchError extends Error {
+  constructor(public res: Response, message?: string) {
+    super(message)
+  }
+}
 
 interface ProjectLayoutProps {
   children: React.ReactNode
@@ -28,14 +37,14 @@ export const ProjectContext = createContext<ProjectAndSession>({
 })
 
 const fetchProjectData = async (projectKey: string) => {
-  const projectRes = await fetch(`/api/projects/key/${projectKey}`)
-  if (!projectRes.ok) throw new Error("Failed to fetch project")
-  const projectData = await projectRes.json()
-  return projectData.project
+  const response = await fetch(`/api/projects/key/${projectKey}`)
+  if (!response.ok) throw new FetchError(response)
+  const projectData: ProjectResponse = await response.json()
+  return projectData.project as FullProject
 }
 
 export const getProjectDataQueryOptions = (projectKey: string) =>
-  queryOptions<FullProject>({
+  queryOptions<ProjectResponse["project"], FetchError>({
     queryKey: ["project", projectKey],
     queryFn: () => fetchProjectData(projectKey),
     enabled: !!projectKey,
@@ -52,13 +61,15 @@ export default function ProjectLayout({
     data: projectData,
     error,
     status,
-  } = useQuery<FullProject>(getProjectDataQueryOptions(projectKey))
+  } = useQuery(getProjectDataQueryOptions(projectKey))
 
   if (error) {
     toast({
-      title: error.name,
-      description: error.message,
+      title: error?.name,
+      description: error?.message,
     })
+
+    return <NotFoundPage />
   }
 
   const sidebarNavProjectItems = [

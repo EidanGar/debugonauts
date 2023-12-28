@@ -34,13 +34,11 @@ model User {
   notifications      Notification[]
   projectMembers     ProjectMember[]
   teamMembers        TeamMember[]
-  assignedIssues     Issue[]         @relation("IssueAssignee")
-  reportedIssues     Issue[]         @relation("IssueReporter")
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
   accountId          String?         @unique
   account            Account?        @relation(fields: [accountId], references: [id])
-  Project            Project[]
+  projects           Project[]
 
   @@index(email)
   @@index(id)
@@ -85,7 +83,8 @@ model Team {
   id        String       @id @default(uuid())
   name      String
   members   TeamMember[]
-  projects  Project[]    @relation("TeamProjects")
+  projectId String
+  project   Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
 }
@@ -96,7 +95,7 @@ model TeamMember {
   userId    String
   role      Role     @default(TESTER)
   team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 
   @@unique([teamId, userId])
@@ -125,7 +124,7 @@ model Project {
   visibility    Visibility      @default(PRIVATE)
   issues        Issue[]
   members       ProjectMember[]
-  teams         Team[]          @relation("TeamProjects")
+  teams         Team[]
   projectLeadId String?
   projectLead   User?           @relation("ProjectLead", fields: [projectLeadId], references: [id])
   repository    String?
@@ -137,35 +136,38 @@ model Project {
 }
 
 model ProjectMember {
-  id        String   @id @default(uuid())
-  projectId String
-  userId    String
+  id             String  @id @default(uuid())
+  projectId      String
+  userId         String
+  assignedIssues Issue[] @relation("IssueAssignee")
+  reportedIssues Issue[] @relation("IssueReporter")
+
   role      Role     @default(TESTER)
   project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 
   @@unique([projectId, userId])
 }
 
 model Issue {
-  id          String      @id @default(uuid())
-  title       String
+  id          String         @id @default(uuid())
+  title       String?        @default("Untitled Issue")
   description String?
-  status      IssueStatus @default(TO_DO)
-  priority    Priority    @default(LOW)
-  issueKey    String      @unique
+  status      IssueStatus    @default(TO_DO)
+  priority    Priority       @default(LOW)
+  issueKey    String         @unique
   assigneeId  String?
   reporterId  String
   projectId   String
-  issueType   IssueType?
+  issueType   IssueType      @default(TASK)
   comments    Comment[]
-  assignee    User?       @relation("IssueAssignee", fields: [assigneeId], references: [id])
-  project     Project     @relation(fields: [projectId], references: [id])
-  reporter    User        @relation("IssueReporter", fields: [reporterId], references: [id])
-  tags        Tag[]       @relation("IssueTags")
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  assignee    ProjectMember? @relation("IssueAssignee", fields: [assigneeId], references: [id])
+  project     Project        @relation(fields: [projectId], references: [id])
+  reporter    ProjectMember  @relation("IssueReporter", fields: [reporterId], references: [id])
+  tags        Tag[]          @relation("IssueTags")
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 }
 
 enum IssueStatus {
