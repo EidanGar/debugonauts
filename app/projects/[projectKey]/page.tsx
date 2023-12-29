@@ -1,8 +1,10 @@
 "use client"
 
-import { useContext } from "react"
+import { useContext, useState } from "react"
 import { useSearchParams } from "next/navigation"
+import { IssueData } from "@/prisma/zod/issues"
 import { IssueStatus } from "@prisma/client"
+import { UseMutateFunction } from "@tanstack/react-query"
 
 import { capitalize } from "@/lib/utils"
 import { useToast } from "@/components/ui/use-toast"
@@ -26,6 +28,7 @@ const ProjectPage = async ({
   const selectedIssue = projectData?.issues.find(
     (issue) => issue.issueKey === selectedIssueKey
   )
+  const [isIssueSheetOpen, setIsIssueSheetOpen] = useState(!!selectedIssue)
 
   const projectUsers = projectData?.members
 
@@ -51,11 +54,21 @@ const ProjectPage = async ({
       <h1 className="text-2xl font-medium leading-8 tracking-tighter md:text-4xl">
         {projectKey.slice(0, 3)} board
       </h1>
-      {/* <CurrentIssue
-        deleteIssue={deleteIssue}
+      <CurrentIssue
+        deleteIssue={issueHandlers.deleteIssueMutation.mutate}
         selectedIssue={selectedIssue}
         projectUsers={projectData?.members}
-      /> */}
+        isIssueSheetOpen={isIssueSheetOpen}
+        setIsIssueSheetOpen={setIsIssueSheetOpen}
+        updateIssue={
+          issueHandlers.updateIssue as UseMutateFunction<
+            any,
+            Error,
+            IssueData,
+            unknown
+          >
+        }
+      />
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-3">
         {Object.entries(issuesByStatus).map(([status, issues]) => (
           <Board
@@ -64,6 +77,7 @@ const ProjectPage = async ({
             projectUsers={projectUsers}
             boardIssueStatusType={status as IssueStatus}
             issueHandlers={issueHandlers}
+            setIsIssueSheetOpen={setIsIssueSheetOpen}
           />
         ))}
       </div>

@@ -1,17 +1,15 @@
-import testAuthData from "@/playwright/.auth/user.json"
-import { expect, test as setup } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
-const authFile = "playwright/.auth/user.json"
-
-// TODO: Test user authentication with playwright
-
-setup("authenticate", async ({ page }) => {
-  await page.goto("/auth/signin")
-  await page.getByLabel("Email").fill(testAuthData.email)
-  await page.getByLabel("Password").fill(testAuthData.password)
-  await page.getByRole("button", { name: /continue/i }).click()
-
-  await expect(page.getByTestId("user-avatar")).toBeVisible()
-
-  await page.context().storageState({ path: authFile })
+test("test", async ({ page }) => {
+  await page.goto("http://localhost:3000/")
+  await page.getByRole("link", { name: "Sign in" }).click()
+  await page.getByPlaceholder("placeholder@example.com").click()
+  await page
+    .getByPlaceholder("placeholder@example.com")
+    .fill("johnDoe12@gmail.com")
+  await page.getByLabel("Password").click()
+  await page.getByLabel("Password").fill("123456Jd!")
+  await page.getByRole("button", { name: "Continue Sign in" }).click()
+  await page.goto("http://localhost:3000/")
+  await expect(page.getByRole("img", { name: "John Doe" })).toBeVisible()
 })

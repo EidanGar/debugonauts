@@ -1,3 +1,4 @@
+import { useState } from "react"
 import Image from "next/image"
 import {
   IssueData,
@@ -118,24 +119,34 @@ export const IssueActions = ({ issue, deleteIssue }: IssueActionsProps) => {
 interface CurrentIssueProps {
   selectedIssue?: Issue
   projectUsers: ProjectUser[]
-  deleteIssue: UseMutateFunction<() => Promise<any>, Error, string, unknown>
+  deleteIssue: UseMutateFunction<any, Error, string, unknown>
+  isIssueSheetOpen: boolean
+  setIsIssueSheetOpen: React.Dispatch<React.SetStateAction<boolean>>
+  updateIssue: UseMutateFunction<any, Error, IssueData, unknown>
 }
 
 const CurrentIssue = ({
   selectedIssue,
   projectUsers,
   deleteIssue,
+  isIssueSheetOpen,
+  setIsIssueSheetOpen,
+  updateIssue,
 }: CurrentIssueProps) => {
   const form = useForm<IssueData>({
     resolver: zodResolver(issueSchema),
     defaultValues: { ...(selectedIssue as IssueData) },
   })
-
-  const onSubmit: SubmitHandler<IssueData> = async (issueData) => {}
+  const onSubmit: SubmitHandler<IssueData> = async (issueData) => {
+    updateIssue({ ...issueData, id: selectedIssue?.id })
+  }
 
   return (
-    <Sheet open={!!selectedIssue}>
-      <SheetContent>
+    <Sheet open={isIssueSheetOpen && !!selectedIssue}>
+      <SheetContent
+        className="overflow-y-scroll w-full sm:max-w-md"
+        onClick={() => setIsIssueSheetOpen(false)}
+      >
         <SheetHeader>
           <SheetTitle>Edit Issue</SheetTitle>
           <SheetDescription>
@@ -144,7 +155,7 @@ const CurrentIssue = ({
         </SheetHeader>
         <Form {...form}>
           <form
-            className="flex flex-col items-center w-full gap-3 px-4 space-y-8"
+            className="flex flex-col items-center w-full gap-3 mt-5"
             onSubmit={(...args) => void form.handleSubmit(onSubmit)(...args)}
           >
             <div className="flex items-center w-full gap-3">
@@ -200,27 +211,38 @@ const CurrentIssue = ({
               />
             </div>
             <h3 className="w-full text-start">Issue details</h3>
-            <div className="flex flex-col items-center w-full p-2 bg-primary-foreground">
+            <div className="flex gap-3 flex-col rounded-md items-center w-full p-3 bg-primary-foreground">
               <FormField
                 control={form.control}
                 name="assigneeId"
                 render={({ field: { onChange, value } }) => (
                   <FormItem className="w-full">
+                    <FormLabel>Assignee</FormLabel>
                     <FormControl>
-                      <FormLabel>Assignee</FormLabel>
                       <Select
                         onValueChange={onChange}
                         value={value as string | undefined}
                       >
                         <SelectTrigger>
-                          <SelectValue />
+                          <SelectValue placeholder="Unassigned" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
+                            {/* <SelectItem key="Unassigned" value="unassigned">
+                              <div className="flex items-center gap-2">
+                                <MemberAvatar
+                                  size={18}
+                                  image={userConfig.defaultUserImage}
+                                  name="unassigned"
+                                />
+                                <span>Unassigned</span>
+                              </div>
+                            </SelectItem> */}
                             {projectUsers.map((member: ProjectUser) => (
                               <SelectItem key={member.id} value={member.id}>
                                 <div className="flex items-center gap-2">
                                   <MemberAvatar
+                                    size={22}
                                     image={member.user.image}
                                     name={member.user.name}
                                   />
@@ -241,6 +263,7 @@ const CurrentIssue = ({
                 name="priority"
                 render={({ field: { onChange, value } }) => (
                   <FormItem className="w-full">
+                    <FormLabel>Priority level</FormLabel>
                     <FormControl>
                       <CustomSelect
                         {...{ onChange, value, items: issuePriorities }}
@@ -256,7 +279,7 @@ const CurrentIssue = ({
               name="description"
               render={({ field }) => (
                 <FormItem className="w-full">
-                  <FormLabel className="font-medium">Description</FormLabel>
+                  <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Textarea
                       className="w-full hover:bg-primary-foreground"
@@ -268,13 +291,19 @@ const CurrentIssue = ({
                 </FormItem>
               )}
             />
-            <SheetFooter>
+            <SheetFooter className="flex w-full gap-3 flex-row items-center mt-5">
               <SheetClose asChild>
-                <Button variant="ghost" className="w-full">
+                <Button
+                  onClick={() => setIsIssueSheetOpen(false)}
+                  className="flex-1"
+                  variant="ghost"
+                >
                   Cancel
                 </Button>
               </SheetClose>
-              <Button type="submit">Save changes</Button>
+              <Button className="flex-1" type="submit">
+                Save changes
+              </Button>
             </SheetFooter>
           </form>
         </Form>

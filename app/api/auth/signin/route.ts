@@ -11,6 +11,8 @@ import prisma from "@/lib/db"
 export async function POST(req: Request) {
   const { email, password } = (await req.json()) as UserSignInData
 
+  console.log("Sign in data:", { email, password })
+
   try {
     const { email: validatedEmail, password: validatedPwd } =
       userSignInSchema.parse({

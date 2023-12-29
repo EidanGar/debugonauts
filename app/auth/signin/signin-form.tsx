@@ -39,6 +39,8 @@ const SignInForm = () => {
       setIsLoading(false)
     }, 15000)
 
+    console.log("Submitting sign in details", data)
+
     const callbackUrl = decodeURIComponent(
       searchParams.get("callbackUrl") ?? "/"
     )
@@ -96,12 +98,7 @@ const SignInForm = () => {
           )}
         />
 
-        <Button
-          disabled={isLoading}
-          onClick={() => console.log("Submitting sign in details")}
-          isLoading={isLoading}
-          type="submit"
-        >
+        <Button disabled={isLoading} isLoading={isLoading} type="submit">
           Continue
           <span className="sr-only">Sign in</span>
         </Button>

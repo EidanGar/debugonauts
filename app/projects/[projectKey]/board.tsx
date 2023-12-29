@@ -2,7 +2,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { IssueData } from "@/prisma/zod/issues"
-import { Issue, IssueStatus, IssueType, Priority } from "@prisma/client"
+import { Issue, IssueStatus } from "@prisma/client"
 import { UseMutateFunction } from "@tanstack/react-query"
 import { FaPencilAlt as Pencil } from "react-icons/fa"
 import { FaCheck as Check } from "react-icons/fa6"
@@ -36,6 +36,7 @@ interface BoardProps {
   boardIssueStatusType: IssueStatus
   projectUsers?: ProjectUser[]
   issueHandlers: Required<IssueHandler>
+  setIsIssueSheetOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 interface IssueProps {
@@ -44,6 +45,7 @@ interface IssueProps {
   projectUsers?: ProjectUser[]
   isPending?: boolean
   deleteIssue: UseMutateFunction<any, Error, string, unknown>
+  setIsIssueSheetOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export const IssueComponent = ({
@@ -52,6 +54,7 @@ export const IssueComponent = ({
   isPending = false,
   deleteIssue,
   updateIssue,
+  setIsIssueSheetOpen,
 }: IssueProps) => {
   const [issueTitle, setIssueTitle] = useState("Untitled Issue")
   const [assigneeId, setAssigneeId] = useState<null | string>(null)
@@ -78,7 +81,7 @@ export const IssueComponent = ({
 
   return (
     <div
-      className={`flex cursor-pointer flex-col items-center w-full gap-2 p-3 rounded-md bg-background ${
+      className={`flex flex-col items-center w-full gap-2 p-3 rounded-md bg-background ${
         isPending ? "animate-pulse opacity-75" : ""
       }`}
     >
@@ -108,6 +111,7 @@ export const IssueComponent = ({
             "h-5 px-2 py-4"
           )}
           href={issueHref}
+          onClick={() => setIsIssueSheetOpen(true)}
         >
           <Pencil className="w-4 h-4" />
         </Link>
@@ -193,6 +197,7 @@ const Board = ({
   boardIssueStatusType,
   projectUsers,
   issueHandlers,
+  setIsIssueSheetOpen,
 }: BoardProps) => {
   const pendingCreationIssue =
     issueHandlers.createIssueMutation.isPending &&
@@ -226,6 +231,7 @@ const Board = ({
                 key={issue.id}
                 updateIssue={issueHandlers.updateIssue}
                 issue={issue}
+                setIsIssueSheetOpen={setIsIssueSheetOpen}
               />
             )
           })}
@@ -235,6 +241,7 @@ const Board = ({
               projectUsers={projectUsers}
               updateIssue={issueHandlers.updateIssue}
               deleteIssue={issueHandlers.deleteIssueMutation.mutate}
+              setIsIssueSheetOpen={setIsIssueSheetOpen}
               issue={
                 {
                   ...pendingCreationIssue,
