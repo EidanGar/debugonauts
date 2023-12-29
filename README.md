@@ -32,7 +32,7 @@ With Debugonauts, you can manage multiple projects, create and assign tasks, and
 1. Clone this repository
 
    ```
-   git clone https://github.com/EidanGar/debugonauts.git
+   git clone https://github.com/nyedr/debugonauts.git
    ```
 
 2. Install dependencies
