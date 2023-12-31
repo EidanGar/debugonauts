@@ -27,7 +27,7 @@ import { ProjectUser } from "@/app/api/projects/key/[projectKey]/route"
 
 import { IssueActions, MemberAvatar } from "./edit-issue"
 import { IssueHandler } from "./layout"
-import { PartialIssue, SelectedIssueState } from "./page"
+import { PartialIssue } from "./page"
 
 interface BoardProps {
   issues: Issue[]
@@ -35,9 +35,7 @@ interface BoardProps {
   boardIssueStatusType: IssueStatus
   projectUsers?: ProjectUser[]
   issueHandlers: IssueHandler
-  setSelectedIssueState: React.Dispatch<
-    React.SetStateAction<SelectedIssueState>
-  >
+  setSelectedIssue: React.Dispatch<React.SetStateAction<PartialIssue | null>>
 }
 
 interface IssueProps {
@@ -46,9 +44,7 @@ interface IssueProps {
   projectUsers?: ProjectUser[]
   isPending?: boolean
   deleteIssue: UseMutateFunction<any, Error, string, unknown>
-  setSelectedIssueState: React.Dispatch<
-    React.SetStateAction<SelectedIssueState>
-  >
+  setSelectedIssue: React.Dispatch<React.SetStateAction<PartialIssue | null>>
 }
 
 export const IssueComponent = ({
@@ -57,7 +53,7 @@ export const IssueComponent = ({
   isPending = false,
   deleteIssue,
   updateIssue,
-  setSelectedIssueState,
+  setSelectedIssue,
 }: IssueProps) => {
   const [issueTitle, setIssueTitle] = useState("Untitled Issue")
   const [assigneeId, setAssigneeId] = useState<null | string>(null)
@@ -105,13 +101,7 @@ export const IssueComponent = ({
         <Button
           variant="ghost"
           className="h-5 px-2 py-4"
-          onClick={() => {
-            console.log("Setting selected issue to:", issue)
-            setSelectedIssueState({
-              selectedIssue: issue,
-              isIssueSheetOpen: true,
-            })
-          }}
+          onClick={() => setSelectedIssue(issue)}
         >
           <Pencil className="w-4 h-4" />
         </Button>
@@ -197,7 +187,7 @@ const Board = ({
   boardIssueStatusType,
   projectUsers,
   issueHandlers,
-  setSelectedIssueState,
+  setSelectedIssue,
 }: BoardProps) => {
   const pendingCreationIssue =
     issueHandlers.createIssueMutation.isPending &&
@@ -231,7 +221,7 @@ const Board = ({
                 key={issue.id}
                 updateIssue={issueHandlers.updateIssue}
                 issue={issue}
-                setSelectedIssueState={setSelectedIssueState}
+                setSelectedIssue={setSelectedIssue}
               />
             )
           })}
@@ -241,7 +231,7 @@ const Board = ({
               projectUsers={projectUsers}
               updateIssue={issueHandlers.updateIssue}
               deleteIssue={issueHandlers.deleteIssueMutation.mutate}
-              setSelectedIssueState={setSelectedIssueState}
+              setSelectedIssue={setSelectedIssue}
               issue={
                 {
                   ...pendingCreationIssue,

@@ -51,7 +51,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Icons } from "@/components/icons"
 import { ProjectUser } from "@/app/api/projects/key/[projectKey]/route"
 
-import { SelectedIssueState } from "./page"
+import { PartialIssue } from "./page"
 
 export const MemberAvatar = ({
   image,
@@ -117,11 +117,10 @@ export const IssueActions = ({ issue, deleteIssue }: IssueActionsProps) => {
 }
 
 interface CurrentIssueEditProps {
-  selectedIssue: SelectedIssueState["selectedIssue"]
+  selectedIssue: PartialIssue | null
   projectUsers: ProjectUser[]
   deleteIssue: UseMutateFunction<any, Error, string, unknown>
-  isIssueSheetOpen: boolean
-  setIsIssueSheetOpen: (isOpen: boolean) => void
+  removeIssue: () => void
   updateIssue: UseMutateFunction<any, Error, IssueData, unknown>
 }
 
@@ -129,8 +128,7 @@ const CurrentIssueEdit = ({
   selectedIssue,
   projectUsers,
   deleteIssue,
-  isIssueSheetOpen,
-  setIsIssueSheetOpen,
+  removeIssue,
   updateIssue,
 }: CurrentIssueEditProps) => {
   console.log("selectedIssue", selectedIssue)
@@ -146,10 +144,10 @@ const CurrentIssueEdit = ({
   }
 
   return (
-    <Sheet open={isIssueSheetOpen && !!selectedIssue}>
+    <Sheet open={!!selectedIssue}>
       <SheetContent
         className="overflow-y-scroll w-full sm:max-w-md"
-        onClick={() => setIsIssueSheetOpen(false)}
+        onClick={removeIssue}
       >
         <SheetHeader>
           <SheetTitle>Edit Issue</SheetTitle>
@@ -307,7 +305,7 @@ const CurrentIssueEdit = ({
             <SheetFooter className="flex w-full gap-3 flex-row items-center mt-5">
               <SheetClose asChild>
                 <Button
-                  onClick={() => setIsIssueSheetOpen(false)}
+                  onClick={removeIssue}
                   className="flex-1"
                   variant="ghost"
                 >

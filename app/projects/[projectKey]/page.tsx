@@ -18,11 +18,6 @@ export interface PartialIssue extends Partial<Issue> {
   reporterId: string
 }
 
-export interface SelectedIssueState {
-  selectedIssue: PartialIssue | null
-  isIssueSheetOpen: boolean
-}
-
 const ProjectPage = async ({
   params: { projectKey },
 }: {
@@ -32,15 +27,13 @@ const ProjectPage = async ({
     useContext<ProjectContextData>(ProjectContext)
 
   const selectedIssueKey = useSearchParams().get("selectedIssue")
-  const selectedIssue = projectData?.issues.find(
+  const selectedIssueParam = projectData?.issues.find(
     (issue) => issue.issueKey === selectedIssueKey
   )
 
-  const [selectedIssueState, setSelectedIssueState] =
-    useState<SelectedIssueState>({
-      selectedIssue: selectedIssue ?? null,
-      isIssueSheetOpen: false,
-    })
+  const [selectedIssue, setSelectedIssue] = useState<PartialIssue | null>(
+    selectedIssueParam ?? null
+  )
 
   if (!projectData) {
     return <Loading />
@@ -66,15 +59,9 @@ const ProjectPage = async ({
       </h1>
       <CurrentIssueEdit
         deleteIssue={issueHandlers.deleteIssueMutation.mutate}
-        selectedIssue={selectedIssueState.selectedIssue}
+        selectedIssue={selectedIssue}
         projectUsers={projectData?.members}
-        isIssueSheetOpen={selectedIssueState.isIssueSheetOpen}
-        setIsIssueSheetOpen={(isOpen: boolean) =>
-          setSelectedIssueState((prev) => ({
-            ...prev,
-            isIssueSheetOpen: isOpen,
-          }))
-        }
+        removeIssue={() => setSelectedIssue(null)}
         updateIssue={issueHandlers.updateIssue}
       />
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-3">
@@ -85,7 +72,7 @@ const ProjectPage = async ({
             projectUsers={projectData?.members}
             boardIssueStatusType={status as IssueStatus}
             issueHandlers={issueHandlers}
-            setSelectedIssueState={setSelectedIssueState}
+            setSelectedIssue={setSelectedIssue}
           />
         ))}
       </div>
