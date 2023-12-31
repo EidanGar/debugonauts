@@ -1,4 +1,3 @@
-import { useState } from "react"
 import Image from "next/image"
 import {
   IssueData,
@@ -8,7 +7,6 @@ import {
   issueTypes,
 } from "@/prisma/zod/issues"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { type Issue } from "@prisma/client"
 import { UseMutateFunction } from "@tanstack/react-query"
 import { SubmitHandler, useForm } from "react-hook-form"
 
@@ -52,6 +50,8 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { Icons } from "@/components/icons"
 import { ProjectUser } from "@/app/api/projects/key/[projectKey]/route"
+
+import { SelectedIssueState } from "./page"
 
 export const MemberAvatar = ({
   image,
@@ -116,26 +116,30 @@ export const IssueActions = ({ issue, deleteIssue }: IssueActionsProps) => {
   )
 }
 
-interface CurrentIssueProps {
-  selectedIssue?: Issue
+interface CurrentIssueEditProps {
+  selectedIssue: SelectedIssueState["selectedIssue"]
   projectUsers: ProjectUser[]
   deleteIssue: UseMutateFunction<any, Error, string, unknown>
   isIssueSheetOpen: boolean
-  setIsIssueSheetOpen: React.Dispatch<React.SetStateAction<boolean>>
+  setIsIssueSheetOpen: (isOpen: boolean) => void
   updateIssue: UseMutateFunction<any, Error, IssueData, unknown>
 }
 
-const CurrentIssue = ({
+const CurrentIssueEdit = ({
   selectedIssue,
   projectUsers,
   deleteIssue,
   isIssueSheetOpen,
   setIsIssueSheetOpen,
   updateIssue,
-}: CurrentIssueProps) => {
+}: CurrentIssueEditProps) => {
+  console.log("selectedIssue", selectedIssue)
+
   const form = useForm<IssueData>({
     resolver: zodResolver(issueSchema),
-    defaultValues: { ...(selectedIssue as IssueData) },
+    defaultValues: {
+      ...(selectedIssue as IssueData),
+    },
   })
   const onSubmit: SubmitHandler<IssueData> = async (issueData) => {
     updateIssue({ ...issueData, id: selectedIssue?.id })
@@ -162,6 +166,7 @@ const CurrentIssue = ({
               <FormField
                 control={form.control}
                 name="title"
+                defaultValue={selectedIssue?.title ?? ""}
                 render={({ field }) => (
                   <FormItem className="w-full">
                     <FormControl>
@@ -177,13 +182,17 @@ const CurrentIssue = ({
                 )}
               />
               {selectedIssue && (
-                <IssueActions deleteIssue={deleteIssue} issue={selectedIssue} />
+                <IssueActions
+                  deleteIssue={deleteIssue}
+                  issue={selectedIssue as { id: string; issueKey: string }}
+                />
               )}
             </div>
             <div className="flex items-center w-full gap-3">
               <FormField
                 control={form.control}
                 name="issueType"
+                defaultValue={selectedIssue?.issueType}
                 render={({ field: { onChange, value } }) => (
                   <FormItem className="w-full">
                     <FormControl>
@@ -198,6 +207,7 @@ const CurrentIssue = ({
               <FormField
                 control={form.control}
                 name="status"
+                defaultValue={selectedIssue?.status}
                 render={({ field: { onChange, value } }) => (
                   <FormItem className="w-full">
                     <FormControl>
@@ -215,6 +225,7 @@ const CurrentIssue = ({
               <FormField
                 control={form.control}
                 name="assigneeId"
+                defaultValue={selectedIssue?.assigneeId}
                 render={({ field: { onChange, value } }) => (
                   <FormItem className="w-full">
                     <FormLabel>Assignee</FormLabel>
@@ -261,6 +272,7 @@ const CurrentIssue = ({
               <FormField
                 control={form.control}
                 name="priority"
+                defaultValue={selectedIssue?.priority}
                 render={({ field: { onChange, value } }) => (
                   <FormItem className="w-full">
                     <FormLabel>Priority level</FormLabel>
@@ -277,6 +289,7 @@ const CurrentIssue = ({
             <FormField
               control={form.control}
               name="description"
+              defaultValue={selectedIssue?.description ?? ""}
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormLabel>Description</FormLabel>
@@ -312,4 +325,4 @@ const CurrentIssue = ({
   )
 }
 
-export default CurrentIssue
+export default CurrentIssueEdit

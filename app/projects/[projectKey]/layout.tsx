@@ -83,9 +83,7 @@ export default function ProjectLayout({
       ([] as number[]))
   )
 
-  const projectUsers = projectData?.members
-
-  const projectMemberId = projectUsers?.find(
+  const projectMemberId = projectData?.members?.find(
     (member) => member.userId === session?.user?.id
   )?.id
 

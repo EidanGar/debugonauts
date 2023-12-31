@@ -2,25 +2,32 @@
 
 import { useContext, useState } from "react"
 import { useSearchParams } from "next/navigation"
-import { IssueData } from "@/prisma/zod/issues"
-import { IssueStatus } from "@prisma/client"
-import { UseMutateFunction } from "@tanstack/react-query"
+import { Issue, IssueStatus } from "@prisma/client"
 
 import { capitalize } from "@/lib/utils"
-import { useToast } from "@/components/ui/use-toast"
 import BreadCrumbs from "@/components/breadcrumbs"
 import Loading from "@/app/loading"
 
 import Board from "./board"
-import CurrentIssue from "./edit-issue"
+import CurrentIssueEdit from "./edit-issue"
 import { ProjectContext, ProjectContextData } from "./layout"
+
+export interface PartialIssue extends Partial<Issue> {
+  id: string
+  issueKey: string
+  reporterId: string
+}
+
+export interface SelectedIssueState {
+  selectedIssue: PartialIssue | null
+  isIssueSheetOpen: boolean
+}
 
 const ProjectPage = async ({
   params: { projectKey },
 }: {
   params: { projectKey: string }
 }) => {
-  const { toast } = useToast()
   const { projectData, session, issueHandlers } =
     useContext<ProjectContextData>(ProjectContext)
 
@@ -28,9 +35,12 @@ const ProjectPage = async ({
   const selectedIssue = projectData?.issues.find(
     (issue) => issue.issueKey === selectedIssueKey
   )
-  const [isIssueSheetOpen, setIsIssueSheetOpen] = useState(!!selectedIssue)
 
-  const projectUsers = projectData?.members
+  const [selectedIssueState, setSelectedIssueState] =
+    useState<SelectedIssueState>({
+      selectedIssue: selectedIssue ?? null,
+      isIssueSheetOpen: false,
+    })
 
   if (!projectData) {
     return <Loading />
@@ -54,30 +64,28 @@ const ProjectPage = async ({
       <h1 className="text-2xl font-medium leading-8 tracking-tighter md:text-4xl">
         {projectKey.slice(0, 3)} board
       </h1>
-      <CurrentIssue
+      <CurrentIssueEdit
         deleteIssue={issueHandlers.deleteIssueMutation.mutate}
-        selectedIssue={selectedIssue}
+        selectedIssue={selectedIssueState.selectedIssue}
         projectUsers={projectData?.members}
-        isIssueSheetOpen={isIssueSheetOpen}
-        setIsIssueSheetOpen={setIsIssueSheetOpen}
-        updateIssue={
-          issueHandlers.updateIssue as UseMutateFunction<
-            any,
-            Error,
-            IssueData,
-            unknown
-          >
+        isIssueSheetOpen={selectedIssueState.isIssueSheetOpen}
+        setIsIssueSheetOpen={(isOpen: boolean) =>
+          setSelectedIssueState((prev) => ({
+            ...prev,
+            isIssueSheetOpen: isOpen,
+          }))
         }
+        updateIssue={issueHandlers.updateIssue}
       />
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-3">
         {Object.entries(issuesByStatus).map(([status, issues]) => (
           <Board
             issues={issues}
             boardTitle={capitalize(status.split("_").join(" "))}
-            projectUsers={projectUsers}
+            projectUsers={projectData?.members}
             boardIssueStatusType={status as IssueStatus}
             issueHandlers={issueHandlers}
-            setIsIssueSheetOpen={setIsIssueSheetOpen}
+            setSelectedIssueState={setSelectedIssueState}
           />
         ))}
       </div>

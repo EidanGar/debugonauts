@@ -1,6 +1,4 @@
 import { useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
 import { IssueData } from "@/prisma/zod/issues"
 import { Issue, IssueStatus } from "@prisma/client"
 import { UseMutateFunction } from "@tanstack/react-query"
@@ -9,7 +7,7 @@ import { FaCheck as Check } from "react-icons/fa6"
 
 import { userConfig } from "@/lib/config/user"
 import { cn } from "@/lib/utils"
-import { Button, buttonVariants } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -29,23 +27,28 @@ import { ProjectUser } from "@/app/api/projects/key/[projectKey]/route"
 
 import { IssueActions, MemberAvatar } from "./edit-issue"
 import { IssueHandler } from "./layout"
+import { PartialIssue, SelectedIssueState } from "./page"
 
 interface BoardProps {
   issues: Issue[]
   boardTitle: string
   boardIssueStatusType: IssueStatus
   projectUsers?: ProjectUser[]
-  issueHandlers: Required<IssueHandler>
-  setIsIssueSheetOpen: React.Dispatch<React.SetStateAction<boolean>>
+  issueHandlers: IssueHandler
+  setSelectedIssueState: React.Dispatch<
+    React.SetStateAction<SelectedIssueState>
+  >
 }
 
 interface IssueProps {
   updateIssue: IssueHandler["updateIssue"]
-  issue: Partial<Issue>
+  issue: PartialIssue
   projectUsers?: ProjectUser[]
   isPending?: boolean
   deleteIssue: UseMutateFunction<any, Error, string, unknown>
-  setIsIssueSheetOpen: React.Dispatch<React.SetStateAction<boolean>>
+  setSelectedIssueState: React.Dispatch<
+    React.SetStateAction<SelectedIssueState>
+  >
 }
 
 export const IssueComponent = ({
@@ -54,15 +57,11 @@ export const IssueComponent = ({
   isPending = false,
   deleteIssue,
   updateIssue,
-  setIsIssueSheetOpen,
+  setSelectedIssueState,
 }: IssueProps) => {
   const [issueTitle, setIssueTitle] = useState("Untitled Issue")
   const [assigneeId, setAssigneeId] = useState<null | string>(null)
   const [isInputFocused, setIsInputFocused] = useState(false)
-  const pathname = usePathname()
-  const issueHref = `${pathname}/?selectedIssue=${issue.issueKey}`
-
-  if (!updateIssue || !deleteIssue) return
 
   const updateIssueAssignee = (val: string | null) => {
     setAssigneeId(val)
@@ -103,18 +102,19 @@ export const IssueComponent = ({
             />
           )}
         </div>
-        <Link
-          className={cn(
-            buttonVariants({
-              variant: "ghost",
-            }),
-            "h-5 px-2 py-4"
-          )}
-          href={issueHref}
-          onClick={() => setIsIssueSheetOpen(true)}
+        <Button
+          variant="ghost"
+          className="h-5 px-2 py-4"
+          onClick={() => {
+            console.log("Setting selected issue to:", issue)
+            setSelectedIssueState({
+              selectedIssue: issue,
+              isIssueSheetOpen: true,
+            })
+          }}
         >
           <Pencil className="w-4 h-4" />
-        </Link>
+        </Button>
         {issue.id && issue.issueKey && (
           <IssueActions
             deleteIssue={deleteIssue}
@@ -197,7 +197,7 @@ const Board = ({
   boardIssueStatusType,
   projectUsers,
   issueHandlers,
-  setIsIssueSheetOpen,
+  setSelectedIssueState,
 }: BoardProps) => {
   const pendingCreationIssue =
     issueHandlers.createIssueMutation.isPending &&
@@ -231,7 +231,7 @@ const Board = ({
                 key={issue.id}
                 updateIssue={issueHandlers.updateIssue}
                 issue={issue}
-                setIsIssueSheetOpen={setIsIssueSheetOpen}
+                setSelectedIssueState={setSelectedIssueState}
               />
             )
           })}
@@ -241,11 +241,11 @@ const Board = ({
               projectUsers={projectUsers}
               updateIssue={issueHandlers.updateIssue}
               deleteIssue={issueHandlers.deleteIssueMutation.mutate}
-              setIsIssueSheetOpen={setIsIssueSheetOpen}
+              setSelectedIssueState={setSelectedIssueState}
               issue={
                 {
                   ...pendingCreationIssue,
-                } as IssueData
+                } as PartialIssue
               }
             />
           )}
