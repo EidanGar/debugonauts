@@ -3,7 +3,6 @@
 import { createContext } from "react"
 import { IssueData } from "@/prisma/zod/issues"
 import {
-  UseMutateFunction,
   UseMutationResult,
   queryOptions,
   useMutation,
@@ -31,7 +30,12 @@ import NotFoundPage from "@/app/not-found"
 
 export interface IssueHandler {
   createIssueMutation: UseMutationResult<IssueData, Error, IssueData, unknown>
-  updateIssue: UseMutateFunction<any, Error, IssueData, unknown>
+  updateIssueMutation: UseMutationResult<
+    (issueData: IssueData) => Promise<any>,
+    Error,
+    IssueData,
+    unknown
+  >
   deleteIssueMutation: UseMutationResult<any, Error, string, unknown>
 }
 
@@ -46,7 +50,7 @@ export const ProjectContext = createContext<ProjectContextData>({
   session: null,
   issueHandlers: {
     createIssueMutation: {} as IssueHandler["createIssueMutation"],
-    updateIssue: {} as IssueHandler["updateIssue"],
+    updateIssueMutation: {} as IssueHandler["updateIssueMutation"],
     deleteIssueMutation: {} as IssueHandler["deleteIssueMutation"],
   },
 })
@@ -104,7 +108,7 @@ export default function ProjectLayout({
       queryClient.invalidateQueries({ queryKey: ["project", projectKey] }),
   })
 
-  const { mutate: updateIssue } = useMutation<
+  const updateIssueMutation: IssueHandler["updateIssueMutation"] = useMutation<
     () => Promise<(issueData: IssueData) => Promise<any>>,
     Error,
     IssueData,
@@ -117,6 +121,8 @@ export default function ProjectLayout({
         description: `Give it a second to show up on the board.`,
       })
     },
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: ["project", projectKey] }),
   })
 
   const deleteIssueMutation: IssueHandler["deleteIssueMutation"] = useMutation({
@@ -175,7 +181,7 @@ export default function ProjectLayout({
         session,
         issueHandlers: {
           createIssueMutation,
-          updateIssue,
+          updateIssueMutation,
           deleteIssueMutation,
         } as IssueHandler,
       }}

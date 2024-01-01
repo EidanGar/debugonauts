@@ -1,3 +1,4 @@
+import { useEffect, useMemo } from "react"
 import Image from "next/image"
 import {
   IssueData,
@@ -7,6 +8,7 @@ import {
   issueTypes,
 } from "@/prisma/zod/issues"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { IssueStatus, IssueType, Priority } from "@prisma/client"
 import { UseMutateFunction } from "@tanstack/react-query"
 import { SubmitHandler, useForm } from "react-hook-form"
 
@@ -120,7 +122,7 @@ interface CurrentIssueEditProps {
   selectedIssue: PartialIssue | null
   projectUsers: ProjectUser[]
   deleteIssue: UseMutateFunction<any, Error, string, unknown>
-  removeIssue: () => void
+  resetSelectedIssue: () => void
   updateIssue: UseMutateFunction<any, Error, IssueData, unknown>
 }
 
@@ -128,26 +130,35 @@ const CurrentIssueEdit = ({
   selectedIssue,
   projectUsers,
   deleteIssue,
-  removeIssue,
+  resetSelectedIssue,
   updateIssue,
 }: CurrentIssueEditProps) => {
   console.log("selectedIssue", selectedIssue)
+  const isIssueEditSheetOpen = !!selectedIssue
 
   const form = useForm<IssueData>({
     resolver: zodResolver(issueSchema),
     defaultValues: {
       ...(selectedIssue as IssueData),
     },
+    resetOptions: {
+      keepErrors: true,
+    },
   })
+
+  useEffect(() => {
+    form.reset({ ...(selectedIssue as IssueData) })
+  }, [form, selectedIssue])
+
   const onSubmit: SubmitHandler<IssueData> = async (issueData) => {
     updateIssue({ ...issueData, id: selectedIssue?.id })
   }
 
   return (
-    <Sheet open={!!selectedIssue}>
+    <Sheet open={isIssueEditSheetOpen}>
       <SheetContent
-        className="overflow-y-scroll w-full sm:max-w-md"
-        onClick={removeIssue}
+        className="w-full overflow-y-scroll sm:max-w-md"
+        onClick={resetSelectedIssue}
       >
         <SheetHeader>
           <SheetTitle>Edit Issue</SheetTitle>
@@ -219,7 +230,7 @@ const CurrentIssueEdit = ({
               />
             </div>
             <h3 className="w-full text-start">Issue details</h3>
-            <div className="flex gap-3 flex-col rounded-md items-center w-full p-3 bg-primary-foreground">
+            <div className="flex flex-col items-center w-full gap-3 p-3 rounded-md bg-primary-foreground">
               <FormField
                 control={form.control}
                 name="assigneeId"
@@ -302,17 +313,21 @@ const CurrentIssueEdit = ({
                 </FormItem>
               )}
             />
-            <SheetFooter className="flex w-full gap-3 flex-row items-center mt-5">
+            <SheetFooter className="flex flex-row items-center w-full gap-3 mt-5">
               <SheetClose asChild>
                 <Button
-                  onClick={removeIssue}
+                  onClick={resetSelectedIssue}
                   className="flex-1"
                   variant="ghost"
                 >
                   Cancel
                 </Button>
               </SheetClose>
-              <Button className="flex-1" type="submit">
+              <Button
+                onClick={resetSelectedIssue}
+                className="flex-1"
+                type="submit"
+              >
                 Save changes
               </Button>
             </SheetFooter>

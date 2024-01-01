@@ -39,7 +39,12 @@ interface BoardProps {
 }
 
 interface IssueProps {
-  updateIssue: IssueHandler["updateIssue"]
+  updateIssue: UseMutateFunction<
+    (issueData: IssueData) => Promise<IssueData>,
+    Error,
+    IssueData,
+    unknown
+  >
   issue: PartialIssue
   projectUsers?: ProjectUser[]
   isPending?: boolean
@@ -213,14 +218,26 @@ const Board = ({
               issueHandlers.deleteIssueMutation.isPending &&
               issueHandlers.deleteIssueMutation.variables === issue.id
 
+            const isIssuePendingUpdate =
+              issueHandlers.updateIssueMutation.isPending &&
+              issueHandlers.updateIssueMutation.variables.id === issue.id
+
+            // TODO: Issue data is not updated after a successful mutation
+            const issueData = isIssuePendingUpdate
+              ? ({
+                  ...issue,
+                  ...issueHandlers.updateIssueMutation.variables,
+                } as PartialIssue)
+              : issue
+
             return (
               <IssueComponent
-                isPending={isIssuePendingDeletion}
+                isPending={isIssuePendingDeletion && isIssuePendingUpdate}
                 projectUsers={projectUsers}
                 deleteIssue={issueHandlers.deleteIssueMutation.mutate}
                 key={issue.id}
-                updateIssue={issueHandlers.updateIssue}
-                issue={issue}
+                updateIssue={issueHandlers.updateIssueMutation.mutate}
+                issue={issueData}
                 setSelectedIssue={setSelectedIssue}
               />
             )
@@ -229,7 +246,7 @@ const Board = ({
             <IssueComponent
               isPending={true}
               projectUsers={projectUsers}
-              updateIssue={issueHandlers.updateIssue}
+              updateIssue={issueHandlers.updateIssueMutation.mutate}
               deleteIssue={issueHandlers.deleteIssueMutation.mutate}
               setSelectedIssue={setSelectedIssue}
               issue={

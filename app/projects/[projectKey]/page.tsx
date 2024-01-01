@@ -61,10 +61,10 @@ const ProjectPage = async ({
         deleteIssue={issueHandlers.deleteIssueMutation.mutate}
         selectedIssue={selectedIssue}
         projectUsers={projectData?.members}
-        removeIssue={() => setSelectedIssue(null)}
-        updateIssue={issueHandlers.updateIssue}
+        resetSelectedIssue={() => setSelectedIssue(null)}
+        updateIssue={issueHandlers.updateIssueMutation.mutate}
       />
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-3">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 md:gap-3">
         {Object.entries(issuesByStatus).map(([status, issues]) => (
           <Board
             issues={issues}
