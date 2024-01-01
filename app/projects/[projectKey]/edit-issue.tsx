@@ -1,14 +1,14 @@
-import { useEffect, useMemo } from "react"
+import { useEffect } from "react"
 import Image from "next/image"
 import {
   IssueData,
+  IssueReqData,
   issuePriorities,
   issueSchema,
   issueStatuses,
   issueTypes,
 } from "@/prisma/zod/issues"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { IssueStatus, IssueType, Priority } from "@prisma/client"
 import { UseMutateFunction } from "@tanstack/react-query"
 import { SubmitHandler, useForm } from "react-hook-form"
 
@@ -53,8 +53,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { Icons } from "@/components/icons"
 import { ProjectUser } from "@/app/api/projects/key/[projectKey]/route"
 
-import { PartialIssue } from "./page"
-
 export const MemberAvatar = ({
   image,
   name,
@@ -80,7 +78,7 @@ interface IssueActionsProps {
     id: string
     issueKey: string
   }
-  deleteIssue: UseMutateFunction<() => Promise<any>, Error, string, unknown>
+  deleteIssue: UseMutateFunction<string, Error, string, unknown>
 }
 
 export const IssueActions = ({ issue, deleteIssue }: IssueActionsProps) => {
@@ -119,11 +117,11 @@ export const IssueActions = ({ issue, deleteIssue }: IssueActionsProps) => {
 }
 
 interface CurrentIssueEditProps {
-  selectedIssue: PartialIssue | null
+  selectedIssue: IssueData | null
   projectUsers: ProjectUser[]
-  deleteIssue: UseMutateFunction<any, Error, string, unknown>
+  deleteIssue: UseMutateFunction<string, Error, string, unknown>
   resetSelectedIssue: () => void
-  updateIssue: UseMutateFunction<any, Error, IssueData, unknown>
+  updateIssue: UseMutateFunction<IssueData, Error, IssueReqData, unknown>
 }
 
 const CurrentIssueEdit = ({
@@ -133,13 +131,10 @@ const CurrentIssueEdit = ({
   resetSelectedIssue,
   updateIssue,
 }: CurrentIssueEditProps) => {
-  console.log("selectedIssue", selectedIssue)
-  const isIssueEditSheetOpen = !!selectedIssue
-
-  const form = useForm<IssueData>({
+  const form = useForm<IssueReqData>({
     resolver: zodResolver(issueSchema),
     defaultValues: {
-      ...(selectedIssue as IssueData),
+      ...(selectedIssue as IssueReqData),
     },
     resetOptions: {
       keepErrors: true,
@@ -147,15 +142,16 @@ const CurrentIssueEdit = ({
   })
 
   useEffect(() => {
-    form.reset({ ...(selectedIssue as IssueData) })
+    form.reset({ ...(selectedIssue as IssueReqData) })
   }, [form, selectedIssue])
 
-  const onSubmit: SubmitHandler<IssueData> = async (issueData) => {
+  const onSubmit: SubmitHandler<IssueReqData> = async (issueData) => {
+    if (!selectedIssue) return
     updateIssue({ ...issueData, id: selectedIssue?.id })
   }
 
   return (
-    <Sheet open={isIssueEditSheetOpen}>
+    <Sheet open={!!selectedIssue}>
       <SheetContent
         className="w-full overflow-y-scroll sm:max-w-md"
         onClick={resetSelectedIssue}

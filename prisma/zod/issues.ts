@@ -1,4 +1,12 @@
-import { IssueStatus, IssueType, Priority } from "@prisma/client"
+import {
+  Comment,
+  Issue,
+  IssueStatus,
+  IssueType,
+  Priority,
+  ProjectMember,
+  Tag,
+} from "@prisma/client"
 import {
   ArrowDownIcon,
   ArrowRightIcon,
@@ -97,4 +105,11 @@ export const issueSchema = z.object({
   ),
 })
 
-export type IssueData = z.infer<typeof issueSchema>
+export type IssueReqData = z.infer<typeof issueSchema>
+
+export interface IssueData extends Issue {
+  assignee: ProjectMember | null
+  comments: Comment[]
+  reporter: ProjectMember
+  tags: Tag[]
+}

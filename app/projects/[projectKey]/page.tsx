@@ -2,6 +2,7 @@
 
 import { useContext, useState } from "react"
 import { useSearchParams } from "next/navigation"
+import { IssueData } from "@/prisma/zod/issues"
 import { Issue, IssueStatus } from "@prisma/client"
 
 import { capitalize } from "@/lib/utils"
@@ -31,7 +32,7 @@ const ProjectPage = async ({
     (issue) => issue.issueKey === selectedIssueKey
   )
 
-  const [selectedIssue, setSelectedIssue] = useState<PartialIssue | null>(
+  const [selectedIssue, setSelectedIssue] = useState<IssueData | null>(
     selectedIssueParam ?? null
   )
 

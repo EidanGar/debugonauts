@@ -1,6 +1,15 @@
-import { IssueData } from "@/prisma/zod/issues"
+import { IssueData, IssueReqData } from "@/prisma/zod/issues"
 
 import prisma from "@/lib/db"
+
+export interface CreateIssueResponse {
+  isError: boolean
+  issue: IssueData | null
+  error: {
+    title: string
+    description: string
+  } | null
+}
 
 export const createProjectIssue = (
   projectKey: string,
@@ -14,7 +23,7 @@ export const createProjectIssue = (
     issueKey: `${projectKey}-${largestIssueIdx + 1}`,
   }
 
-  return async (issueData: IssueData) => {
+  return async (issueData: IssueReqData): Promise<IssueData> => {
     const response = await fetch(`/api/projects/${projectId}/issues`, {
       method: "POST",
       body: JSON.stringify({
@@ -24,8 +33,14 @@ export const createProjectIssue = (
     })
 
     if (!response.ok) throw new Error("Failed to create issue")
-    const data = await response.json()
-    return data
+
+    const data: CreateIssueResponse = await response.json()
+
+    if (data.isError || data.issue == null) {
+      throw new Error(JSON.stringify(data, null, 2))
+    }
+
+    return data.issue
   }
 }
 
@@ -106,7 +121,7 @@ export async function DELETE(req: Request, { params: { projectId } }: Params) {
 }
 
 export const POST = async (req: Request, { params: { projectId } }: Params) => {
-  const issueReqData: IssueData & {
+  const issueReqData: IssueReqData & {
     issueKey: string
     reporterId: string
   } = await req.json()
@@ -119,11 +134,29 @@ export const POST = async (req: Request, { params: { projectId } }: Params) => {
   console.log("Issue data", issueData)
 
   // create issue
-  const issue = await prisma.issue.create({
+  const issue = (await prisma.issue.create({
     data: {
       ...issueData,
     },
-  })
+    select: {
+      comments: true,
+      assignee: true,
+      tags: true,
+      reporter: true,
+      assigneeId: true,
+      description: true,
+      id: true,
+      issueKey: true,
+      issueType: true,
+      priority: true,
+      projectId: true,
+      reporterId: true,
+      status: true,
+      title: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  })) as IssueData
 
   console.log("Issue", issue)
 
@@ -136,7 +169,7 @@ export const POST = async (req: Request, { params: { projectId } }: Params) => {
           title: "Issue not found",
           description: "Issue not found",
         },
-      }),
+      } as CreateIssueResponse),
       {
         status: 404,
       }
@@ -148,7 +181,7 @@ export const POST = async (req: Request, { params: { projectId } }: Params) => {
       isError: false,
       issue,
       error: null,
-    }),
+    } as CreateIssueResponse),
     {
       headers: {
         "content-type": "application/json",

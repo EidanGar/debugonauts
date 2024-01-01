@@ -1,14 +1,23 @@
-import { IssueData } from "@/prisma/zod/issues"
+import { IssueData, IssueReqData } from "@/prisma/zod/issues"
 
 import prisma from "@/lib/db"
 
 interface Params {
   params: {
-    projectId: string
+    issueId: string
   }
 }
 
-export const deleteProjectIssue = async (issueId: string) => {
+export interface DeleteIssueResponse {
+  isError: boolean
+  issueId: string
+  error: {
+    title: string
+    description: string
+  } | null
+}
+
+export const deleteProjectIssue = async (issueId: string): Promise<string> => {
   const response = await fetch(`/api/issues/${issueId}`, {
     method: "DELETE",
   })
@@ -17,16 +26,27 @@ export const deleteProjectIssue = async (issueId: string) => {
     console.error("Failed to delete issue")
   }
 
-  const data = await response.json()
+  const data: DeleteIssueResponse = await response.json()
 
-  if (data.isError) {
+  if (data.isError || data.issueId == null) {
     throw new Error(JSON.stringify(data, null, 2))
   }
 
-  return data
+  return data.issueId
 }
 
-export const updateProjectIssue = async (issueData: IssueData) => {
+export interface UpdateIssueResponse {
+  isError: boolean
+  issue: IssueData | null
+  error: {
+    title: string
+    description: string
+  } | null
+}
+
+export const updateProjectIssue = async (
+  issueData: IssueReqData
+): Promise<IssueData> => {
   const response = await fetch(`/api/issues/${issueData.id}`, {
     method: "PATCH",
     headers: {
@@ -36,20 +56,17 @@ export const updateProjectIssue = async (issueData: IssueData) => {
   })
 
   if (!response.ok) throw new Error("Failed to update issue")
-  const data = await response.json()
-  return data
+
+  const data: UpdateIssueResponse = await response.json()
+
+  if (data.isError || data.issue == null) {
+    throw new Error(JSON.stringify(data, null, 2))
+  }
+
+  return data.issue
 }
 
-export const DELETE = async (
-  req: Request,
-  {
-    params: { issueId },
-  }: {
-    params: {
-      issueId: string
-    }
-  }
-) => {
+export const DELETE = async (req: Request, { params: { issueId } }: Params) => {
   // delete issue
   await prisma.issue
     .delete({
@@ -62,7 +79,7 @@ export const DELETE = async (
         JSON.stringify({
           isError: true,
           error: e ?? "Record to delete does not exist.",
-        }),
+        } as DeleteIssueResponse),
         {
           status: 500,
         }
@@ -72,26 +89,18 @@ export const DELETE = async (
   return new Response(
     JSON.stringify({
       isError: false,
+      issueId,
       error: null,
-    }),
+    } as DeleteIssueResponse),
     {
       status: 200,
     }
   )
 }
 
-export const PATCH = async (
-  req: Request,
-  {
-    params: { issueId },
-  }: {
-    params: {
-      issueId: string
-    }
-  }
-) => {
+export const PATCH = async (req: Request, { params: { issueId } }: Params) => {
   // update issue
-  const issueReqData: IssueData & {
+  const issueReqData: IssueReqData & {
     issueKey?: string
     reporterId?: string
   } = await req.json()
@@ -99,16 +108,32 @@ export const PATCH = async (
   console.log("Issue data", issueReqData)
 
   // update issue
-  const issue = await prisma.issue.update({
+  const issue = (await prisma.issue.update({
     where: {
       id: issueId,
     },
     data: {
       ...issueReqData,
     },
-  })
-
-  console.log("Issue", issue)
+    select: {
+      comments: true,
+      assignee: true,
+      tags: true,
+      reporter: true,
+      assigneeId: true,
+      description: true,
+      id: true,
+      issueKey: true,
+      issueType: true,
+      priority: true,
+      projectId: true,
+      reporterId: true,
+      status: true,
+      title: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  })) as IssueData
 
   if (!issue) {
     return new Response(
@@ -119,7 +144,7 @@ export const PATCH = async (
           title: "Issue not found",
           description: "Issue not found",
         },
-      }),
+      } as UpdateIssueResponse),
       {
         status: 404,
       }
@@ -131,7 +156,7 @@ export const PATCH = async (
       isError: false,
       issue,
       error: null,
-    }),
+    } as UpdateIssueResponse),
     {
       headers: {
         "content-type": "application/json",

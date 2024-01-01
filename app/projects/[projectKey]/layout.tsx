@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext } from "react"
-import { IssueData } from "@/prisma/zod/issues"
+import { IssueData, IssueReqData } from "@/prisma/zod/issues"
 import {
   UseMutationResult,
   queryOptions,
@@ -29,14 +29,19 @@ import Loading from "@/app/loading"
 import NotFoundPage from "@/app/not-found"
 
 export interface IssueHandler {
-  createIssueMutation: UseMutationResult<IssueData, Error, IssueData, unknown>
-  updateIssueMutation: UseMutationResult<
-    (issueData: IssueData) => Promise<any>,
-    Error,
+  createIssueMutation: UseMutationResult<
     IssueData,
+    Error,
+    IssueReqData,
     unknown
   >
-  deleteIssueMutation: UseMutationResult<any, Error, string, unknown>
+  updateIssueMutation: UseMutationResult<
+    IssueData,
+    Error,
+    IssueReqData,
+    unknown
+  >
+  deleteIssueMutation: UseMutationResult<string, Error, string, unknown>
 }
 
 export interface ProjectContextData {
@@ -91,13 +96,15 @@ export default function ProjectLayout({
     (member) => member.userId === session?.user?.id
   )?.id
 
+  const createIssueFn = createProjectIssue(
+    projectKey,
+    largestIssueIdx,
+    projectData?.id,
+    projectMemberId
+  )
+
   const createIssueMutation: IssueHandler["createIssueMutation"] = useMutation({
-    mutationFn: createProjectIssue(
-      projectKey,
-      largestIssueIdx,
-      projectData?.id,
-      projectMemberId
-    ),
+    mutationFn: createIssueFn,
     onSuccess: () => {
       toast({
         title: "Issue created",
@@ -108,12 +115,7 @@ export default function ProjectLayout({
       queryClient.invalidateQueries({ queryKey: ["project", projectKey] }),
   })
 
-  const updateIssueMutation: IssueHandler["updateIssueMutation"] = useMutation<
-    () => Promise<(issueData: IssueData) => Promise<any>>,
-    Error,
-    IssueData,
-    unknown
-  >({
+  const updateIssueMutation: IssueHandler["updateIssueMutation"] = useMutation({
     mutationFn: updateProjectIssue,
     onSuccess: () => {
       toast({

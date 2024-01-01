@@ -1,6 +1,6 @@
 import { useState } from "react"
-import { IssueData } from "@/prisma/zod/issues"
-import { Issue, IssueStatus } from "@prisma/client"
+import { IssueData, IssueReqData } from "@/prisma/zod/issues"
+import { IssueStatus } from "@prisma/client"
 import { UseMutateFunction } from "@tanstack/react-query"
 import { FaPencilAlt as Pencil } from "react-icons/fa"
 import { FaCheck as Check } from "react-icons/fa6"
@@ -27,29 +27,23 @@ import { ProjectUser } from "@/app/api/projects/key/[projectKey]/route"
 
 import { IssueActions, MemberAvatar } from "./edit-issue"
 import { IssueHandler } from "./layout"
-import { PartialIssue } from "./page"
 
 interface BoardProps {
-  issues: Issue[]
+  issues: IssueData[]
   boardTitle: string
   boardIssueStatusType: IssueStatus
   projectUsers?: ProjectUser[]
   issueHandlers: IssueHandler
-  setSelectedIssue: React.Dispatch<React.SetStateAction<PartialIssue | null>>
+  setSelectedIssue: React.Dispatch<React.SetStateAction<IssueData | null>>
 }
 
 interface IssueProps {
-  updateIssue: UseMutateFunction<
-    (issueData: IssueData) => Promise<IssueData>,
-    Error,
-    IssueData,
-    unknown
-  >
-  issue: PartialIssue
+  updateIssue: UseMutateFunction<IssueData, Error, IssueReqData, unknown>
+  issue: IssueData
   projectUsers?: ProjectUser[]
   isPending?: boolean
-  deleteIssue: UseMutateFunction<any, Error, string, unknown>
-  setSelectedIssue: React.Dispatch<React.SetStateAction<PartialIssue | null>>
+  deleteIssue: UseMutateFunction<string, Error, string, unknown>
+  setSelectedIssue: React.Dispatch<React.SetStateAction<IssueData | null>>
 }
 
 export const IssueComponent = ({
@@ -69,14 +63,14 @@ export const IssueComponent = ({
     updateIssue({
       id: issue?.id,
       assigneeId: val,
-    } as IssueData)
+    } as IssueReqData)
   }
 
   const updateIssueTitle = () => {
     updateIssue({
       id: issue?.id,
       title: issueTitle,
-    } as IssueData)
+    } as IssueReqData)
   }
 
   return (
@@ -197,7 +191,7 @@ const Board = ({
   const pendingCreationIssue =
     issueHandlers.createIssueMutation.isPending &&
     issueHandlers.createIssueMutation.variables.status === boardIssueStatusType
-      ? (issueHandlers.createIssueMutation.variables as IssueData)
+      ? (issueHandlers.createIssueMutation.variables as IssueReqData)
       : undefined
 
   const createIssue = () => {
@@ -223,11 +217,11 @@ const Board = ({
               issueHandlers.updateIssueMutation.variables.id === issue.id
 
             // TODO: Issue data is not updated after a successful mutation
-            const issueData = isIssuePendingUpdate
-              ? ({
+            const issueData: IssueData = isIssuePendingUpdate
+              ? {
                   ...issue,
                   ...issueHandlers.updateIssueMutation.variables,
-                } as PartialIssue)
+                }
               : issue
 
             return (
@@ -252,7 +246,7 @@ const Board = ({
               issue={
                 {
                   ...pendingCreationIssue,
-                } as PartialIssue
+                } as IssueData
               }
             />
           )}

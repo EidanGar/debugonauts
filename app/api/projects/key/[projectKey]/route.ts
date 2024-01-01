@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server"
-import { Issue, Project, ProjectMember, Team, User } from "@prisma/client"
+import { IssueData } from "@/prisma/zod/issues"
+import { Project, ProjectMember, Team, User } from "@prisma/client"
 import { getToken } from "next-auth/jwt"
 
 import prisma from "@/lib/db"
@@ -23,7 +24,7 @@ export type ProjectUser = ProjectMember & {
 
 export interface FullProject extends Project {
   members: ProjectUser[]
-  issues: Issue[]
+  issues: IssueData[]
   projectLead: User | null
   teams: Team[]
   User: User | null
