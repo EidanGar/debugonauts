@@ -1,8 +1,8 @@
-import { useEffect } from "react"
-import Image from "next/image"
+import { useEffect, useState } from "react"
 import {
   IssueData,
   IssueReqData,
+  IssueWithComment,
   issuePriorities,
   issueSchema,
   issueStatuses,
@@ -12,16 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { UseMutateFunction } from "@tanstack/react-query"
 import { SubmitHandler, useForm } from "react-hook-form"
 
-import { userConfig } from "@/lib/config/user"
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import {
   Form,
   FormControl,
@@ -50,78 +41,44 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { Textarea } from "@/components/ui/textarea"
+import { useToast } from "@/components/ui/use-toast"
 import { Icons } from "@/components/icons"
+import { CommentReqData } from "@/app/api/issues/[issueId]/comment/route"
 import { ProjectUser } from "@/app/api/projects/key/[projectKey]/route"
 
-export const MemberAvatar = ({
-  image,
-  name,
-  size = 36,
-}: {
-  image?: string | null
-  name?: string
-  size?: number
-}) => {
-  return (
-    <Image
-      width={size}
-      height={size}
-      className="object-cover duration-300 rounded-full cursor-pointer hover:ring-4 hover:ring-accent"
-      alt={name ?? "Unassigned user"}
-      src={image ?? userConfig.defaultUserImage}
-    />
-  )
-}
-
-interface IssueActionsProps {
-  issue: {
-    id: string
-    issueKey: string
-  }
-  deleteIssue: UseMutateFunction<string, Error, string, unknown>
-}
-
-export const IssueActions = ({ issue, deleteIssue }: IssueActionsProps) => {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger className="flex justify-end" asChild>
-        <Button variant="ghost" className="h-5 p-2 py-4">
-          <Icons.moreHorizontal className="w-4 h-4 ml-auto" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <span>Copy issue link</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <span>Copy issue key</span>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <span>Move issue</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <span>Edit issue</span>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => deleteIssue(issue.id)}>
-          <span>Delete issue</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  )
-}
+import { IssueActions, MemberAvatar } from "./board"
+import { IssueHandler } from "./layout"
 
 interface CurrentIssueEditProps {
-  selectedIssue: IssueData | null
+  selectedIssue: IssueWithComment | null
   projectUsers: ProjectUser[]
   deleteIssue: UseMutateFunction<string, Error, string, unknown>
   resetSelectedIssue: () => void
   updateIssue: UseMutateFunction<IssueData, Error, IssueReqData, unknown>
+  createCommentMutation: IssueHandler["createCommentMutation"]
+  projectMemberId: string | null
+}
+
+interface CommentAndUser {
+  user: ProjectUser["user"]
+  comment: ProjectUser["comments"][0]
+}
+
+const Comment = ({ comment, user }: CommentAndUser) => {
+  return (
+    <div className="w-full p-3 rounded-md bg-primary-foreground">
+      <div className="flex items-center justify-between w-full gap-2">
+        <div className="flex items-center gap-2">
+          <MemberAvatar size={28} image={user.image} name={user.name} />
+          <span>{user.name}</span>
+        </div>
+        <span className="text-xs text-primary-text">
+          {new Date(comment.createdAt).toLocaleString()}
+        </span>
+      </div>
+      <p className="w-full mt-2 text-sm text-primary-text">{comment.content}</p>
+    </div>
+  )
 }
 
 const CurrentIssueEdit = ({
@@ -130,7 +87,10 @@ const CurrentIssueEdit = ({
   deleteIssue,
   resetSelectedIssue,
   updateIssue,
+  createCommentMutation,
+  projectMemberId,
 }: CurrentIssueEditProps) => {
+  const { toast } = useToast()
   const form = useForm<IssueReqData>({
     resolver: zodResolver(issueSchema),
     defaultValues: {
@@ -140,6 +100,61 @@ const CurrentIssueEdit = ({
       keepErrors: true,
     },
   })
+
+  const [newCommentContent, setNewCommentContent] = useState<string | null>(
+    null
+  )
+
+  const [issueCommentsWithUsers, setIssueCommentsWithUsers] = useState<
+    CommentAndUser[]
+  >([])
+
+  const commentsWithUsers = selectedIssue?.comments.map((comment) => ({
+    comment,
+    user: projectUsers.find((member) => member.id === comment.authorId)?.user,
+  }))
+
+  const createComment = () => {
+    if (!selectedIssue || !newCommentContent || !projectMemberId) return
+
+    createCommentMutation.mutate(
+      {
+        issueId: selectedIssue?.id as string,
+        commentData: {
+          content: newCommentContent as string,
+          authorId: projectMemberId,
+        },
+      } as {
+        issueId: string
+        commentData: CommentReqData
+      },
+      {
+        onSettled(data) {
+          if (!data) return
+
+          const user = projectUsers.find(
+            (member) => member.id === data.authorId
+          )?.user as ProjectUser["user"]
+
+          setIssueCommentsWithUsers((prev) => [
+            ...prev,
+            {
+              comment: data,
+              user,
+            },
+          ])
+        },
+        onError: (error) => {
+          toast({
+            title: "Error creating comment",
+            description: error.message,
+          })
+        },
+      }
+    )
+
+    setNewCommentContent(null)
+  }
 
   useEffect(() => {
     form.reset({ ...(selectedIssue as IssueReqData) })
@@ -329,6 +344,30 @@ const CurrentIssueEdit = ({
             </SheetFooter>
           </form>
         </Form>
+        <div className="flex flex-col items-center w-full gap-3 mt-5">
+          <div className="flex items-center justify-between w-full gap-2">
+            <h3 className="font-medium">Comments</h3>
+            <Button variant="ghost" onClick={() => setNewCommentContent("")}>
+              <Icons.plus className="w-4 h-4" />
+            </Button>
+          </div>
+          <div className="flex flex-col w-full gap-3">
+            {[
+              ...((commentsWithUsers ?? []) as CommentAndUser[]),
+              ...(issueCommentsWithUsers as CommentAndUser[]),
+            ]?.map(({ comment, user }) => (
+              <Comment key={comment.id} comment={comment} user={user} />
+            ))}
+            {newCommentContent !== null && (
+              <div className="flex flex-col items-end w-full gap-3 p-3 rounded-md bg-primary-foreground">
+                <Textarea
+                  onChange={(e) => setNewCommentContent(e.target.value)}
+                />
+                <Button onClick={createComment}>Comment</Button>
+              </div>
+            )}
+          </div>
+        </div>
       </SheetContent>
     </Sheet>
   )

@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server"
 import { IssueData } from "@/prisma/zod/issues"
-import { Project, ProjectMember, Team, User } from "@prisma/client"
+import { Comment, Project, ProjectMember, Team, User } from "@prisma/client"
 import { getToken } from "next-auth/jwt"
 
 import prisma from "@/lib/db"
@@ -20,6 +20,7 @@ interface Params {
 
 export type ProjectUser = ProjectMember & {
   user: User
+  comments: Comment[]
 }
 
 export interface FullProject extends Project {
@@ -69,6 +70,7 @@ export async function GET(
       members: {
         include: {
           user: true,
+          comments: true,
         },
       },
       name: true,
@@ -82,7 +84,11 @@ export async function GET(
       id: true,
       issues: {
         include: {
-          comments: true,
+          comments: {
+            include: {
+              author: true,
+            },
+          },
           assignee: true,
           tags: true,
           reporter: true,

@@ -116,7 +116,6 @@ export const PATCH = async (req: Request, { params: { issueId } }: Params) => {
       ...issueReqData,
     },
     select: {
-      comments: true,
       assignee: true,
       tags: true,
       reporter: true,

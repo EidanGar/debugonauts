@@ -2,6 +2,7 @@
 
 import { createContext } from "react"
 import { IssueData, IssueReqData } from "@/prisma/zod/issues"
+import { Comment } from "@prisma/client"
 import {
   UseMutationResult,
   queryOptions,
@@ -15,6 +16,10 @@ import { useSession } from "next-auth/react"
 import { useToast } from "@/components/ui/use-toast"
 import { Icons } from "@/components/icons"
 import { SidebarNav } from "@/components/sidebar-nav"
+import {
+  CommentReqData,
+  createCommentFn,
+} from "@/app/api/issues/[issueId]/comment/route"
 import {
   deleteProjectIssue,
   updateProjectIssue,
@@ -42,6 +47,15 @@ export interface IssueHandler {
     unknown
   >
   deleteIssueMutation: UseMutationResult<string, Error, string, unknown>
+  createCommentMutation: UseMutationResult<
+    Comment,
+    Error,
+    {
+      issueId: string
+      commentData: CommentReqData
+    },
+    unknown
+  >
 }
 
 export interface ProjectContextData {
@@ -57,6 +71,7 @@ export const ProjectContext = createContext<ProjectContextData>({
     createIssueMutation: {} as IssueHandler["createIssueMutation"],
     updateIssueMutation: {} as IssueHandler["updateIssueMutation"],
     deleteIssueMutation: {} as IssueHandler["deleteIssueMutation"],
+    createCommentMutation: {} as IssueHandler["createCommentMutation"],
   },
 })
 
@@ -139,6 +154,13 @@ export default function ProjectLayout({
       queryClient.invalidateQueries({ queryKey: ["project", projectKey] }),
   })
 
+  const createCommentMutation: IssueHandler["createCommentMutation"] =
+    useMutation({
+      mutationFn: createCommentFn,
+      onSettled: () =>
+        queryClient.invalidateQueries({ queryKey: ["project", projectKey] }),
+    })
+
   if (error) {
     toast({
       title: error?.name,
@@ -185,6 +207,7 @@ export default function ProjectLayout({
           createIssueMutation,
           updateIssueMutation,
           deleteIssueMutation,
+          createCommentMutation,
         } as IssueHandler,
       }}
     >

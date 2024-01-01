@@ -1,5 +1,6 @@
 import { useState } from "react"
-import { IssueData, IssueReqData } from "@/prisma/zod/issues"
+import Image from "next/image"
+import { IssueData, IssueReqData, IssueWithComment } from "@/prisma/zod/issues"
 import { IssueStatus } from "@prisma/client"
 import { UseMutateFunction } from "@tanstack/react-query"
 import { FaPencilAlt as Pencil } from "react-icons/fa"
@@ -17,33 +18,108 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { Icons } from "@/components/icons"
 import { ProjectUser } from "@/app/api/projects/key/[projectKey]/route"
 
-import { IssueActions, MemberAvatar } from "./edit-issue"
 import { IssueHandler } from "./layout"
 
 interface BoardProps {
-  issues: IssueData[]
+  issues: IssueWithComment[]
   boardTitle: string
   boardIssueStatusType: IssueStatus
   projectUsers?: ProjectUser[]
   issueHandlers: IssueHandler
-  setSelectedIssue: React.Dispatch<React.SetStateAction<IssueData | null>>
+  setSelectedIssue: React.Dispatch<
+    React.SetStateAction<IssueWithComment | null>
+  >
 }
 
 interface IssueProps {
   updateIssue: UseMutateFunction<IssueData, Error, IssueReqData, unknown>
-  issue: IssueData
+  issue: IssueWithComment
   projectUsers?: ProjectUser[]
   isPending?: boolean
   deleteIssue: UseMutateFunction<string, Error, string, unknown>
-  setSelectedIssue: React.Dispatch<React.SetStateAction<IssueData | null>>
+  setSelectedIssue: React.Dispatch<
+    React.SetStateAction<IssueWithComment | null>
+  >
+}
+
+export const MemberAvatar = ({
+  image,
+  name,
+  size = 36,
+}: {
+  image?: string | null
+  name?: string
+  size?: number
+}) => {
+  return (
+    <Image
+      width={size}
+      height={size}
+      className="object-cover duration-300 rounded-full cursor-pointer hover:ring-4 hover:ring-accent"
+      alt={name ?? "Unassigned user"}
+      src={image ?? userConfig.defaultUserImage}
+    />
+  )
+}
+
+interface IssueActionsProps {
+  issue: {
+    id: string
+    issueKey: string
+  }
+  deleteIssue: UseMutateFunction<string, Error, string, unknown>
+}
+
+export const IssueActions = ({ issue, deleteIssue }: IssueActionsProps) => {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger className="flex justify-end" asChild>
+        <Button variant="ghost" className="h-5 p-2 py-4">
+          <Icons.moreHorizontal className="w-4 h-4 ml-auto" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuGroup>
+          <DropdownMenuItem>
+            <span>Copy issue link</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <span>Copy issue key</span>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuItem>
+            <span>Move issue</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <span>Edit issue</span>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => deleteIssue(issue.id)}>
+          <span>Delete issue</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
 }
 
 export const IssueComponent = ({
@@ -217,7 +293,7 @@ const Board = ({
               issueHandlers.updateIssueMutation.variables.id === issue.id
 
             // TODO: Issue data is not updated after a successful mutation
-            const issueData: IssueData = isIssuePendingUpdate
+            const issueData: IssueWithComment = isIssuePendingUpdate
               ? {
                   ...issue,
                   ...issueHandlers.updateIssueMutation.variables,
@@ -246,7 +322,7 @@ const Board = ({
               issue={
                 {
                   ...pendingCreationIssue,
-                } as IssueData
+                } as IssueWithComment
               }
             />
           )}

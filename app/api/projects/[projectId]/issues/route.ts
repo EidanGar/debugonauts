@@ -158,8 +158,6 @@ export const POST = async (req: Request, { params: { projectId } }: Params) => {
     },
   })) as IssueData
 
-  console.log("Issue", issue)
-
   if (!issue) {
     return new Response(
       JSON.stringify({

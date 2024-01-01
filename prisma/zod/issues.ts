@@ -6,6 +6,7 @@ import {
   Priority,
   ProjectMember,
   Tag,
+  User,
 } from "@prisma/client"
 import {
   ArrowDownIcon,
@@ -105,11 +106,14 @@ export const issueSchema = z.object({
   ),
 })
 
+export interface IssueWithComment extends IssueData {
+  comments: Comment[]
+}
+
 export type IssueReqData = z.infer<typeof issueSchema>
 
 export interface IssueData extends Issue {
   assignee: ProjectMember | null
-  comments: Comment[]
   reporter: ProjectMember
   tags: Tag[]
 }

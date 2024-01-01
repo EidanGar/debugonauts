@@ -30,10 +30,8 @@ model User {
   organization       String?
   bannerImage        String?
   leadingProjects    Project[]       @relation("ProjectLead")
-  comments           Comment[]
   notifications      Notification[]
   projectMembers     ProjectMember[]
-  teamMembers        TeamMember[]
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
   accountId          String?         @unique
@@ -90,13 +88,13 @@ model Team {
 }
 
 model TeamMember {
-  id        String   @id @default(uuid())
+  id        String        @id @default(uuid())
   teamId    String
   userId    String
-  role      Role     @default(TESTER)
-  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+  role      Role          @default(TESTER)
+  team      Team          @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user      ProjectMember @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime      @default(now())
 
   @@unique([teamId, userId])
 }
@@ -136,15 +134,17 @@ model Project {
 }
 
 model ProjectMember {
-  id             String   @id @default(uuid())
+  id             String       @id @default(uuid())
   projectId      String
   userId         String
-  assignedIssues Issue[]  @relation("IssueAssignee")
-  reportedIssues Issue[]  @relation("IssueReporter")
-  role           Role     @default(TESTER)
-  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt      DateTime @default(now())
+  assignedIssues Issue[]      @relation("IssueAssignee")
+  reportedIssues Issue[]      @relation("IssueReporter")
+  comments       Comment[]
+  teamMembers    TeamMember[]
+  role           Role         @default(TESTER)
+  project        Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
 
   @@unique([projectId, userId])
 }
@@ -192,13 +192,13 @@ enum IssueType {
 }
 
 model Comment {
-  id        String   @id @default(uuid())
+  id        String        @id @default(uuid())
   content   String
   issueId   String
   authorId  String
-  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  issue     Issue    @relation(fields: [issueId], references: [id])
-  createdAt DateTime @default(now())
+  author    ProjectMember @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  issue     Issue         @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  createdAt DateTime      @default(now())
 }
 
 model Tag {
