@@ -23,6 +23,14 @@ With Debugonauts, you can manage multiple projects, create and assign tasks, and
 - NextAuth: For user authentication.
 - Zod: For input validation.
 
+## Sneak Peek
+![Debugonauts-Home-Dark.png](https://i.postimg.cc/Vs4yPMJr/Debugonauts-Home-Dark.png)
+<!-- ![Debugonauts-Home-Light.png](https://i.postimg.cc/7hKj1vFM/Debugonauts-Home-Light.png) -->
+![Debugonauts-Projects-Dark.png](https://i.postimg.cc/5y4ZF9R2/Debugonauts-Projects-Dark.png)
+<!-- ![Debugonauts-Projects-Light.png](https://i.postimg.cc/HxgGd905/Debugonauts-Projects-Light.png) -->
+![Debugonauts-Project-Dark.png](https://i.postimg.cc/ZRFGRvjQ/Debugonauts-Project-Dark.png)
+<!-- ![Debugonauts-Project-Light.png](https://i.postimg.cc/mrMxv59B/Debugonauts-Project-Light.png) -->
+
 ## Database
 
 [![Debugonauts-DB.png](https://i.postimg.cc/4xJDMk3Q/Debugonauts-DB-1.png)](https://postimg.cc/1VHqQ2fX)
